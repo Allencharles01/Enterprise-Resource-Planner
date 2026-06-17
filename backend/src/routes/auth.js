@@ -118,5 +118,6 @@ authRouter.post("/login", async (req, res) => {
 });
 
 authRouter.get("/me", requireAuth, async (req, res) => {
-  res.json({ auth: req.auth });
+  const user = await UserModel.findById(req.auth.sub);
+  res.json({ auth: req.auth, user: { name: user?.name } });
 });

@@ -42,9 +42,11 @@ export default function LoginPage() {
           : { orgSlug, email, password };
       const response = await axios.post(`${apiUrl}/api/auth/login`, payload);
       setMessage("Login successful! Redirecting...");
-      // Save token to localStorage
+      // Save token and user details to localStorage
       localStorage.setItem("token", response.data.token);
-      console.log("Token saved");
+      localStorage.setItem("userName", response.data.user.name);
+      localStorage.setItem("userRole", response.data.user.role);
+      console.log("Token and user details saved");
       // Simulate redirection to dashboard
       setTimeout(() => {
         router.push("/");

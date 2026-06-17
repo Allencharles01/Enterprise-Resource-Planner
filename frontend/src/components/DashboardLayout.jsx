@@ -20,6 +20,7 @@ import { DirectoryModal } from "./DirectoryModal";
 import { AdminsModal } from "./AdminsModal";
 import { NewRequestsModal } from "./NewRequestsModal";
 import { ManualEmployeeModal } from "./ManualEmployeeModal";
+import { api } from "@/lib/api";
 
 export function DashboardLayout({ children, adminName = "Admin" }) {
   const router = useRouter();
@@ -34,6 +35,7 @@ export function DashboardLayout({ children, adminName = "Admin" }) {
   const [isDepartmentDropdownOpen, setIsDepartmentDropdownOpen] =
     useState(false);
   const [toastMessage, setToastMessage] = useState(null);
+  const [displayName, setDisplayName] = useState(adminName ? adminName.split(" ")[0] : "Admin");
   const calendarRef = useRef(null);
   const dropdownRef = useRef(null);
   const deptDropdownRef = useRef(null);
@@ -63,6 +65,26 @@ export function DashboardLayout({ children, adminName = "Admin" }) {
     if (!token) {
       router.push("/login");
       return;
+    }
+
+    const fetchUser = async () => {
+      try {
+        const { data } = await api.get("/api/auth/me");
+        if (data.user?.name) {
+          const firstName = data.user.name.split(" ")[0];
+          setDisplayName(firstName);
+          localStorage.setItem("userName", data.user.name);
+        }
+      } catch (err) {
+        console.error("Failed to fetch user info", err);
+      }
+    };
+
+    const storedName = localStorage.getItem("userName");
+    if (storedName) {
+      setDisplayName(storedName.split(" ")[0]);
+    } else {
+      fetchUser();
     }
     // Close calendar on outside click
     const handleClickOutside = (event) => {
@@ -137,7 +159,7 @@ export function DashboardLayout({ children, adminName = "Admin" }) {
                 </Link>
                 <div>
                   <h1 className="text-xl font-bold text-foreground">
-                    Welcome {adminName}
+                    Welcome back, {displayName}
                   </h1>
                   <p className="text-xs font-medium text-gradient">
                     Admin Level Access
