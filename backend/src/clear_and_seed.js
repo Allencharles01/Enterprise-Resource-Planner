@@ -91,7 +91,7 @@ async function seed() {
     const user = await UserModel.create({
       orgId: org._id,
       name: "Allen Charles",
-      email: "Allchar", // Using login ID as email to allow login if the system uses email field for login ID
+      email: "allchar", // Using login ID as email, stored lowercase to match login logic
       passwordHash,
       role: "super_admin",
       isActive: true,
