@@ -1,0 +1,20 @@
+{
+  "name": "erp",
+  "private": true,
+  "workspaces": [
+    "frontend",
+    "backend",
+    "DBMS",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "concurrently -n api,web -c blue,green \"npm --prefix backend run dev\" \"npm --prefix frontend run dev\"",
+    "build": "npm --prefix backend run build && npm --prefix frontend run build",
+    "lint": "npm --prefix backend run lint && npm --prefix frontend run lint",
+    "typecheck": "npm --prefix backend run typecheck && npm --prefix frontend run typecheck"
+  },
+  "devDependencies": {
+    "concurrently": "^9.2.1",
+    "detype": "^2.0.8"
+  }
+}
