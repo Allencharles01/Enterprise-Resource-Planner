@@ -1,13 +1,13 @@
 import { Inter } from "next/font/google";
 import "./globals.css";
 
+import { ThemeProvider } from "@/components/theme-provider";
+import { AnimatedBackground } from "@/components/AnimatedBackground";
+
 const inter = Inter({
   variable: "--font-inter",
   subsets: ["latin"],
 });
-
-import { ThemeProvider } from "@/components/theme-provider";
-import { AnimatedBackground } from "@/components/AnimatedBackground";
 
 export const metadata = {
   title: "ERP System - Login",
@@ -21,7 +21,10 @@ export default function RootLayout({ children }) {
       className={`${inter.variable} h-full antialiased`}
       suppressHydrationWarning
     >
-      <body className="min-h-full flex flex-col" suppressHydrationWarning>
+      <body
+        className="min-h-full flex flex-col"
+        suppressHydrationWarning
+      >
         <ThemeProvider
           attribute="class"
           defaultTheme="system"
