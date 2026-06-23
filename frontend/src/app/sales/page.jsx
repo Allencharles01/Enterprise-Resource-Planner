@@ -6,12 +6,16 @@ import SalesTabs from "@/components/sales/SalesTabs";
 import StatsCards from "@/components/sales/StatsCards";
 import ProjectsTable from "@/components/sales/ProjectsTable";
 
+import InternshipDashboard from "@/components/sales/internships/InternshipDashboard";
+import TrainingDashboard from "@/components/sales/training/TrainingDashboard";
+
 export default function SalesPage() {
   const [activeTab, setActiveTab] = useState("Client Projects");
 
   return (
     <DashboardLayout>
-      <div className="space-y-8">
+  <div className="px-6 py-8 space-y-8">
+      
         <div>
           <h1 className="text-3xl font-bold text-foreground">
             Sales Dashboard
@@ -27,9 +31,22 @@ export default function SalesPage() {
           setActiveTab={setActiveTab}
         />
 
-        <StatsCards />
+       {activeTab === "Client Projects" && (
+  <>
+    <StatsCards />
+    <ProjectsTable />
+  </>
+)}
 
-        <ProjectsTable />
+{activeTab === "Internships" && (
+  <InternshipDashboard />
+)}
+
+{activeTab === "Training" && (
+  <TrainingDashboard />
+)}
+
+
       </div>
     </DashboardLayout>
   );
