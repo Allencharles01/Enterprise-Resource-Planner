@@ -1,0 +1,14 @@
+{
+  "name": "digital-marketing-dashboard",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "postinstall": "npm install --prefix backend --cache ./.npm-cache/backend && npm install --prefix frontend --cache ./.npm-cache/frontend",
+    "install:all": "npm install",
+    "dev": "concurrently \"npm run dev --prefix backend\" \"npm run dev --prefix frontend\"",
+    "seed": "npm run seed --prefix backend"
+  },
+  "dependencies": {
+    "concurrently": "^9.1.2"
+  }
+}
