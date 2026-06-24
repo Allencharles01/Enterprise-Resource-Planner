@@ -48,7 +48,7 @@ export default function TrainingEnrollmentChart() {
         </div>
       </div>
 
-      <div className="h-[550px] mt-6">
+      <div className="h-[400px] mt-6">
         <ResponsiveContainer width="100%" height="100%">
           <BarChart
             data={enrollmentData}
