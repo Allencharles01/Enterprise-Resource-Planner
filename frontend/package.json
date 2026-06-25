@@ -1,4 +1,26 @@
 {
+<<<<<<< HEAD
+  "name": "digital-marketing-dashboard-frontend",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "@tailwindcss/postcss": "latest",
+    "framer-motion": "latest",
+    "lucide-react": "latest",
+    "next": "latest",
+    "react": "latest",
+    "react-dom": "latest",
+    "recharts": "latest",
+    "socket.io-client": "latest",
+    "tailwindcss": "latest"
+=======
   "name": "web",
   "version": "0.1.0",
   "private": true,
@@ -22,5 +44,6 @@
     "eslint": "^9",
     "eslint-config-next": "16.2.6",
     "tailwindcss": "^4"
+>>>>>>> 24ea7a44f9cd1f7fec147b566fc4de1f6a4960d0
   }
 }

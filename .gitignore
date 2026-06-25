@@ -1,4 +1,12 @@
 node_modules
+<<<<<<< HEAD
+frontend/node_modules
+.npm-cache
+.next
+dist
+.env
+*.log
+=======
 .next
 dist
 .turbo
@@ -8,3 +16,4 @@ dist
 coverage
 .DS_Store
 
+>>>>>>> 24ea7a44f9cd1f7fec147b566fc4de1f6a4960d0

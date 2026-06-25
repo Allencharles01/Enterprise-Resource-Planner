@@ -1,3 +1,19 @@
+<<<<<<< HEAD
+# Digital Marketing Dashboard
+
+Standalone full-stack dashboard built with Next.js, Express, MongoDB, Mongoose, Socket.io, Tailwind CSS, Framer Motion, Recharts, and Lucide React.
+
+## Run
+
+1. Start MongoDB locally, or set `MONGO_URI` in `backend/.env`.
+2. Install dependencies:
+
+```bash
+npm run install:all
+```
+
+3. Start the app:
+=======
 # ERP Project
 
 Welcome to the ERP project! This project is set up as a monorepo containing both the frontend (Next.js) and backend (Node.js/Express) applications.
@@ -51,11 +67,20 @@ copy .env.example .env.local
 
 ### 3. Run the Application
 Navigate back to the root folder of the project (`cd ..`) and run the start script:
+>>>>>>> 24ea7a44f9cd1f7fec147b566fc4de1f6a4960d0
 
 ```bash
 npm run dev
 ```
 
+<<<<<<< HEAD
+Frontend: `http://localhost:3000`
+
+Backend: `http://localhost:5000`
+
+The backend creates the required MongoDB collections on startup without inserting dummy data. All dashboard cards, charts, filters, tables, activities, and modal data are loaded from MongoDB through the backend API. Socket.io emits `dashboardUpdated` after database changes so the frontend refreshes automatically.
+=======
 This single command will start both the backend API (on port `4001`) and the frontend web app (on port `3001`) concurrently! 
 
 Open [http://localhost:3001](http://localhost:3001) in your browser to view the application.
+>>>>>>> 24ea7a44f9cd1f7fec147b566fc4de1f6a4960d0

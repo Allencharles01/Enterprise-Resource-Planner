@@ -1,4 +1,24 @@
 {
+<<<<<<< HEAD
+  "name": "digital-marketing-dashboard-backend",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "nodemon src/server.js",
+    "start": "node src/server.js",
+    "seed": "node src/seed.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "mongoose": "^8.9.5",
+    "socket.io": "^4.8.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.9"
+=======
   "name": "api",
   "version": "1.0.0",
   "private": true,
@@ -30,5 +50,6 @@
   "devDependencies": {
     "@eslint/js": "^9.34.0",
     "eslint": "^9.34.0"
+>>>>>>> 24ea7a44f9cd1f7fec147b566fc4de1f6a4960d0
   }
 }
