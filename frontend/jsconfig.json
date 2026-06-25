@@ -2,7 +2,11 @@
   "compilerOptions": {
     "baseUrl": ".",
     "paths": {
+<<<<<<< HEAD
       "@/*": ["./*"]
+=======
+      "@/*": ["./src/*"]
+>>>>>>> 24ea7a44f9cd1f7fec147b566fc4de1f6a4960d0
     }
   }
 }

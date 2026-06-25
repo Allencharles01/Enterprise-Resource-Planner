@@ -1,4 +1,5 @@
 {
+<<<<<<< HEAD
   "name": "digital-marketing-dashboard-frontend",
   "version": "1.0.0",
   "private": true,
@@ -19,5 +20,30 @@
     "recharts": "latest",
     "socket.io-client": "latest",
     "tailwindcss": "latest"
+=======
+  "name": "web",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev -p 3001",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint"
+  },
+  "dependencies": {
+    "axios": "^1.16.1",
+    "framer-motion": "^12.38.0",
+    "lucide-react": "^1.16.0",
+    "next": "16.2.6",
+    "next-themes": "^0.4.6",
+    "react": "19.2.4",
+    "react-dom": "19.2.4"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4",
+    "eslint": "^9",
+    "eslint-config-next": "16.2.6",
+    "tailwindcss": "^4"
+>>>>>>> 24ea7a44f9cd1f7fec147b566fc4de1f6a4960d0
   }
 }
