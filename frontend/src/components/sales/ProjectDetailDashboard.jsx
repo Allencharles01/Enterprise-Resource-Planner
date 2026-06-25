@@ -233,34 +233,78 @@ const teamMembers = [
   },
 ];
 
+const departmentManagers = [
+  {
+    title: "Lead Manager",
+    name: "Sarah Johnson",
+    department: "Project Management",
+    color: "emerald",
+  },
+  {
+    title: "Frontend Manager",
+    name: "Maria Garcia",
+    department: "Frontend",
+    color: "amber",
+  },
+  {
+    title: "Backend Manager",
+    name: "Alex Thompson",
+    department: "Backend",
+    color: "cyan",
+  },
+  {
+    title: "Security Manager",
+    name: "James Wilson",
+    department: "Network & Security",
+    color: "orange",
+  },
+  {
+    title: "Database Manager",
+    name: "James Wilson",
+    department: "Database Management",
+    color: "violet",
+  },
+  {
+    title: "QA Manager",
+    name: "Emily Chen",
+    department: "Testing & QA",
+    color: "emerald",
+  },
+];
+
 const currentTasks = [
   {
     title: "Database Schema Design",
     member: "James Wilson",
+    department: "Database Management",
     status: "Completed",
     priority: "High",
   },
   {
     title: "API Development",
     member: "Alex Thompson",
+    department: "Backend",
     status: "In Progress",
     priority: "High",
   },
   {
     title: "UI Component Library",
     member: "Maria Garcia",
+    department: "Frontend",
     status: "In Progress",
     priority: "Medium",
   },
   {
     title: "Authentication Module",
     member: "Alex Thompson",
+    department: "Backend",
     status: "Completed",
     priority: "High",
   },
   {
     title: "Testing & QA",
     member: "Emily Chen",
+    department: "Testing & QA",
     status: "Pending",
     priority: "Medium",
   },
@@ -738,176 +782,268 @@ export default function ProjectDetailDashboard({ project, onBack }) {
         </button>
       </div>
 
-      <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
-        {/* Team Members */}
-        <div className="glass-card rounded-2xl border border-border p-7">
+      <div className="grid grid-cols-1 xl:grid-cols-2 gap-5">
+  {/* Department Managers Table */}
+  <div className="glass-card rounded-2xl border border-border p-5">
+    <h2 className="text-lg font-bold text-foreground">
+      Department Managers
+    </h2>
+
+    <p className="text-sm text-muted-foreground mt-1 mb-5">
+      Department-wise project leads and managers
+    </p>
+
+    <div className="overflow-hidden rounded-xl border border-border">
+      <table className="w-full table-fixed">
+        <thead>
+          <tr className="border-b border-border bg-muted/30">
+            <th className="w-[34%] text-left px-4 py-3 text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+  Role & Manager
+</th>
+<th className="w-[46%] text-left px-4 py-3 text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+  Department
+</th>
+<th className="w-[20%] text-right px-4 py-3 text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+  Status
+</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          {departmentManagers.map((manager) => (
+            <tr
+              key={manager.title}
+              className="border-b border-border/60 last:border-b-0 hover:bg-muted/20 transition"
+            >
+              <td className="px-4 py-3">
+                <p className="text-sm font-semibold text-foreground leading-snug">
+                  {manager.title}
+                </p>
+                <p className="text-xs text-muted-foreground mt-1">
+                  {manager.name}
+                </p>
+              </td>
+
+              <td className="px-4 py-3">
+                <span className="inline-flex items-center whitespace-nowrap px-2.5 py-1 rounded-full text-[11px] font-medium bg-primary/10 text-primary border border-primary/20">
+  {manager.department}
+</span>
+              </td>
+
+              <td className="px-4 py-3 text-right">
+                <span className="inline-flex px-2.5 py-1 rounded-full text-[11px] font-medium bg-emerald-500/10 text-emerald-500 border border-emerald-500/20">
+                  Active
+                </span>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  {/* Current Tasks Table */}
+  <div className="glass-card rounded-2xl border border-border p-5">
+    <h2 className="text-lg font-bold text-foreground">
+      Current Tasks
+    </h2>
+
+    <p className="text-sm text-muted-foreground mt-1 mb-5">
+      Active and pending tasks with department details
+    </p>
+
+    <div className="overflow-hidden rounded-xl border border-border">
+      <table className="w-full table-fixed">
+        <thead>
+          <tr className="border-b border-border bg-muted/30">
+            <th className="w-[36%] text-left px-4 py-3 text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+              Task & Member
+            </th>
+            <th className="w-[26%] text-left px-4 py-3 text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+              Department
+            </th>
+            <th className="w-[20%] text-right px-4 py-3 text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+              Status
+            </th>
+            <th className="w-[18%] text-right px-4 py-3 text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+              Priority
+            </th>
+          </tr>
+        </thead>
+
+        <tbody>
+          {currentTasks.map((task) => (
+            <tr
+              key={task.title}
+              className="border-b border-border/60 last:border-b-0 hover:bg-muted/20 transition"
+            >
+              <td className="px-4 py-3">
+                <p className="text-sm font-semibold text-foreground leading-snug">
+                  {task.title}
+                </p>
+                <p className="text-xs text-muted-foreground mt-1">
+                  {task.member}
+                </p>
+              </td>
+
+              <td className="px-4 py-3">
+                <span className="inline-flex max-w-full px-2.5 py-1 rounded-full text-[11px] font-medium bg-primary/10 text-primary border border-primary/20 leading-snug">
+                  {task.department}
+                </span>
+              </td>
+
+              <td className="px-4 py-3 text-right">
+  <span
+    className={`inline-flex items-center justify-center whitespace-nowrap min-w-[88px] px-2.5 py-1 rounded-full text-[11px] font-medium border ${statusStyle(
+      task.status
+    )}`}
+  >
+    {task.status}
+  </span>
+</td>
+
+              <td className="px-4 py-3 text-right">
+                <span
+                  className={`inline-flex px-2.5 py-1 rounded-full text-[11px] font-medium border ${priorityStyle(
+                    task.priority
+                  )}`}
+                >
+                  {task.priority}
+                </span>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+{/* Detailed Team Modal */}
+{showTeamModal && (
+  <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-md flex items-center justify-center p-4">
+    <div className="w-full max-w-5xl max-h-[80vh] overflow-y-auto rounded-2xl bg-background border border-border shadow-2xl">
+      <div className="sticky top-0 z-10 px-5 py-4 border-b border-border bg-background/95 backdrop-blur-xl flex items-start justify-between">
+        <div>
           <h2 className="text-xl font-bold text-foreground">
-            Team Members
+            Detailed Team View
           </h2>
 
-          <p className="text-muted-foreground mt-1 mb-8">
-            Active project contributors
+          <p className="text-sm text-muted-foreground mt-1">
+            Individual contributions and workload breakdown
           </p>
+        </div>
 
-          <div className="space-y-7">
-            {teamMembers.map((member) => (
-              <div
-                key={member.name}
-                className="flex items-center justify-between"
-              >
-                <div className="flex items-center gap-4">
-                  <div className="w-11 h-11 rounded-full bg-muted flex items-center justify-center text-sm font-bold text-foreground">
+        <button
+          onClick={() => setShowTeamModal(false)}
+          className="w-10 h-10 rounded-full bg-red-500 text-white flex items-center justify-center hover:scale-105 hover:shadow-lg hover:shadow-red-500/30 transition"
+        >
+          <X size={18} />
+        </button>
+      </div>
+
+      <div className="p-5 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+        {teamMembers.map((member) => {
+          const theme =
+            member.department === "Frontend"
+              ? {
+                  avatar: "bg-amber-500/10 text-amber-400 border-amber-500/30",
+                  glow: "from-amber-500/12 to-transparent border-amber-500/20 hover:shadow-amber-500/20",
+                  badge: "bg-amber-500/10 text-amber-400 border-amber-500/20",
+                }
+              : member.department === "Backend"
+              ? {
+                  avatar: "bg-cyan-500/10 text-cyan-400 border-cyan-500/30",
+                  glow: "from-cyan-500/12 to-transparent border-cyan-500/20 hover:shadow-cyan-500/20",
+                  badge: "bg-cyan-500/10 text-cyan-400 border-cyan-500/20",
+                }
+              : member.department === "Testing"
+              ? {
+                  avatar: "bg-emerald-500/10 text-emerald-400 border-emerald-500/30",
+                  glow: "from-emerald-500/12 to-transparent border-emerald-500/20 hover:shadow-emerald-500/20",
+                  badge: "bg-emerald-500/10 text-emerald-400 border-emerald-500/20",
+                }
+              : {
+                  avatar: "bg-primary/10 text-primary border-primary/30",
+                  glow: "from-primary/12 to-transparent border-primary/20 hover:shadow-primary/20",
+                  badge: "bg-primary/10 text-primary border-primary/20",
+                };
+
+          return (
+            <div
+              key={member.name}
+              className={`
+                relative overflow-hidden rounded-2xl border p-4
+                bg-gradient-to-br ${theme.glow}
+                shadow-md transition-all duration-300
+                hover:-translate-y-1 hover:shadow-xl
+              `}
+            >
+              <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(99,102,241,0.12),transparent_38%)]" />
+
+              <div className="relative z-10">
+                <div className="flex items-center gap-3 mb-5">
+                  <div
+                    className={`
+                      w-11 h-11 rounded-xl border flex items-center justify-center
+                      text-sm font-bold ${theme.avatar}
+                    `}
+                  >
                     {member.initials}
                   </div>
 
                   <div>
-                    <h3 className="font-semibold text-foreground">
+                    <h3 className="text-base font-bold text-foreground">
                       {member.name}
                     </h3>
 
-                    <p className="text-sm text-muted-foreground">
+                    <p className="text-xs text-muted-foreground mt-1">
                       {member.role}
                     </p>
                   </div>
                 </div>
 
-                <span className="px-3 py-1 rounded-full text-xs font-medium bg-emerald-500/10 text-emerald-500 border border-emerald-500/20">
-                  Active
-                </span>
-              </div>
-            ))}
-          </div>
-        </div>
+                <div className="grid grid-cols-2 gap-3 mb-4">
+                  <div className="rounded-xl bg-background/60 p-3 text-center border border-border">
+                    <h4 className="text-xl font-bold text-foreground">
+                      {member.tasksDone}
+                    </h4>
 
-        {/* Current Tasks */}
-        <div className="glass-card rounded-2xl border border-border p-7">
-          <h2 className="text-xl font-bold text-foreground">
-            Current Tasks
-          </h2>
+                    <p className="text-[11px] text-muted-foreground mt-1">
+                      Tasks Done
+                    </p>
+                  </div>
 
-          <p className="text-muted-foreground mt-1 mb-8">
-            Active and pending tasks
-          </p>
+                  <div className="rounded-xl bg-background/60 p-3 text-center border border-border">
+                    <h4 className="text-xl font-bold text-foreground">
+                      {member.hours}
+                    </h4>
 
-          <div className="space-y-5">
-            {currentTasks.map((task) => (
-              <div
-                key={task.title}
-                className="border-b border-border pb-5 last:border-b-0 last:pb-0 flex items-center justify-between gap-6"
-              >
-                <div>
-                  <h3 className="font-semibold text-foreground">
-                    {task.title}
-                  </h3>
-
-                  <p className="text-sm text-muted-foreground mt-1">
-                    {task.member}
-                  </p>
+                    <p className="text-[11px] text-muted-foreground mt-1">
+                      Hours Logged
+                    </p>
+                  </div>
                 </div>
 
-                <div className="flex flex-col items-end gap-2">
+                <div className="flex items-center justify-between">
                   <span
-                    className={`px-3 py-1 rounded-full text-xs font-medium border ${statusStyle(
-                      task.status
-                    )}`}
+                    className={`px-2.5 py-1 rounded-full text-[11px] font-semibold border ${theme.badge}`}
                   >
-                    {task.status}
+                    {member.department}
                   </span>
 
-                  <span
-                    className={`px-3 py-1 rounded-full text-xs font-medium border ${priorityStyle(
-                      task.priority
-                    )}`}
-                  >
-                    {task.priority}
+                  <span className="px-2.5 py-1 rounded-full text-[11px] font-semibold bg-emerald-500/10 text-emerald-500 border border-emerald-500/20">
+                    Active
                   </span>
                 </div>
               </div>
-            ))}
-          </div>
-        </div>
+            </div>
+          );
+        })}
       </div>
-
-      {/* Detailed Team Modal */}
-      {showTeamModal && (
-        <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="w-full max-w-5xl max-h-[85vh] overflow-y-auto rounded-2xl bg-background border border-border shadow-2xl">
-            <div className="p-6 border-b border-border flex items-start justify-between">
-              <div>
-                <h2 className="text-2xl font-bold text-foreground">
-                  Detailed Team View
-                </h2>
-
-                <p className="text-muted-foreground mt-1">
-                  Individual contributions and workload breakdown
-                </p>
-              </div>
-
-              <button
-                onClick={() => setShowTeamModal(false)}
-                className="p-3 rounded-full bg-red-500 text-white hover:scale-105 transition"
-              >
-                <X size={18} />
-              </button>
-            </div>
-
-            <div className="p-6 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
-              {teamMembers.map((member) => (
-                <div
-                  key={member.name}
-                  className="rounded-2xl border border-border p-5 bg-muted/20"
-                >
-                  <div className="flex items-center gap-4 mb-5">
-                    <div className="w-12 h-12 rounded-full bg-muted flex items-center justify-center font-bold text-foreground">
-                      {member.initials}
-                    </div>
-
-                    <div>
-                      <h3 className="font-semibold text-foreground">
-                        {member.name}
-                      </h3>
-
-                      <p className="text-sm text-muted-foreground">
-                        {member.role}
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-3 mb-4">
-                    <div className="rounded-xl bg-background p-4 text-center border border-border">
-                      <h4 className="text-xl font-bold text-foreground">
-                        {member.tasksDone}
-                      </h4>
-                      <p className="text-xs text-muted-foreground">
-                        Tasks Done
-                      </p>
-                    </div>
-
-                    <div className="rounded-xl bg-background p-4 text-center border border-border">
-                      <h4 className="text-xl font-bold text-foreground">
-                        {member.hours}
-                      </h4>
-                      <p className="text-xs text-muted-foreground">
-                        Hours Logged
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center justify-between">
-                    <span className="px-3 py-1 rounded-full text-xs font-medium bg-muted text-foreground">
-                      {member.department}
-                    </span>
-
-                    <span className="px-3 py-1 rounded-full text-xs font-medium bg-emerald-500/10 text-emerald-500 border border-emerald-500/20">
-                      Active
-                    </span>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      )}
+    </div>
+  </div>
+)}
     </div>
   );
 }
