@@ -11,6 +11,8 @@ const EmployeeSchema = new Schema(
     userId: { type: Schema.Types.ObjectId, ref: "User" },
     employeeCode: { type: String, required: true, trim: true },
     employeeNumber: { type: String, trim: true },
+    tag: { type: String, trim: true, index: true },
+    isPhantom: { type: Boolean, default: false, index: true },
     personal: {
       firstName: { type: String, required: true, trim: true },
       lastName: { type: String, trim: true },

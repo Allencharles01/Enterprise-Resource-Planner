@@ -45,6 +45,13 @@ export default function NewProjectPage() {
   const [basicDetails, setBasicDetails] = useState({
     projectTitle: "",
     clientName: "",
+    clientPhone: "",
+    clientCountryCode: "+1",
+    clientEmail: "",
+    budget: "",
+    currency: "USD ($)",
+    projectDetails: "",
+    files: [],
     projectLead: null,
     deadline: "",
   });

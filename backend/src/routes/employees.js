@@ -9,12 +9,15 @@ export const employeesRouter = Router();
 employeesRouter.get("/", requireAuth, async (req, res) => {
   const orgId = req.auth.orgId;
   const employees = await EmployeeModel.find({ orgId })
-    .sort({ createdAt: -1 })
-    .limit(100);
+    .sort({ employeeNumber: 1, createdAt: 1 })
+    .limit(5000);
   res.json(
     employees.map((e) => ({
       id: String(e._id),
       employeeCode: e.employeeCode,
+      employeeNumber: e.employeeNumber,
+      tag: e.tag,
+      isPhantom: e.isPhantom,
       personal: e.personal,
       work: e.work,
     })),
