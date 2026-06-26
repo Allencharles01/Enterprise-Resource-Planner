@@ -1,26 +1,50 @@
 "use client";
 
-import { useState } from "react";
-import { UserRound } from "lucide-react";
-import { internsData } from "./internshipData";
+import { useState, useEffect } from "react";
+import { UserRound, Loader2 } from "lucide-react";
+import { api } from "@/lib/api";
 import InternProfileModal from "./InternProfileModal";
 
 export default function InternshipTable() {
+  const [interns, setInterns] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState("All");
   const [selectedIntern, setSelectedIntern] = useState(null);
 
-  const filteredInterns = internsData.filter((intern) => {
+  useEffect(() => {
+    api.get("/api/internships/candidates")
+      .then((res) => {
+        const list = (res.data || []).map((item) => ({
+          id: item._id,
+          name: item.name,
+          email: item.email,
+          program: item.courseName,
+          department: item.education || "Engineering",
+          duration: item.duration || "3 months",
+          mentor: item.salesAgent || "Allen Charles",
+          progress: item.progress || 0,
+          placement: item.status === "Completed" ? "Placed" : "Under Review",
+          status: item.status || "Active",
+          ...item
+        }));
+        setInterns(list);
+      })
+      .catch((err) => console.error(err))
+      .finally(() => setLoading(false));
+  }, []);
+
+  const filteredInterns = interns.filter((intern) => {
     if (filter === "All") return true;
     if (filter === "Active") return intern.status === "Active";
     if (filter === "Dropped") return intern.status === "Dropped Out";
     return true;
   });
 
-  const activeCount = internsData.filter(
+  const activeCount = interns.filter(
     (i) => i.status === "Active"
   ).length;
 
-  const droppedCount = internsData.filter(
+  const droppedCount = interns.filter(
     (i) => i.status === "Dropped Out"
   ).length;
 
@@ -49,7 +73,7 @@ export default function InternshipTable() {
                   : "bg-background"
               }`}
             >
-              All Interns ({internsData.length})
+              All Interns ({interns.length})
             </button>
 
             <button

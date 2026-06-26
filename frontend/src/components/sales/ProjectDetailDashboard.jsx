@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import {
   ArrowLeft,
   Building2,
@@ -20,7 +20,7 @@ import {
   Circle,
 } from "lucide-react";
 
-const taskGroups = [
+const staticTaskGroups = [
   {
     name: "Frontend",
     icon: LayoutDashboard,
@@ -151,7 +151,7 @@ const taskGroups = [
   },
 ];
 
-const milestones = [
+const staticMilestones = [
   {
     name: "Requirements Gathering",
     date: "Jan 15, 2026",
@@ -190,42 +190,42 @@ const milestones = [
   },
 ];
 
-const teamMembers = [
+const staticTeamMembers = [
   {
-    initials: "SJ",
-    name: "Sarah Johnson",
-    role: "Project Manager",
+    initials: "AC",
+    name: "Allen Charles",
+    role: "Project Lead",
     department: "Management",
     tasksDone: 12,
     hours: "148h",
   },
   {
-    initials: "AT",
-    name: "Alex Thompson",
-    role: "Lead Developer",
-    department: "Backend",
+    initials: "EC",
+    name: "Ekta Chaudhary",
+    role: "Frontend Lead",
+    department: "Frontend",
     tasksDone: 18,
     hours: "210h",
   },
   {
-    initials: "MG",
-    name: "Maria Garcia",
+    initials: "KM",
+    name: "Kanak Mehta",
     role: "UI/UX Designer",
     department: "Frontend",
     tasksDone: 15,
     hours: "176h",
   },
   {
-    initials: "JW",
-    name: "James Wilson",
+    initials: "LS",
+    name: "Liam Smith",
     role: "Backend Developer",
     department: "Backend",
     tasksDone: 20,
     hours: "224h",
   },
   {
-    initials: "EC",
-    name: "Emily Chen",
+    initials: "OJ",
+    name: "Oliver Johnson",
     role: "QA Engineer",
     department: "Testing",
     tasksDone: 14,
@@ -233,77 +233,77 @@ const teamMembers = [
   },
 ];
 
-const departmentManagers = [
+const staticDepartmentManagers = [
   {
     title: "Lead Manager",
-    name: "Sarah Johnson",
+    name: "Allen Charles",
     department: "Project Management",
     color: "emerald",
   },
   {
     title: "Frontend Manager",
-    name: "Maria Garcia",
+    name: "Ekta Chaudhary",
     department: "Frontend",
     color: "amber",
   },
   {
     title: "Backend Manager",
-    name: "Alex Thompson",
+    name: "Liam Smith",
     department: "Backend",
     color: "cyan",
   },
   {
     title: "Security Manager",
-    name: "James Wilson",
+    name: "Noah Williams",
     department: "Network & Security",
     color: "orange",
   },
   {
     title: "Database Manager",
-    name: "James Wilson",
+    name: "Emma Brown",
     department: "Database Management",
     color: "violet",
   },
   {
     title: "QA Manager",
-    name: "Emily Chen",
+    name: "Oliver Johnson",
     department: "Testing & QA",
     color: "emerald",
   },
 ];
 
-const currentTasks = [
+const staticCurrentTasks = [
   {
     title: "Database Schema Design",
-    member: "James Wilson",
+    member: "Emma Brown",
     department: "Database Management",
     status: "Completed",
     priority: "High",
   },
   {
     title: "API Development",
-    member: "Alex Thompson",
+    member: "Liam Smith",
     department: "Backend",
     status: "In Progress",
     priority: "High",
   },
   {
     title: "UI Component Library",
-    member: "Maria Garcia",
+    member: "Ekta Chaudhary",
     department: "Frontend",
     status: "In Progress",
     priority: "Medium",
   },
   {
     title: "Authentication Module",
-    member: "Alex Thompson",
+    member: "Liam Smith",
     department: "Backend",
     status: "Completed",
     priority: "High",
   },
   {
     title: "Testing & QA",
-    member: "Emily Chen",
+    member: "Oliver Johnson",
     department: "Testing & QA",
     status: "Pending",
     priority: "Medium",
@@ -311,11 +311,124 @@ const currentTasks = [
 ];
 
 export default function ProjectDetailDashboard({ project, onBack }) {
-  const [activeGroup, setActiveGroup] = useState(taskGroups[0]);
+  const { taskGroups, departmentManagers, currentTasks, teamMembers, milestones } = useMemo(() => {
+    if (!project || !project.departments || Object.keys(project.departments).length === 0) {
+      return {
+        taskGroups: staticTaskGroups,
+        departmentManagers: staticDepartmentManagers,
+        currentTasks: staticCurrentTasks,
+        teamMembers: staticTeamMembers,
+        milestones: staticMilestones,
+      };
+    }
+
+    const DEPT_META = {
+      frontend: { name: "Frontend", icon: LayoutDashboard, color: "amber", mgrTitle: "Frontend Manager" },
+      backend: { name: "Backend", icon: Server, color: "cyan", mgrTitle: "Backend Manager" },
+      networks: { name: "Network & Security", icon: Shield, color: "orange", mgrTitle: "Security Manager" },
+      dbms: { name: "Database (DBMS)", icon: Database, color: "violet", mgrTitle: "Database Manager" },
+      testing: { name: "Testing & QA", icon: TestTube, color: "emerald", mgrTitle: "QA Manager" },
+    };
+
+    const computedGroups = [];
+    const computedMgrs = [
+      {
+        title: "Lead Manager",
+        name: project.manager || "Allen Charles",
+        department: "Project Management",
+        color: "emerald",
+      },
+    ];
+    const allTasks = [];
+    const allMembers = [];
+
+    for (const [key, dept] of Object.entries(project.departments)) {
+      const meta = DEPT_META[key] || { name: key, icon: LayoutDashboard, color: "amber", mgrTitle: `${key} Manager` };
+      const rmName = dept.reportingManager?.personal
+        ? `${dept.reportingManager.personal.firstName || ""} ${dept.reportingManager.personal.lastName || ""}`.trim()
+        : dept.reportingManager?.name || "Unassigned";
+
+      computedMgrs.push({
+        title: meta.mgrTitle,
+        name: rmName || "Unassigned",
+        department: meta.name,
+        color: meta.color,
+      });
+
+      const teams = dept.teams || [];
+      const compCount = teams.filter((t) => t.isComplete).length;
+      const totCount = teams.length || 1;
+      const prog = Math.round((compCount / totCount) * 100);
+
+      const tasks = teams.map((t, idx) => {
+        const leadName = t.lead?.personal
+          ? `${t.lead.personal.firstName || ""} ${t.lead.personal.lastName || ""}`.trim()
+          : rmName;
+        const memCount = t.members?.length || 5;
+
+        if (t.members) {
+          t.members.forEach((m) => {
+            const mName = m.employee?.personal
+              ? `${m.employee.personal.firstName || ""} ${m.employee.personal.lastName || ""}`.trim()
+              : m.name || "Engineer";
+            allMembers.push({
+              initials: mName.slice(0, 2).toUpperCase(),
+              name: mName,
+              role: t.name,
+              department: meta.name,
+              tasksDone: t.isComplete ? 5 : 2,
+              hours: `${40 + idx * 10}h`,
+            });
+          });
+        }
+
+        const taskObj = {
+          title: t.name,
+          manager: leadName || rmName || "Unassigned",
+          member: leadName || rmName || "Unassigned",
+          team: memCount,
+          status: t.isComplete ? "Completed" : "In Progress",
+          priority: idx % 2 === 0 ? "High" : "Medium",
+          department: meta.name,
+        };
+        allTasks.push(taskObj);
+        return taskObj;
+      });
+
+      computedGroups.push({
+        name: meta.name,
+        icon: meta.icon,
+        color: meta.color,
+        count: `${compCount}/${teams.length}`,
+        progress: prog,
+        lead: rmName || "Unassigned",
+        tasks: tasks,
+      });
+    }
+
+    const computedMilestones = [
+      { name: "Project Initiation", date: "Jan 15, 2026", status: "Completed", completion: 100 },
+      { name: "Architecture & Schema Setup", date: "Mar 1, 2026", status: "Completed", completion: 100 },
+      { name: "Departmental Sprint 1", date: "May 15, 2026", status: "Completed", completion: 100 },
+      { name: "Executive Suite Integration", date: project.deadline || "Jul 31, 2026", status: "In Progress", completion: project.progress || 50 },
+      { name: "Testing & QA Verification", date: "Aug 10, 2026", status: "Upcoming", completion: 0 },
+    ];
+
+    return {
+      taskGroups: computedGroups.length > 0 ? computedGroups : staticTaskGroups,
+      departmentManagers: computedMgrs,
+      currentTasks: allTasks.length > 0 ? allTasks : staticCurrentTasks,
+      teamMembers: allMembers.length > 0 ? allMembers : staticTeamMembers,
+      milestones: computedMilestones,
+    };
+  }, [project]);
+
+  const [selectedGroupName, setSelectedGroupName] = useState(null);
+  const activeGroup = taskGroups.find((g) => g.name === selectedGroupName) || taskGroups[0] || {};
   const [showTeamModal, setShowTeamModal] = useState(false);
   const [viewMode, setViewMode] = useState("departmental");
 
-  const ActiveGroupIcon = activeGroup.icon;
+  const ActiveGroupIcon = activeGroup.icon || LayoutDashboard;
 
   const completedTasksCount = currentTasks.filter(
     (task) => task.status === "Completed"
@@ -649,7 +762,7 @@ export default function ProjectDetailDashboard({ project, onBack }) {
                 return (
                   <button
                     key={group.name}
-                    onClick={() => setActiveGroup(group)}
+                    onClick={() => setSelectedGroupName(group.name)}
                     className={`
                       text-left rounded-2xl border p-5 transition glass-card
                       ${
@@ -706,7 +819,7 @@ export default function ProjectDetailDashboard({ project, onBack }) {
                   </h3>
 
                   <span className="text-sm text-muted-foreground">
-                    {activeGroup.tasks.length} total
+                    {activeGroup.tasks?.length || 0} total
                   </span>
                 </div>
 
@@ -721,7 +834,7 @@ export default function ProjectDetailDashboard({ project, onBack }) {
               </div>
 
               <div>
-                {activeGroup.tasks.map((task) => {
+                {(activeGroup.tasks || []).map((task) => {
                   const completed = task.status === "Completed";
 
                   return (

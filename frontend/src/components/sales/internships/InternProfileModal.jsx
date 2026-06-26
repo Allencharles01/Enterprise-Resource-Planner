@@ -1,5 +1,6 @@
 "use client";
 import { useEffect } from "react";
+import { createPortal } from "react-dom";
 
 import {
   X,
@@ -561,8 +562,10 @@ export default function InternProfileModal({ intern, onClose }) {
 };
 
 
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+  if (typeof document === "undefined") return null;
+
+  return createPortal(
+    <div className="fixed inset-0 z-[999999] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
       <div className="w-full max-w-[700px] max-h-[84vh] overflow-y-auto rounded-2xl border border-border bg-background shadow-2xl">
         {/* Header */}
         <div className="sticky top-0 z-10 flex items-start justify-between border-b border-border bg-background/95 backdrop-blur-xl px-5 py-4">
@@ -773,7 +776,8 @@ export default function InternProfileModal({ intern, onClose }) {
           </button>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }
 

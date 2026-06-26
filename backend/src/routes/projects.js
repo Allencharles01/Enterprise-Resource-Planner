@@ -57,6 +57,7 @@ projectsRouter.post("/", async (req, res) => {
                 category: CATEGORY_MAP[deptKey] || deptKey,
                 manager: taskManager,
                 membersCount: membersCount,
+                isComplete: team.isComplete || false,
                 projectId: project._id,
                 deadline: taskDeadline ? new Date(taskDeadline) : undefined,
               });
@@ -146,9 +147,49 @@ projectsRouter.get("/", async (req, res) => {
           projectId: p._id,
           isComplete: true,
         });
+        const progress =
+          tasksCount > 0
+            ? Math.round((completedTasksCount / tasksCount) * 100)
+            : 0;
+
+        const currSym = p.currency ? p.currency.split(" ")[0] : "$";
+        const bdgStr = `${currSym} ${p.budget || "0"}`;
+        const rawBdg = parseInt((p.budget || "0").replace(/\D/g, ""), 10) || 0;
+        const recStr = `${currSym} ${Math.round(rawBdg * 0.5).toLocaleString()}`;
+        const dL = p.deadline
+          ? new Date(p.deadline).toLocaleDateString("en-GB", {
+              day: "2-digit",
+              month: "short",
+              year: "numeric",
+            })
+          : "31 Jul 2026";
+
+        let st = "In Progress";
+        if (progress >= 100 || p.status === "Completed") st = "Completed";
+        else if (progress >= 50) st = "On Track";
+        else if (progress > 0) st = "In Progress";
+
         return {
           ...p.toObject(),
           id: String(p._id),
+          project: p.name,
+          client: p.client,
+          budget: bdgStr,
+          manager: p.manager || "Unassigned",
+          deadline: dL,
+          progress,
+          status: st,
+          agreed: bdgStr,
+          received: recStr,
+          remaining: recStr,
+          services: ["Core ERP Architecture", "AI Analytics", "Cloud Database Integration", "Security & QA"],
+          payments: [
+            {
+              title: "Advance Milestone Deposit",
+              date: "15 Jun 2026",
+              amount: recStr,
+            },
+          ],
           remainingTasks: tasksCount - completedTasksCount,
         };
       }),

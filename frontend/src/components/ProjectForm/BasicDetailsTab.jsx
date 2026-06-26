@@ -23,7 +23,7 @@ export function BasicDetailsTab({ data, onChange, onEmployeeClick }) {
       return;
     }
     // Format with commas
-    const formatted = parseInt(rawValue, 10).toLocaleString();
+    const formatted = parseInt(rawValue, 10).toLocaleString("en-IN");
     onChange({ ...data, budget: formatted });
   };
 

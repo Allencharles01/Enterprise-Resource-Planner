@@ -2,8 +2,8 @@
 
 "use client";
 
-import { useState } from "react";
-import { projectsData } from "./salesData";
+import { useState, useEffect } from "react";
+import { api } from "@/lib/api";
 import BudgetModal from "./BudgetModal";
 import StatusBadge from "./StatusBadge";
 
@@ -14,14 +14,23 @@ import {
 } from "lucide-react";
 
 export default function ProjectsTable({ onViewProject }) {
+  const [dbProjects, setDbProjects] = useState([]);
+  const [selectedProject, setSelectedProject] = useState(null);
+  const [open, setOpen] = useState(false);
 
-const [selectedProject, setSelectedProject] = useState(null);
-const [open, setOpen] = useState(false);
+  useEffect(() => {
+    api
+      .get("/api/projects")
+      .then((res) => setDbProjects(res.data || []))
+      .catch((err) => console.error("Failed DB projects fetch:", err));
+  }, []);
 
-const handleDownloadReport = () => {
-  const reportWindow = window.open("", "_blank", "width=1600,height=900");
+  const combinedProjects = dbProjects;
 
-  const rows = projectsData
+  const handleDownloadReport = () => {
+    const reportWindow = window.open("", "_blank", "width=1600,height=900");
+
+    const rows = combinedProjects
     .map(
       (project) => `
         <tr>
@@ -416,7 +425,7 @@ const handleDownloadInvoice = (project) => {
   </thead>
 
   <tbody>
-    {projectsData.map((project) => (
+    {combinedProjects.map((project) => (
       <tr
         key={project.id}
         className="border-b border-border/50 hover:bg-muted/20 transition"

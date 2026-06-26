@@ -2,6 +2,7 @@
 
 import { X, Briefcase, Clock, Download } from "lucide-react";
 import { useEffect } from "react";
+import { createPortal } from "react-dom";
 
 export default function BudgetModal({ project, onClose }) {
   useEffect(() => {
@@ -401,15 +402,17 @@ const handleDownloadSummary = () => {
 };
 
 
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+  if (typeof document === "undefined") return null;
+
+  return createPortal(
+    <div className="fixed inset-0 z-[999999] flex items-center justify-center bg-black/60 backdrop-blur-md p-4">
       <div
        className="
   w-full
   max-w-[570px]
-  h-[690px]
-  max-h-[86vh]
-  overflow-y-auto
+  max-h-[82vh]
+  flex
+  flex-col
   rounded-2xl
   border
   border-border
@@ -417,7 +420,7 @@ const handleDownloadSummary = () => {
   shadow-2xl
 "
       >
-        <div className="p-5 border-b border-border flex justify-between items-start">
+        <div className="p-5 border-b border-border flex justify-between items-start shrink-0">
           <div>
             <h2 className="text-xl font-bold text-foreground">
               {project.project}
@@ -440,130 +443,132 @@ const handleDownloadSummary = () => {
           </button>
         </div>
 
-        <div className="grid grid-cols-3 gap-3 p-5">
-          <div className="rounded-xl bg-muted/40 p-3 text-center">
-            <p className="text-xl font-bold">{financial.agreed}</p>
-            <p className="text-xs text-muted-foreground mt-1">Total Agreed</p>
-          </div>
-
-          <div className="rounded-xl bg-muted/40 p-3 text-center">
-            <p className="text-xl font-bold text-green-500">
-              {financial.received}
-            </p>
-            <p className="text-xs text-muted-foreground mt-1">Total Received</p>
-          </div>
-
-          <div className="rounded-xl bg-muted/40 p-3 text-center">
-            <p className="text-xl font-bold text-red-500">
-              {financial.remaining}
-            </p>
-            <p className="text-xs text-muted-foreground mt-1">Remaining</p>
-          </div>
-        </div>
-
-        <div className="px-5">
-          <div className="flex justify-between mb-2 text-sm">
-            <span className="font-medium">Collection Progress</span>
-            <span className="font-semibold">{project.progress}%</span>
-          </div>
-
-          <div className="h-2 rounded-full bg-muted overflow-hidden">
-            <div
-              className="h-full bg-primary rounded-full"
-              style={{ width: `${project.progress}%` }}
-            />
-          </div>
-        </div>
-
-        <div className="p-5">
-          <div className="rounded-xl border border-border p-4">
-            <div className="flex items-center gap-2 mb-3">
-              <Briefcase size={16} />
-              <h3 className="text-sm font-semibold">Services Provided</h3>
+        <div className="overflow-y-auto flex-1 space-y-4 py-4">
+          <div className="grid grid-cols-3 gap-3 px-5">
+            <div className="rounded-xl bg-muted/40 p-3 text-center">
+              <p className="text-xl font-bold">{financial.agreed}</p>
+              <p className="text-xs text-muted-foreground mt-1">Total Agreed</p>
             </div>
 
-            <div className="flex flex-wrap gap-2">
-              {financial.services.map((service) => (
-                <span
-                  key={service}
-                  className="px-3 py-1 rounded-full bg-muted text-xs"
+            <div className="rounded-xl bg-muted/40 p-3 text-center">
+              <p className="text-xl font-bold text-green-500">
+                {financial.received}
+              </p>
+              <p className="text-xs text-muted-foreground mt-1">Total Received</p>
+            </div>
+
+            <div className="rounded-xl bg-muted/40 p-3 text-center">
+              <p className="text-xl font-bold text-red-500">
+                {financial.remaining}
+              </p>
+              <p className="text-xs text-muted-foreground mt-1">Remaining</p>
+            </div>
+          </div>
+
+          <div className="px-5">
+            <div className="flex justify-between mb-2 text-sm">
+              <span className="font-medium">Collection Progress</span>
+              <span className="font-semibold">{project.progress}%</span>
+            </div>
+
+            <div className="h-2 rounded-full bg-muted overflow-hidden">
+              <div
+                className="h-full bg-primary rounded-full"
+                style={{ width: `${project.progress}%` }}
+              />
+            </div>
+          </div>
+
+          <div className="px-5">
+            <div className="rounded-xl border border-border p-4">
+              <div className="flex items-center gap-2 mb-3">
+                <Briefcase size={16} />
+                <h3 className="text-sm font-semibold">Services Provided</h3>
+              </div>
+
+              <div className="flex flex-wrap gap-2">
+                {financial.services.map((service) => (
+                  <span
+                    key={service}
+                    className="px-3 py-1 rounded-full bg-muted text-xs"
+                  >
+                    {service}
+                  </span>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          <div className="px-5">
+            <div className="rounded-xl border border-border overflow-hidden">
+              <div className="px-4 py-3 border-b border-border flex items-center gap-2">
+                <Clock size={16} />
+                <h3 className="text-sm font-semibold">Payment History</h3>
+              </div>
+
+              {financial.payments.map((payment, index) => (
+                <div
+                  key={index}
+                  className="px-4 py-3 border-b border-border flex justify-between gap-4"
                 >
-                  {service}
-                </span>
+                  <div>
+                    <p className="text-sm font-medium">{payment.title}</p>
+                    <p className="text-xs text-muted-foreground">
+                      {payment.date}
+                    </p>
+                  </div>
+
+                  <div className="text-sm font-bold text-green-500">
+                    {payment.amount}
+                  </div>
+                </div>
               ))}
             </div>
           </div>
-        </div>
 
-        <div className="px-5">
-          <div className="rounded-xl border border-border overflow-hidden">
-            <div className="px-4 py-3 border-b border-border flex items-center gap-2">
-              <Clock size={16} />
-              <h3 className="text-sm font-semibold">Payment History</h3>
-            </div>
+          {/* Service Agreement */}
+          <div className="px-5">
+            <div className="rounded-xl border border-border p-4">
+              <div className="flex items-start gap-2">
+                <Briefcase
+                  size={16}
+                  className="mt-0.5 text-muted-foreground"
+                />
 
-            {financial.payments.map((payment, index) => (
-              <div
-                key={index}
-                className="px-4 py-3 border-b border-border flex justify-between gap-4"
-              >
                 <div>
-                  <p className="text-sm font-medium">{payment.title}</p>
-                  <p className="text-xs text-muted-foreground">
-                    {payment.date}
+                  <h3 className="text-sm font-semibold text-foreground">
+                    Service Agreement
+                  </h3>
+
+                  <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
+                    Agreement signed on {financial.agreementDate}. All services
+                    governed by master services agreement MSA-2026.
                   </p>
                 </div>
-
-                <div className="text-sm font-bold text-green-500">
-                  {payment.amount}
-                </div>
               </div>
-            ))}
-          </div>
-        </div>
-
-
-        {/* Service Agreement */}
-      <div className="px-5 pt-4">
-        <div className="rounded-xl border border-border p-4">
-          <div className="flex items-start gap-2">
-            <Briefcase
-              size={16}
-              className="mt-0.5 text-muted-foreground"
-            />
-
-            <div>
-              <h3 className="text-sm font-semibold text-foreground">
-                Service Agreement
-              </h3>
-
-              <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
-                Agreement signed on {financial.agreementDate}. All services
-                governed by master services agreement MSA-2026.
-              </p>
             </div>
           </div>
         </div>
-      </div>
 
-        <div className="p-5 flex gap-3">
+        <div className="p-5 border-t border-border flex gap-3 shrink-0">
           <button
-  onClick={handleDownloadInvoice}
-  className="flex-1 border border-border rounded-lg py-2.5 text-sm font-medium flex items-center justify-center gap-2"
->
-  <Download size={16} />
-  Download Invoice
-</button>
+            onClick={handleDownloadInvoice}
+            className="flex-1 border border-border rounded-lg py-2.5 text-sm font-medium flex items-center justify-center gap-2 hover:bg-muted transition"
+          >
+            <Download size={16} />
+            Download Invoice
+          </button>
 
           <button
-  onClick={handleDownloadSummary}
-  className="flex-1 bg-primary text-primary-foreground rounded-lg py-2.5 text-sm font-medium flex items-center justify-center gap-2"
->
-  <Download size={16} />
-  Download Summary
-</button>
+            onClick={handleDownloadSummary}
+            className="flex-1 bg-primary text-primary-foreground rounded-lg py-2.5 text-sm font-medium flex items-center justify-center gap-2 hover:opacity-90 transition"
+          >
+            <Download size={16} />
+            Download Summary
+          </button>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }

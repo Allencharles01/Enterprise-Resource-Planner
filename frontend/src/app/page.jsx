@@ -12,7 +12,7 @@ import {
   Plus,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import axios from "axios";
+import { api } from "@/lib/api";
 
 export default function AdminDashboard() {
   const router = useRouter();
@@ -23,10 +23,8 @@ export default function AdminDashboard() {
   useEffect(() => {
     const fetchProjects = async () => {
       try {
-        const apiUrl =
-          process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:4000";
-        const response = await axios.get(`${apiUrl}/api/projects`);
-        setProjects(response.data);
+        const response = await api.get("/api/projects");
+        setProjects(response.data || []);
       } catch (err) {
         console.error("Failed to fetch projects:", err);
         setError("Failed to load projects. Please try again later.");
@@ -38,9 +36,17 @@ export default function AdminDashboard() {
     fetchProjects();
   }, []);
 
-  const openProjectsCount = projects.filter(
-    (p) => p.status === "Ongoing",
-  ).length;
+  const isOngoing = (p) => {
+    const st = (p.status || "Ongoing").toLowerCase();
+    return (
+      st === "ongoing" ||
+      st === "active" ||
+      st === "in progress" ||
+      !["closed", "completed", "cancelled", "on hold"].includes(st)
+    );
+  };
+
+  const openProjectsCount = projects.filter(isOngoing).length;
   const closedProjectsCount = projects.filter(
     (p) => p.status === "Closed" || p.status === "Completed",
   ).length;
@@ -144,7 +150,7 @@ export default function AdminDashboard() {
           ) : (
             <div className="space-y-4">
               {projects
-                .filter((p) => p.status === "Ongoing")
+                .filter(isOngoing)
                 .map((project, idx) => (
                   <motion.div
                     key={project._id}

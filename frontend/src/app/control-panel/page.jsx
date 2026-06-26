@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { DashboardLayout } from "@/components/DashboardLayout";
 import { EditProjectsModal } from "@/components/EditProjectsModal";
+import { InternshipModals } from "@/components/InternshipModals";
 import {
   FolderKanban,
   GraduationCap,
@@ -23,6 +24,7 @@ import { motion } from "framer-motion";
 export default function ControlPanelPage() {
   const router = useRouter();
   const [isEditProjectsOpen, setIsEditProjectsOpen] = useState(false);
+  const [internshipModal, setInternshipModal] = useState(null);
   const [activeToast, setActiveToast] = useState(null);
 
   const showToast = (actionName) => {
@@ -144,16 +146,16 @@ export default function ControlPanelPage() {
 
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 flex-1">
               {[
-                { label: "Add a Candidate", icon: <UserPlus size={18} /> },
-                { label: "Edit Candidate's profile", icon: <Edit3 size={18} /> },
-                { label: "Remove a Candidate", icon: <UserMinus size={18} />, danger: true },
-                { label: "Add a New course", icon: <PlusCircle size={18} /> },
-                { label: "Edit an Existing Course", icon: <BookOpen size={18} /> },
-                { label: "Remove a Course", icon: <Trash2 size={18} />, danger: true },
-              ].map((btn, idx) => (
+                { label: "Add a Candidate", id: "addCandidate", icon: <UserPlus size={18} /> },
+                { label: "Edit Candidate's profile", id: "editCandidate", icon: <Edit3 size={18} /> },
+                { label: "Remove a Candidate", id: "removeCandidate", icon: <UserMinus size={18} />, danger: true },
+                { label: "Add a New course", id: "addCourse", icon: <PlusCircle size={18} /> },
+                { label: "Edit an Existing Course", id: "editCourse", icon: <BookOpen size={18} /> },
+                { label: "Remove a Course", id: "removeCourse", icon: <Trash2 size={18} />, danger: true },
+              ].map((btn) => (
                 <button
-                  key={idx}
-                  onClick={() => showToast(`Internships -> ${btn.label}`)}
+                  key={btn.id}
+                  onClick={() => setInternshipModal(btn.id)}
                   className={`p-4 rounded-2xl text-xs font-bold border flex flex-col items-center justify-center gap-2 text-center transition-all hover:scale-105 active:scale-95 ${
                     btn.danger
                       ? "bg-red-500/5 border-red-500/20 text-red-500 hover:bg-red-500/10"
@@ -246,6 +248,11 @@ export default function ControlPanelPage() {
       <EditProjectsModal
         isOpen={isEditProjectsOpen}
         onClose={() => setIsEditProjectsOpen(false)}
+      />
+
+      <InternshipModals
+        activeModal={internshipModal}
+        onClose={() => setInternshipModal(null)}
       />
 
       {/* Toast Notification */}

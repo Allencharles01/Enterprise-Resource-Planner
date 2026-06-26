@@ -296,7 +296,7 @@ export function ProjectEditorModal({ isOpen, project, onClose, onUpdated }) {
                       value={basicDetails.budget}
                       onChange={(e) => {
                         const raw = e.target.value.replace(/\D/g, "");
-                        const fmt = raw ? parseInt(raw, 10).toLocaleString() : "";
+                        const fmt = raw ? parseInt(raw, 10).toLocaleString("en-IN") : "";
                         setBasicDetails({ ...basicDetails, budget: fmt });
                       }}
                     />
