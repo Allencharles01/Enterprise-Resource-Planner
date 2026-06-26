@@ -35,7 +35,17 @@ export function DashboardLayout({ children, adminName = "Admin" }) {
   const [isDepartmentDropdownOpen, setIsDepartmentDropdownOpen] =
     useState(false);
   const [toastMessage, setToastMessage] = useState(null);
-  const [displayName, setDisplayName] = useState(adminName ? adminName.split(" ")[0] : "Admin");
+  const getInitials = (str) => {
+    if (!str) return "AC";
+    const p = str.trim().split(" ");
+    return p.length >= 2
+      ? `${p[0][0]}${p[p.length - 1][0]}`.toUpperCase()
+      : p[0].slice(0, 2).toUpperCase();
+  };
+  const [displayName, setDisplayName] = useState(
+    adminName ? adminName.split(" ")[0] : "Admin",
+  );
+  const [userInitials, setUserInitials] = useState(getInitials(adminName));
   const calendarRef = useRef(null);
   const dropdownRef = useRef(null);
   const deptDropdownRef = useRef(null);
@@ -60,7 +70,6 @@ export function DashboardLayout({ children, adminName = "Admin" }) {
 
   useEffect(() => {
     setMounted(true);
-    // Auth Guard check
     const token = localStorage.getItem("token");
     if (!token) {
       router.push("/login");
@@ -71,8 +80,9 @@ export function DashboardLayout({ children, adminName = "Admin" }) {
       try {
         const { data } = await api.get("/api/auth/me");
         if (data.user?.name) {
-          const firstName = data.user.name.split(" ")[0];
-          setDisplayName(firstName);
+          const parts = data.user.name.trim().split(" ");
+          setDisplayName(parts[0]);
+          setUserInitials(getInitials(data.user.name));
           localStorage.setItem("userName", data.user.name);
         }
       } catch (err) {
@@ -82,7 +92,8 @@ export function DashboardLayout({ children, adminName = "Admin" }) {
 
     const storedName = localStorage.getItem("userName");
     if (storedName) {
-      setDisplayName(storedName.split(" ")[0]);
+      setDisplayName(storedName.trim().split(" ")[0]);
+      setUserInitials(getInitials(storedName));
     } else {
       fetchUser();
     }
@@ -378,9 +389,18 @@ export function DashboardLayout({ children, adminName = "Admin" }) {
                   </AnimatePresence>
                 </div>
 
+                {/* Admin Control Panel Profile Icon */}
+                <button
+                  onClick={() => router.push("/control-panel")}
+                  title="Admin Control Panel"
+                  className="w-10 h-10 rounded-full bg-gradient-to-tr from-violet-600 via-indigo-600 to-purple-500 text-white font-extrabold flex items-center justify-center shadow-lg shadow-indigo-500/30 hover:scale-105 active:scale-95 transition-all border-2 border-indigo-300/40 text-sm"
+                >
+                  {userInitials}
+                </button>
+
                 <button
                   onClick={toggleTheme}
-                  className="p-2 rounded-full hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
+                  className="p-2 rounded-full hover:bg-muted text-muted-foreground hover:text-foreground transition-colors ml-1"
                 >
                   {mounted && theme === "dark" ? (
                     <Sun size={20} />
