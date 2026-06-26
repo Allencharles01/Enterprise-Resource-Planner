@@ -1,4 +1,5 @@
 "use client";
+import { useEffect } from "react";
 
 import {
   X,
@@ -15,6 +16,22 @@ import {
 } from "lucide-react";
 
 export default function InternProfileModal({ intern, onClose }) {
+  useEffect(() => {
+    if (!intern) return;
+
+    const handleEscapeKey = (event) => {
+      if (event.key === "Escape") {
+        onClose();
+      }
+    };
+
+    window.addEventListener("keydown", handleEscapeKey);
+
+    return () => {
+      window.removeEventListener("keydown", handleEscapeKey);
+    };
+  }, [intern, onClose]);
+
   if (!intern) return null;
 
   const initials = intern.name

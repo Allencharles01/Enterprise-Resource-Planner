@@ -1,11 +1,27 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { X, UserRound } from "lucide-react";
 import TrainingParticipantProfileModal from "./TrainingParticipantProfileModal";
 
 export default function TrainingParticipantsModal({ program, onClose }) {
   const [selectedParticipant, setSelectedParticipant] = useState(null);
+
+  useEffect(() => {
+    if (selectedParticipant) return;
+
+    const handleEscapeKey = (event) => {
+      if (event.key === "Escape") {
+        onClose();
+      }
+    };
+
+    window.addEventListener("keydown", handleEscapeKey);
+
+    return () => {
+      window.removeEventListener("keydown", handleEscapeKey);
+    };
+  }, [onClose, selectedParticipant]);
 
   const participants = program.participants || [];
 

@@ -384,126 +384,218 @@ export default function ProjectDetailDashboard({ project, onBack }) {
     return "bg-amber-500/10 text-amber-500 border-amber-500/20";
   };
 
+  const departmentPillStyle = (department) => {
+  if (department === "Project Management") {
+    return "bg-indigo-500/10 text-indigo-400 border-indigo-500/20";
+  }
+
+  if (department === "Frontend") {
+    return "bg-amber-500/10 text-amber-400 border-amber-500/20";
+  }
+
+  if (department === "Backend") {
+    return "bg-cyan-500/10 text-cyan-400 border-cyan-500/20";
+  }
+
+  if (department === "Network & Security") {
+    return "bg-orange-500/10 text-orange-400 border-orange-500/20";
+  }
+
+  if (department === "Database Management") {
+    return "bg-violet-500/10 text-violet-400 border-violet-500/20";
+  }
+
+  if (department === "Testing & QA") {
+    return "bg-emerald-500/10 text-emerald-400 border-emerald-500/20";
+  }
+
+  return "bg-primary/10 text-primary border-primary/20";
+};
+
   return (
     <div className="px-6 py-8 space-y-8">
       {/* Header */}
-      <div className="glass-card rounded-2xl border border-border p-7">
-        <button
-          onClick={onBack}
-          className="flex items-center gap-2 text-muted-foreground hover:text-foreground mb-6"
-        >
-          <ArrowLeft size={18} />
-          Back to Dashboard
-        </button>
+<div
+  className="
+    group relative overflow-hidden rounded-2xl border border-border p-7
+    bg-background transition-all duration-300
+    hover:-translate-y-1
+    hover:border-primary/40
+    hover:shadow-2xl hover:shadow-primary/20
+  "
+>
+  <div className="pointer-events-none absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-[radial-gradient(circle_at_top_right,rgba(99,102,241,0.20),transparent_40%),radial-gradient(circle_at_bottom_left,rgba(236,72,153,0.12),transparent_35%)]" />
 
-        <div className="flex items-start justify-between gap-6">
-          <div>
-            <h1 className="text-3xl font-bold text-foreground">
-              {project.project}
-            </h1>
+  <div className="relative z-10">
+    <button
+      onClick={onBack}
+      className="flex items-center gap-2 text-muted-foreground hover:text-foreground mb-6"
+    >
+      <ArrowLeft size={18} />
+      Back to Dashboard
+    </button>
 
-            <div className="flex flex-wrap items-center gap-6 mt-5 text-muted-foreground">
-              <span className="flex items-center gap-2">
-                <Building2 size={16} className="text-primary" />
-                <strong className="text-foreground">Client:</strong>
-                {project.client}
-              </span>
+    <div className="flex items-start justify-between gap-6">
+      <div>
+        <h1 className="text-3xl font-bold text-foreground">
+          {project.project}
+        </h1>
 
-              <span className="flex items-center gap-2">
-                <UserRound size={16} className="text-pink-500" />
-                <strong className="text-foreground">Managed by:</strong>
-                {project.manager}
-              </span>
-            </div>
-          </div>
+        <div className="flex flex-wrap items-center gap-6 mt-5 text-muted-foreground">
+          <span className="flex items-center gap-2">
+            <Building2 size={16} className="text-primary" />
+            <strong className="text-foreground">Client:</strong>
+            {project.client}
+          </span>
 
-          <div className="px-5 py-3 rounded-xl border border-primary/30 bg-primary/10 text-primary font-semibold">
-            Status: {project.status === "On Track" ? "Ongoing" : project.status}
-          </div>
+          <span className="flex items-center gap-2">
+            <UserRound size={16} className="text-pink-500" />
+            <strong className="text-foreground">Managed by:</strong>
+            {project.manager}
+          </span>
         </div>
       </div>
 
-      {/* Project Summary Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
-        <div className="glass-card rounded-2xl border border-border p-6">
-          <div className="flex items-start justify-between">
-            <p className="text-muted-foreground font-medium">
-              Project Budget
-            </p>
-
-            <DollarSign size={22} className="text-orange-500" />
-          </div>
-
-          <h2 className="text-3xl font-bold text-foreground mt-10">
-            {project.budget || project.agreed}
-          </h2>
-
-          <p className="text-sm text-muted-foreground mt-2">
-            Total allocated budget
-          </p>
-        </div>
-
-        <div className="glass-card rounded-2xl border border-border p-6">
-          <div className="flex items-start justify-between">
-            <p className="text-muted-foreground font-medium">
-              Budget Utilization
-            </p>
-
-            <TrendingUp size={22} className="text-emerald-500" />
-          </div>
-
-          <h2 className="text-3xl font-bold text-foreground mt-10">
-            {project.received || "—"}
-          </h2>
-
-          <p className="text-sm text-muted-foreground mt-2">
-            {project.progress}% of budget utilized
-          </p>
-
-          <div className="h-2 bg-muted rounded-full overflow-hidden mt-3">
-            <div
-              className="h-full bg-foreground dark:bg-primary rounded-full"
-              style={{ width: `${project.progress}%` }}
-            />
-          </div>
-        </div>
-
-        <div className="glass-card rounded-2xl border border-border p-6">
-          <div className="flex items-start justify-between">
-            <p className="text-muted-foreground font-medium">
-              Team Members
-            </p>
-
-            <Users size={22} className="text-cyan-500" />
-          </div>
-
-          <h2 className="text-3xl font-bold text-foreground mt-10">
-            {teamMembers.length}
-          </h2>
-
-          <p className="text-sm text-muted-foreground mt-2">
-            Active contributors
-          </p>
-        </div>
-
-        <div className="glass-card rounded-2xl border border-border p-6">
-          <div className="flex items-start justify-between">
-            <p className="text-muted-foreground font-medium">
-              Tasks Completed
-            </p>
-
-            <CheckCircle2 size={22} className="text-amber-500" />
-          </div>
-
-          <h2 className="text-3xl font-bold text-foreground mt-10">
-            {completedTasksCount}/{totalTasksCount}
-          </h2>
-
-          <p className="text-sm text-muted-foreground mt-2">
-            Overall task progress
-          </p>
-        </div>
+      <div className="px-5 py-3 rounded-xl border border-primary/30 bg-primary/10 text-primary font-semibold">
+        Status: {project.status === "On Track" ? "Ongoing" : project.status}
       </div>
+    </div>
+  </div>
+</div>
+
+{/* Project Summary Cards */}
+<div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
+  {/* Project Budget */}
+  <div
+    className="
+      group relative overflow-hidden rounded-2xl border border-border p-6
+      bg-background transition-all duration-300
+      hover:-translate-y-1
+      hover:border-orange-500/30
+      hover:shadow-2xl hover:shadow-orange-500/20
+    "
+  >
+    <div className="pointer-events-none absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-[radial-gradient(circle_at_top_right,rgba(249,115,22,0.18),transparent_38%)]" />
+
+    <div className="relative z-10">
+      <div className="flex items-start justify-between">
+        <p className="text-muted-foreground font-medium">
+          Project Budget
+        </p>
+
+        <DollarSign size={22} className="text-orange-500" />
+      </div>
+
+      <h2 className="text-3xl font-bold text-foreground mt-10">
+        {project.budget || project.agreed}
+      </h2>
+
+      <p className="text-sm text-muted-foreground mt-2">
+        Total allocated budget
+      </p>
+    </div>
+  </div>
+
+  {/* Budget Utilization */}
+  <div
+    className="
+      group relative overflow-hidden rounded-2xl border border-border p-6
+      bg-background transition-all duration-300
+      hover:-translate-y-1
+      hover:border-emerald-500/30
+      hover:shadow-2xl hover:shadow-emerald-500/20
+    "
+  >
+    <div className="pointer-events-none absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-[radial-gradient(circle_at_top_right,rgba(16,185,129,0.18),transparent_38%)]" />
+
+    <div className="relative z-10">
+      <div className="flex items-start justify-between">
+        <p className="text-muted-foreground font-medium">
+          Budget Utilization
+        </p>
+
+        <TrendingUp size={22} className="text-emerald-500" />
+      </div>
+
+      <h2 className="text-3xl font-bold text-foreground mt-10">
+        {project.received || "—"}
+      </h2>
+
+      <p className="text-sm text-muted-foreground mt-2">
+        {project.progress}% of budget utilized
+      </p>
+
+      <div className="h-2 bg-muted rounded-full overflow-hidden mt-3">
+        <div
+          className="h-full bg-foreground dark:bg-primary rounded-full"
+          style={{ width: `${project.progress}%` }}
+        />
+      </div>
+    </div>
+  </div>
+
+  {/* Team Members */}
+  <div
+    className="
+      group relative overflow-hidden rounded-2xl border border-border p-6
+      bg-background transition-all duration-300
+      hover:-translate-y-1
+      hover:border-cyan-500/30
+      hover:shadow-2xl hover:shadow-cyan-500/20
+    "
+  >
+    <div className="pointer-events-none absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-[radial-gradient(circle_at_top_right,rgba(6,182,212,0.18),transparent_38%)]" />
+
+    <div className="relative z-10">
+      <div className="flex items-start justify-between">
+        <p className="text-muted-foreground font-medium">
+          Team Members
+        </p>
+
+        <Users size={22} className="text-cyan-500" />
+      </div>
+
+      <h2 className="text-3xl font-bold text-foreground mt-10">
+        {teamMembers.length}
+      </h2>
+
+      <p className="text-sm text-muted-foreground mt-2">
+        Active contributors
+      </p>
+    </div>
+  </div>
+
+  {/* Tasks Completed */}
+  <div
+    className="
+      group relative overflow-hidden rounded-2xl border border-border p-6
+      bg-background transition-all duration-300
+      hover:-translate-y-1
+      hover:border-amber-500/30
+      hover:shadow-2xl hover:shadow-amber-500/20
+    "
+  >
+    <div className="pointer-events-none absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-[radial-gradient(circle_at_top_right,rgba(245,158,11,0.18),transparent_38%)]" />
+
+    <div className="relative z-10">
+      <div className="flex items-start justify-between">
+        <p className="text-muted-foreground font-medium">
+          Tasks Completed
+        </p>
+
+        <CheckCircle2 size={22} className="text-amber-500" />
+      </div>
+
+      <h2 className="text-3xl font-bold text-foreground mt-10">
+        {completedTasksCount}/{totalTasksCount}
+      </h2>
+
+      <p className="text-sm text-muted-foreground mt-2">
+        Overall task progress
+      </p>
+    </div>
+  </div>
+</div>
 
       {/* Toggle Section */}
       <div className="glass-card rounded-2xl border border-border p-7">
@@ -825,7 +917,11 @@ export default function ProjectDetailDashboard({ project, onBack }) {
               </td>
 
               <td className="px-4 py-3">
-                <span className="inline-flex items-center whitespace-nowrap px-2.5 py-1 rounded-full text-[11px] font-medium bg-primary/10 text-primary border border-primary/20">
+                <span
+  className={`inline-flex items-center whitespace-nowrap px-2.5 py-1 rounded-full text-[11px] font-medium border ${departmentPillStyle(
+    manager.department
+  )}`}
+>
   {manager.department}
 </span>
               </td>
@@ -856,18 +952,18 @@ export default function ProjectDetailDashboard({ project, onBack }) {
       <table className="w-full table-fixed">
         <thead>
           <tr className="border-b border-border bg-muted/30">
-            <th className="w-[36%] text-left px-4 py-3 text-xs font-semibold text-muted-foreground uppercase tracking-wide">
-              Task & Member
-            </th>
-            <th className="w-[26%] text-left px-4 py-3 text-xs font-semibold text-muted-foreground uppercase tracking-wide">
-              Department
-            </th>
-            <th className="w-[20%] text-right px-4 py-3 text-xs font-semibold text-muted-foreground uppercase tracking-wide">
-              Status
-            </th>
-            <th className="w-[18%] text-right px-4 py-3 text-xs font-semibold text-muted-foreground uppercase tracking-wide">
-              Priority
-            </th>
+<th className="w-[31%] text-left px-4 py-3 text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+  Task & Member
+</th>
+<th className="w-[34%] text-left px-4 py-3 text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+  Department
+</th>
+<th className="w-[18%] text-center px-3 py-3 text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+  Status
+</th>
+<th className="w-[17%] text-center px-2 py-3 text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+  Priority
+</th>
           </tr>
         </thead>
 
@@ -886,15 +982,19 @@ export default function ProjectDetailDashboard({ project, onBack }) {
                 </p>
               </td>
 
-              <td className="px-4 py-3">
-                <span className="inline-flex max-w-full px-2.5 py-1 rounded-full text-[11px] font-medium bg-primary/10 text-primary border border-primary/20 leading-snug">
-                  {task.department}
-                </span>
-              </td>
-
-              <td className="px-4 py-3 text-right">
+<td className="px-4 py-3">
   <span
-    className={`inline-flex items-center justify-center whitespace-nowrap min-w-[88px] px-2.5 py-1 rounded-full text-[11px] font-medium border ${statusStyle(
+    className={`inline-flex items-center whitespace-nowrap px-2.5 py-1 rounded-full text-[11px] font-medium border ${departmentPillStyle(
+      task.department
+    )}`}
+  >
+    {task.department}
+  </span>
+</td>
+
+              <td className="px-3 py-3 text-center">
+  <span
+    className={`inline-flex items-center justify-center whitespace-nowrap min-w-[84px] px-2.5 py-1 rounded-full text-[11px] font-medium border ${statusStyle(
       task.status
     )}`}
   >
@@ -902,15 +1002,15 @@ export default function ProjectDetailDashboard({ project, onBack }) {
   </span>
 </td>
 
-              <td className="px-4 py-3 text-right">
-                <span
-                  className={`inline-flex px-2.5 py-1 rounded-full text-[11px] font-medium border ${priorityStyle(
-                    task.priority
-                  )}`}
-                >
-                  {task.priority}
-                </span>
-              </td>
+              <td className="px-2 py-3 text-center">
+  <span
+    className={`inline-flex items-center justify-center whitespace-nowrap min-w-[64px] px-2.5 py-1 rounded-full text-[11px] font-medium border ${priorityStyle(
+      task.priority
+    )}`}
+  >
+    {task.priority}
+  </span>
+</td>
             </tr>
           ))}
         </tbody>

@@ -1,5 +1,7 @@
 "use client";
 
+import { useEffect } from "react";
+
 import {
   X,
   Mail,
@@ -16,6 +18,22 @@ export default function TrainingParticipantProfileModal({
   program,
   onClose,
 }) {
+  useEffect(() => {
+    if (!participant) return;
+
+    const handleEscapeKey = (event) => {
+      if (event.key === "Escape") {
+        onClose();
+      }
+    };
+
+    window.addEventListener("keydown", handleEscapeKey);
+
+    return () => {
+      window.removeEventListener("keydown", handleEscapeKey);
+    };
+  }, [participant, onClose]);
+
   if (!participant) return null;
 
   const initials = participant.name

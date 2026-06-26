@@ -1,8 +1,23 @@
 "use client";
 
 import { X, Briefcase, Clock, Download } from "lucide-react";
+import { useEffect } from "react";
 
 export default function BudgetModal({ project, onClose }) {
+  useEffect(() => {
+    const handleEscapeKey = (event) => {
+      if (event.key === "Escape") {
+        onClose();
+      }
+    };
+
+    window.addEventListener("keydown", handleEscapeKey);
+
+    return () => {
+      window.removeEventListener("keydown", handleEscapeKey);
+    };
+  }, [onClose]);
+
   if (!project) return null;
 
   const financial = project;
