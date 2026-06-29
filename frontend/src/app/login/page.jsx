@@ -46,6 +46,7 @@ export default function LoginPage() {
       localStorage.setItem("token", response.data.token);
       localStorage.setItem("userName", response.data.user.name);
       localStorage.setItem("userRole", response.data.user.role);
+      sessionStorage.setItem("active_session", "true");
       console.log("Token and user details saved");
       // Simulate redirection to dashboard
       setTimeout(() => {

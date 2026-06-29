@@ -409,108 +409,106 @@ const handleDownloadInvoice = (project) => {
       </div>
 
       <div className="overflow-x-auto">
-        <table className="w-full min-w-[1200px]">
-  <thead>
-    <tr className="border-b border-border">
-      <th className="text-left py-4">Project Name</th>
-      <th className="text-left py-4">Client Name</th>
-      <th className="text-left py-4">Budget</th>
-      <th className="text-left py-4">Lead Manager</th>
-      <th className="text-left py-4">Deadline</th>
-      <th className="text-left py-4">Progress</th>
-      <th className="text-left py-4">Status</th>
-      <th className="text-left py-4">Report</th>
-      <th className="text-left py-4">Actions</th>
-    </tr>
-  </thead>
+        <table className="w-full min-w-[1300px] text-left border-collapse">
+          <thead>
+            <tr className="border-b border-border text-xs uppercase text-muted-foreground tracking-wider">
+              <th className="py-4 px-4 whitespace-nowrap font-bold">Project Name</th>
+              <th className="py-4 px-4 whitespace-nowrap font-bold">Client Name</th>
+              <th className="py-4 px-4 whitespace-nowrap font-bold">Budget</th>
+              <th className="py-4 px-4 whitespace-nowrap font-bold">Lead Manager</th>
+              <th className="py-4 px-4 whitespace-nowrap font-bold">Deadline</th>
+              <th className="py-4 px-4 whitespace-nowrap font-bold">Progress</th>
+              <th className="py-4 px-4 whitespace-nowrap font-bold">Status</th>
+              <th className="py-4 px-4 whitespace-nowrap font-bold">Report</th>
+              <th className="py-4 px-4 whitespace-nowrap font-bold">Actions</th>
+            </tr>
+          </thead>
 
-  <tbody>
-    {combinedProjects.map((project) => (
-      <tr
-        key={project.id}
-        className="border-b border-border/50 hover:bg-muted/20 transition"
-      >
-        <td className="py-5 font-medium">
-          {project.project}
-        </td>
+          <tbody className="divide-y divide-border/40 text-sm">
+            {combinedProjects.map((project) => (
+              <tr
+                key={project.id || project._id}
+                className="hover:bg-muted/30 transition-colors"
+              >
+                <td className="py-4 px-4 font-bold text-foreground whitespace-nowrap">
+                  {project.project}
+                </td>
 
-        <td className="py-5 text-muted-foreground">
-          {project.client}
-        </td>
+                <td className="py-4 px-4 text-muted-foreground whitespace-nowrap">
+                  {project.client}
+                </td>
 
-        <td className="py-5">
-          <button
-  onClick={() => {
-    setSelectedProject(project);
-    setOpen(true);
-  }}
-  className="
-    font-semibold
-    underline
-    text-primary
-    hover:opacity-80
-    transition
-  "
->
-  {project.budget}
-</button>
-        </td>
+                <td className="py-4 px-4 whitespace-nowrap">
+                  <button
+                    onClick={() => {
+                      setSelectedProject(project);
+                      setOpen(true);
+                    }}
+                    className="font-bold underline text-emerald-400 hover:text-emerald-300 transition"
+                  >
+                    {project.budget}
+                  </button>
+                </td>
 
-        <td className="py-5">
-          {project.manager}
-        </td>
+                <td className="py-4 px-4 font-medium text-foreground whitespace-nowrap">
+                  {project.manager}
+                </td>
 
-        <td className="py-5">
-          {project.deadline}
-        </td>
+                <td className="py-4 px-4 text-muted-foreground whitespace-nowrap">
+                  {project.deadline}
+                </td>
 
-        <td className="py-5 w-52">
-          <div className="flex items-center gap-3">
-            <div className="w-32 h-2 bg-gray-200 dark:bg-slate-700 rounded-full overflow-hidden">
-              <div
-                className="h-full bg-primary rounded-full"
-                style={{
-                  width: `${project.progress}%`,
-                }}
-              />
-            </div>
+                <td className="py-4 px-4 w-[220px] min-w-[180px]">
+                  <div className="flex items-center gap-3">
+                    <div className="w-32 h-2.5 bg-zinc-800 rounded-full overflow-hidden border border-border/50">
+                      <div
+                        className="h-full bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-500 rounded-full transition-all duration-500 shadow-sm shadow-indigo-500/30"
+                        style={{
+                          width: `${project.progress}%`,
+                        }}
+                      />
+                    </div>
 
-            <span className="text-sm">
-              {project.progress}%
-            </span>
-          </div>
-        </td>
+                    <span className="text-sm font-bold text-indigo-400">
+                      {project.progress}%
+                    </span>
+                  </div>
+                </td>
 
-        <td className="py-5">
-          <StatusBadge status={project.status} />
-        </td>
+                <td className="py-4 px-4 whitespace-nowrap">
+                  <StatusBadge status={project.status} />
+                </td>
 
-        <td className="py-5">
-          <button
-  onClick={() => onViewProject(project)}
-  className="flex items-center gap-2 px-3 py-2 rounded-xl border border-border hover:bg-muted/30"
->
-  <Eye size={16} />
-  View Project
-</button>
-        </td>
+                <td className="py-4 px-4 whitespace-nowrap">
+                  <button
+                    onClick={() => onViewProject(project)}
+                    className="flex items-center gap-2 px-3.5 py-2 rounded-xl border border-border/80 hover:bg-indigo-500/10 hover:border-indigo-500/40 text-xs font-bold transition shadow-sm"
+                  >
+                    <Eye size={15} className="text-indigo-400" />
+                    View Project
+                  </button>
+                </td>
 
-        <td className="py-5">
-          <div className="flex items-center gap-3">
-            <button onClick={() => handleDownloadInvoice(project)}>
-  <Download size={18} />
-</button>
+                <td className="py-4 px-4 whitespace-nowrap">
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => handleDownloadInvoice(project)}
+                      className="p-2 rounded-xl border border-border/80 hover:bg-muted text-muted-foreground hover:text-foreground transition shadow-sm"
+                      title="Download Invoice"
+                    >
+                      <Download size={16} />
+                    </button>
 
-            <button>
-              <MoreVertical size={18} />
-            </button>
-          </div>
-        </td>
-      </tr>
-    ))}
-  </tbody>
-</table>
-            </div>
+                    <button className="p-2 rounded-xl border border-border/80 hover:bg-muted text-muted-foreground hover:text-foreground transition shadow-sm">
+                      <MoreVertical size={16} />
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
 
       {selectedProject && (
   <BudgetModal

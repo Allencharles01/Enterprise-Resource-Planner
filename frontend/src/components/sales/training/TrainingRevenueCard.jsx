@@ -1,11 +1,25 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { DollarSign } from "lucide-react";
-import { trainingStats } from "./trainingData";
+import { api } from "@/lib/api";
 
 export default function TrainingRevenueCard() {
-  const revenue = trainingStats[0];
+  const [revenueVal, setRevenueVal] = useState("₹ 0");
+  const [subVal, setSubVal] = useState("0 Enrollments");
+
+  useEffect(() => {
+    api.get("/api/training/candidates").then((res) => {
+      const list = res.data || [];
+      const liveAdded = list.reduce((acc, c) => {
+        const raw = String(c.cost || "0").replace(/\D/g, "");
+        return acc + (raw ? parseInt(raw, 10) : 0);
+      }, 0);
+      setRevenueVal(`₹ ${liveAdded.toLocaleString("en-IN")}`);
+      setSubVal(`${list.length} Enrolled Trainees`);
+    }).catch(() => {});
+  }, []);
 
   return (
     <motion.div
@@ -42,17 +56,17 @@ export default function TrainingRevenueCard() {
         </div>
 
         <span className="text-3xl font-bold text-foreground">
-          {revenue.value}
+          {revenueVal}
         </span>
       </div>
 
       <h3 className="text-lg font-semibold text-foreground">
-        {revenue.title}
+        Revenue Through Training
       </h3>
 
       <p className="text-sm text-muted-foreground mt-1">
         <span className="font-semibold text-green-500">
-          {revenue.subText}
+          {subVal}
         </span>
       </p>
     </motion.div>

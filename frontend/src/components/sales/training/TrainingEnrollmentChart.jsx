@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import {
   ResponsiveContainer,
   BarChart,
@@ -10,9 +11,28 @@ import {
   Tooltip,
 } from "recharts";
 import { motion } from "framer-motion";
-import { enrollmentData } from "./trainingData";
+import { api } from "@/lib/api";
+
+const defaultChartData = [
+  { month: "Jan", enrollments: 0 },
+  { month: "Feb", enrollments: 0 },
+  { month: "Mar", enrollments: 0 },
+  { month: "Apr", enrollments: 0 },
+  { month: "May", enrollments: 0 },
+  { month: "Jun", enrollments: 0 },
+];
 
 export default function TrainingEnrollmentChart() {
+  const [chartData, setChartData] = useState(defaultChartData);
+
+  useEffect(() => {
+    api.get("/api/training/candidates").then((res) => {
+      const list = res.data || [];
+      const next = defaultChartData.map(d => ({ ...d }));
+      next[next.length - 1].enrollments = list.length;
+      setChartData(next);
+    }).catch(() => {});
+  }, []);
   return (
     <motion.div
       whileHover={{
@@ -51,7 +71,7 @@ export default function TrainingEnrollmentChart() {
       <div className="h-[400px] mt-6">
         <ResponsiveContainer width="100%" height="100%">
           <BarChart
-            data={enrollmentData}
+            data={chartData}
             margin={{
               top: 5,
               right: 0,

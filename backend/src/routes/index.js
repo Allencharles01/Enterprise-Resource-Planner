@@ -7,6 +7,7 @@ import { adminsRouter } from "./admins.js";
 import { createStubRouter } from "./stub.js";
 import { projectsRouter } from "./projects.js";
 import { internshipsRouter } from "./internships.js";
+import { trainingRouter } from "./training.js";
 
 export const apiRouter = Router();
 
@@ -16,6 +17,7 @@ apiRouter.use("/employees", employeesRouter);
 apiRouter.use("/accountRequests", accountRequestsRouter);
 apiRouter.use("/admins", adminsRouter);
 apiRouter.use("/internships", internshipsRouter);
+apiRouter.use("/training", trainingRouter);
 
 // Stubs for remaining ERP modules (implemented incrementally)
 apiRouter.use("/attendance", createStubRouter("attendance"));

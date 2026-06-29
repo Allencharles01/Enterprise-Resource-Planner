@@ -21,6 +21,13 @@ export default function AdminDashboard() {
   const [error, setError] = useState("");
 
   useEffect(() => {
+    const token = localStorage.getItem("token");
+    const activeSession = sessionStorage.getItem("active_session");
+    if (!token || !activeSession) {
+      router.replace("/login");
+      return;
+    }
+
     const fetchProjects = async () => {
       try {
         const response = await api.get("/api/projects");

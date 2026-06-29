@@ -6,3 +6,5 @@ export * from "./Task";
 export * from "./User";
 export * from "./InternshipCandidate";
 export * from "./InternshipCourse";
+export * from "./TrainingCandidate";
+export * from "./TrainingCourse";

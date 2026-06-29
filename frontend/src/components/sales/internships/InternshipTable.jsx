@@ -104,62 +104,62 @@ export default function InternshipTable() {
         <div className="overflow-x-auto">
           <table className="w-full min-w-[1300px]">
             <thead>
-              <tr className="border-b border-border">
-                <th className="text-left py-4">Name</th>
-                <th className="text-left py-4">Program</th>
-                <th className="text-left py-4">Department</th>
-                <th className="text-left py-4">Duration</th>
-                <th className="text-left py-4">Mentor</th>
-                <th className="text-left py-4">Progress</th>
-                <th className="text-left py-4">Placement</th>
-                <th className="text-left py-4">Status</th>
-                <th className="text-left py-4">Profile</th>
+              <tr className="border-b border-border text-sm text-muted-foreground">
+                <th className="text-left py-4 px-4 font-semibold whitespace-nowrap">Name</th>
+                <th className="text-left py-4 px-4 font-semibold whitespace-nowrap">Program</th>
+                <th className="text-left py-4 px-4 font-semibold whitespace-nowrap">Department</th>
+                <th className="text-left py-4 px-4 font-semibold whitespace-nowrap">Duration</th>
+                <th className="text-left py-4 px-4 font-semibold whitespace-nowrap">Mentor</th>
+                <th className="text-left py-4 px-4 font-semibold whitespace-nowrap">Progress</th>
+                <th className="text-left py-4 px-4 font-semibold whitespace-nowrap">Placement</th>
+                <th className="text-left py-4 px-4 font-semibold whitespace-nowrap">Status</th>
+                <th className="text-left py-4 px-4 font-semibold whitespace-nowrap">Profile</th>
               </tr>
             </thead>
 
-            <tbody>
+            <tbody className="text-sm">
               {filteredInterns.map((intern) => (
                 <tr
                   key={intern.id}
-                  className="border-b border-border/50"
+                  className="border-b border-border/50 hover:bg-muted/20 transition"
                 >
                   {/* Name */}
-                  <td className="py-4">
+                  <td className="py-4 px-4 whitespace-nowrap">
                     <div className="font-semibold text-foreground">
                       {intern.name}
                     </div>
 
-                    <div className="text-sm text-muted-foreground">
+                    <div className="text-xs text-muted-foreground mt-0.5">
                       {intern.email}
                     </div>
                   </td>
 
-                  <td>{intern.program}</td>
+                  <td className="py-4 px-4 font-medium text-foreground whitespace-nowrap">{intern.program}</td>
 
-                  <td>{intern.department}</td>
+                  <td className="py-4 px-4 text-muted-foreground whitespace-nowrap">{intern.department}</td>
 
-                  <td>{intern.duration}</td>
+                  <td className="py-4 px-4 whitespace-nowrap">{intern.duration}</td>
 
-                  <td>{intern.mentor}</td>
+                  <td className="py-4 px-4 font-medium text-foreground whitespace-nowrap">{intern.mentor}</td>
 
                   {/* Progress */}
-                  <td className="w-[220px]">
-                    <div className="text-sm font-medium mb-1">
-                      {intern.progress}%
+                  <td className="py-4 px-4 w-[220px] min-w-[180px]">
+                    <div className="text-sm font-bold mb-1 text-emerald-400">
+                      {intern.progress || 0}%
                     </div>
 
-                    <div className="w-full h-2 bg-muted rounded-full overflow-hidden">
+                    <div className="w-full h-2.5 bg-zinc-800 rounded-full overflow-hidden border border-border/50">
                       <div
-                        className="h-full bg-primary rounded-full"
+                        className="h-full bg-gradient-to-r from-amber-500 via-emerald-500 to-teal-400 rounded-full transition-all duration-500 shadow-sm shadow-emerald-500/30"
                         style={{
-                          width: `${intern.progress}%`,
+                          width: `${intern.progress || 0}%`,
                         }}
                       />
                     </div>
                   </td>
 
                   {/* Placement */}
-                  <td>
+                  <td className="py-4 px-4 whitespace-nowrap">
                     <span
                       className={`px-3 py-1 rounded-full text-sm font-medium ${
                         intern.placement === "Shortlisted"
@@ -176,7 +176,7 @@ export default function InternshipTable() {
                   </td>
 
                   {/* Status */}
-                  <td>
+                  <td className="py-4 px-4 whitespace-nowrap">
                     <span
                       className={`px-3 py-1 rounded-full text-sm font-medium ${
                         intern.status === "Active"
@@ -191,7 +191,7 @@ export default function InternshipTable() {
                   </td>
 
                   {/* Profile */}
-                  <td>
+                  <td className="py-4 px-4 whitespace-nowrap">
                     <button
                       onClick={() => setSelectedIntern(intern)}
                       className="

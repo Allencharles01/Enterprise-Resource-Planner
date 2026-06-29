@@ -979,8 +979,12 @@ export default function ProjectDetailDashboard({ project, onBack }) {
       {/* Team + Current Tasks Section */}
       <div className="flex justify-end">
         <button
-          onClick={() => setShowTeamModal(true)}
-          className="flex items-center gap-2 px-4 py-2 rounded-lg border border-border text-foreground hover:bg-muted transition"
+          onClick={() => {
+            if (project?._id || project?.id) {
+              window.location.href = `/projects/${project._id || project.id}`;
+            }
+          }}
+          className="flex items-center gap-2 px-4 py-2 rounded-lg border border-border text-foreground hover:bg-muted transition cursor-pointer"
         >
           <Users size={17} />
           Detailed Team View

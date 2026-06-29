@@ -52,7 +52,6 @@ export function DashboardLayout({ children, adminName = "Admin" }) {
   const pathname = usePathname();
 
   const departments = [
-    { name: "Projects", path: "/projects" },
     { name: "Sales", path: "/sales" },
     { name: "Digital Marketing", path: "/digital-marketing" },
   ];

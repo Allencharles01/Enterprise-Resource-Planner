@@ -4,6 +4,7 @@ import { useState } from "react";
 import { DashboardLayout } from "@/components/DashboardLayout";
 import { EditProjectsModal } from "@/components/EditProjectsModal";
 import { InternshipModals } from "@/components/InternshipModals";
+import { TrainingModals } from "@/components/TrainingModals";
 import {
   FolderKanban,
   GraduationCap,
@@ -25,6 +26,7 @@ export default function ControlPanelPage() {
   const router = useRouter();
   const [isEditProjectsOpen, setIsEditProjectsOpen] = useState(false);
   const [internshipModal, setInternshipModal] = useState(null);
+  const [trainingModal, setTrainingModal] = useState(null);
   const [activeToast, setActiveToast] = useState(null);
 
   const showToast = (actionName) => {
@@ -190,16 +192,16 @@ export default function ControlPanelPage() {
 
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 flex-1">
               {[
-                { label: "Create a New course", icon: <PlusCircle size={18} /> },
-                { label: "Edit an Existing Course", icon: <Edit3 size={18} /> },
-                { label: "Remove a Course", icon: <Trash2 size={18} />, danger: true },
-                { label: "Add a Candidate", icon: <UserPlus size={18} /> },
-                { label: "Edit Candidate's profile", icon: <UserCheck size={18} /> },
-                { label: "Remove a Candidate", icon: <UserMinus size={18} />, danger: true },
+                { label: "Create a New course", id: "add_course", icon: <PlusCircle size={18} /> },
+                { label: "Edit an Existing Course", id: "edit_course", icon: <Edit3 size={18} /> },
+                { label: "Remove a Course", id: "remove_course", icon: <Trash2 size={18} />, danger: true },
+                { label: "Add a Candidate", id: "add_candidate", icon: <UserPlus size={18} /> },
+                { label: "Edit Candidate's profile", id: "edit_candidate", icon: <UserCheck size={18} /> },
+                { label: "Remove a Candidate", id: "remove_candidate", icon: <UserMinus size={18} />, danger: true },
               ].map((btn, idx) => (
                 <button
                   key={idx}
-                  onClick={() => showToast(`Training -> ${btn.label}`)}
+                  onClick={() => setTrainingModal(btn.id)}
                   className={`p-4 rounded-2xl text-xs font-bold border flex flex-col items-center justify-center gap-2 text-center transition-all hover:scale-105 active:scale-95 ${
                     btn.danger
                       ? "bg-red-500/5 border-red-500/20 text-red-500 hover:bg-red-500/10"
@@ -253,6 +255,11 @@ export default function ControlPanelPage() {
       <InternshipModals
         activeModal={internshipModal}
         onClose={() => setInternshipModal(null)}
+      />
+
+      <TrainingModals
+        activeModal={trainingModal}
+        onClose={() => setTrainingModal(null)}
       />
 
       {/* Toast Notification */}

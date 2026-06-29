@@ -29,6 +29,23 @@ const formatNumberInput = (val) => {
   return raw ? parseInt(raw, 10).toLocaleString("en-IN") : "";
 };
 
+const getCalcTierCost = (courseName, duration, courseList) => {
+  if (!courseList || !courseList.length) return "";
+  const course = courseList.find((c) => c.name === courseName) || courseList[0];
+  if (!course) return "";
+  const durMap = {
+    "1 month": "month1",
+    "2 months": "month2",
+    "3 months": "month3",
+    "6 months": "month6",
+    "12 months": "month12",
+  };
+  const key = durMap[duration] || "month3";
+  const raw = course?.prices?.[key] || course?.price || "";
+  const num = formatNumberInput(raw);
+  return num ? `₹ ${num}` : "";
+};
+
 export function InternshipModals({ activeModal, onClose }) {
   if (!activeModal) return null;
 
@@ -70,13 +87,17 @@ function AddCandidateModal({ onClose }) {
     university: "",
     courseName: "",
     duration: "3 months",
-    cost: "15,000",
+    cost: "₹ 15,000",
     paymentMethod: "UPI",
     startDate: new Date().toISOString().split("T")[0],
     endDate: new Date(Date.now() + 90 * 86400000).toISOString().split("T")[0],
     salesAgent: "Allen Charles",
+    mentor: "Noah",
+    progress: 0,
+    status: "Active",
   });
   const [courses, setCourses] = useState([]);
+  const [employeeNames, setEmployeeNames] = useState([]);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -84,15 +105,31 @@ function AddCandidateModal({ onClose }) {
       const data = res.data || [];
       setCourses(data);
       if (data.length > 0 && !formData.courseName) {
-        setFormData((prev) => ({ ...prev, courseName: data[0].name }));
+        const cName = data[0].name;
+        const calc = getCalcTierCost(cName, formData.duration, data);
+        setFormData((prev) => ({ ...prev, courseName: cName, cost: calc || prev.cost }));
       }
     });
+    api.get("/api/employees").then((res) => {
+      const list = res.data || [];
+      const names = list.map((e) => `${e.personal?.firstName || ""} ${e.personal?.lastName || ""}`.trim()).filter(Boolean);
+      setEmployeeNames(names);
+    }).catch(() => {});
   }, []);
 
   const handleChange = (e) => {
-    let val = e.target.value;
-    if (e.target.name === "cost") val = formatNumberInput(val);
-    setFormData({ ...formData, [e.target.name]: val });
+    const { name, value } = e.target;
+    let nextForm = { ...formData, [name]: value };
+    if (name === "cost") {
+      const num = formatNumberInput(value);
+      nextForm.cost = num ? `₹ ${num}` : "";
+    } else if (name === "courseName" || name === "duration") {
+      const cName = name === "courseName" ? value : formData.courseName;
+      const cDur = name === "duration" ? value : formData.duration;
+      const calc = getCalcTierCost(cName, cDur, courses);
+      if (calc) nextForm.cost = calc;
+    }
+    setFormData(nextForm);
   };
 
   const handleSubmit = async (e) => {
@@ -169,7 +206,13 @@ function AddCandidateModal({ onClose }) {
           <div className="grid grid-cols-2 gap-3">
             <div>
               <label className="text-xs text-muted-foreground block mb-1">Duration</label>
-              <input name="duration" value={formData.duration} onChange={handleChange} className="w-full bg-zinc-800 border border-border rounded-xl p-3 text-sm focus:border-emerald-500 outline-none" placeholder="3 months" />
+              <select name="duration" value={formData.duration || "3 months"} onChange={handleChange} className="w-full bg-zinc-800 border border-border rounded-xl p-3 text-sm focus:border-emerald-500 outline-none">
+                <option value="1 month">1 month</option>
+                <option value="2 months">2 months</option>
+                <option value="3 months">3 months</option>
+                <option value="6 months">6 months</option>
+                <option value="12 months">12 months</option>
+              </select>
             </div>
             <div>
               <label className="text-xs text-muted-foreground block mb-1">Cost (₹/$)</label>
@@ -185,19 +228,28 @@ function AddCandidateModal({ onClose }) {
               <option value="Bank Transfer">Bank Transfer</option>
             </select>
           </div>
+          <datalist id="employeeSuggestionsList">
+            {employeeNames.map((n, idx) => <option key={idx} value={n} />)}
+          </datalist>
           <div className="grid grid-cols-2 gap-3">
             <div>
               <label className="text-xs text-muted-foreground block mb-1">Start Date</label>
-              <input type="date" name="startDate" value={formData.startDate} onChange={handleChange} className="w-full bg-zinc-800 border border-border rounded-xl p-3 text-sm focus:border-emerald-500 outline-none" />
+              <input type="date" name="startDate" value={formData.startDate} onChange={handleChange} className="w-full bg-zinc-800 border border-border rounded-xl p-3 text-sm text-foreground [color-scheme:dark] focus:border-emerald-500 outline-none cursor-pointer" />
             </div>
             <div>
               <label className="text-xs text-muted-foreground block mb-1">End Date</label>
-              <input type="date" name="endDate" value={formData.endDate} onChange={handleChange} className="w-full bg-zinc-800 border border-border rounded-xl p-3 text-sm focus:border-emerald-500 outline-none" />
+              <input type="date" name="endDate" value={formData.endDate} onChange={handleChange} className="w-full bg-zinc-800 border border-border rounded-xl p-3 text-sm text-foreground [color-scheme:dark] focus:border-emerald-500 outline-none cursor-pointer" />
             </div>
           </div>
-          <div>
-            <label className="text-xs text-muted-foreground block mb-1">Sales Agent</label>
-            <input name="salesAgent" value={formData.salesAgent} onChange={handleChange} className="w-full bg-zinc-800 border border-border rounded-xl p-3 text-sm focus:border-emerald-500 outline-none" placeholder="Agent Name" />
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="text-xs text-muted-foreground block mb-1">Sales Agent</label>
+              <input list="employeeSuggestionsList" name="salesAgent" value={formData.salesAgent} onChange={handleChange} className="w-full bg-zinc-800 border border-border rounded-xl p-3 text-sm focus:border-emerald-500 outline-none" placeholder="Agent Name" />
+            </div>
+            <div>
+              <label className="text-xs text-muted-foreground block mb-1">Mentor</label>
+              <input list="employeeSuggestionsList" name="mentor" value={formData.mentor || ""} onChange={handleChange} className="w-full bg-zinc-800 border border-border rounded-xl p-3 text-sm focus:border-emerald-500 outline-none" placeholder="Mentor Name" />
+            </div>
           </div>
         </div>
       </div>
@@ -217,30 +269,62 @@ function EditCandidateModal({ onClose }) {
   const [candidates, setCandidates] = useState([]);
   const [selectedId, setSelectedId] = useState("");
   const [formData, setFormData] = useState(null);
+  const [statusTab, setStatusTab] = useState("Active");
+  const [courses, setCourses] = useState([]);
+  const [employeeNames, setEmployeeNames] = useState([]);
   const [loading, setLoading] = useState(false);
 
+  const filteredCandidates = candidates.filter((c) => {
+    const st = (c.status || "Active").toLowerCase();
+    if (statusTab === "Active") return st === "active";
+    return st !== "active";
+  });
+
   useEffect(() => {
-    api.get("/api/internships/candidates").then((res) => {
+    api.get("/api/internships/courses").then((res) => setCourses(res.data || []));
+    api.get("/api/employees").then((res) => {
       const list = res.data || [];
-      setCandidates(list);
-      if (list.length > 0) {
-        setSelectedId(list[0]._id);
-        setFormData(list[0]);
-      }
+      const names = list.map((e) => `${e.personal?.firstName || ""} ${e.personal?.lastName || ""}`.trim()).filter(Boolean);
+      setEmployeeNames(names);
+    }).catch(() => {});
+    api.get("/api/internships/candidates").then((res) => {
+      setCandidates(res.data || []);
     });
   }, []);
+
+  useEffect(() => {
+    if (filteredCandidates.length > 0) {
+      if (!filteredCandidates.some((c) => c._id === selectedId)) {
+        const first = filteredCandidates[0];
+        setSelectedId(first._id);
+        setFormData({ ...first, cost: first.cost ? (String(first.cost).includes("₹") ? first.cost : `₹ ${formatNumberInput(first.cost)}`) : "", startDate: first.startDate ? first.startDate.split("T")[0] : "", endDate: first.endDate ? first.endDate.split("T")[0] : "" });
+      }
+    } else {
+      setSelectedId("");
+      setFormData(null);
+    }
+  }, [statusTab, candidates]);
 
   const handleSelect = (e) => {
     const id = e.target.value;
     setSelectedId(id);
     const item = candidates.find((c) => c._id === id);
-    if (item) setFormData({ ...item, startDate: item.startDate ? item.startDate.split("T")[0] : "", endDate: item.endDate ? item.endDate.split("T")[0] : "" });
+    if (item) setFormData({ ...item, cost: item.cost ? (String(item.cost).includes("₹") ? item.cost : `₹ ${formatNumberInput(item.cost)}`) : "", startDate: item.startDate ? item.startDate.split("T")[0] : "", endDate: item.endDate ? item.endDate.split("T")[0] : "" });
   };
 
   const handleChange = (e) => {
-    let val = e.target.value;
-    if (e.target.name === "cost") val = formatNumberInput(val);
-    setFormData({ ...formData, [e.target.name]: val });
+    const { name, value } = e.target;
+    let nextForm = { ...formData, [name]: value };
+    if (name === "cost") {
+      const num = formatNumberInput(value);
+      nextForm.cost = num ? `₹ ${num}` : "";
+    } else if (name === "courseName" || name === "duration") {
+      const cName = name === "courseName" ? value : formData.courseName;
+      const cDur = name === "duration" ? value : formData.duration;
+      const calc = getCalcTierCost(cName, cDur, courses);
+      if (calc) nextForm.cost = calc;
+    }
+    setFormData(nextForm);
   };
 
   const handleSubmit = async (e) => {
@@ -268,19 +352,34 @@ function EditCandidateModal({ onClose }) {
           <h2 className="text-2xl font-bold">Edit Candidate Profile</h2>
           <p className="text-sm text-muted-foreground">Select and modify enrolled intern information</p>
         </div>
-        {candidates.length > 0 && (
+        {filteredCandidates.length > 0 && (
           <select value={selectedId} onChange={handleSelect} className="bg-zinc-800 border border-amber-500/40 text-amber-400 font-semibold rounded-xl px-4 py-2 text-sm outline-none">
-            {candidates.map((c) => (
+            {filteredCandidates.map((c) => (
               <option key={c._id} value={c._id}>{c.name} ({c.email})</option>
             ))}
           </select>
         )}
       </div>
 
+      <div className="flex gap-2 p-1.5 bg-zinc-800 rounded-2xl border border-border/60">
+        {["Active", "Inactive"].map((tName) => (
+          <button
+            key={tName}
+            type="button"
+            onClick={() => setStatusTab(tName)}
+            className={`flex-1 py-2 rounded-xl font-bold text-sm transition ${
+              statusTab === tName ? "bg-amber-600 text-white shadow-md" : "text-muted-foreground hover:text-foreground"
+            }`}
+          >
+            {tName} Interns ({candidates.filter(c => tName === "Active" ? (c.status || "Active").toLowerCase() === "active" : (c.status || "Active").toLowerCase() !== "active").length})
+          </button>
+        ))}
+      </div>
+
       {!formData ? (
-        <p className="text-center py-12 text-muted-foreground">No internship candidates found in database.</p>
+        <p className="text-center py-12 text-muted-foreground">No {statusTab.toLowerCase()} candidates found.</p>
       ) : (
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <form onSubmit={handleSubmit} className="space-y-8">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-4 bg-muted/20 p-5 rounded-2xl border border-border/50">
               <h3 className="text-base font-bold text-amber-400">Personal Info</h3>
@@ -315,7 +414,13 @@ function EditCandidateModal({ onClose }) {
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="text-xs text-muted-foreground block mb-1">Duration</label>
-                  <input name="duration" value={formData.duration || ""} onChange={handleChange} className="w-full bg-zinc-800 border border-border rounded-xl p-2.5 text-sm outline-none" />
+                  <select name="duration" value={formData.duration || "3 months"} onChange={handleChange} className="w-full bg-zinc-800 border border-border rounded-xl p-2.5 text-sm outline-none">
+                    <option value="1 month">1 month</option>
+                    <option value="2 months">2 months</option>
+                    <option value="3 months">3 months</option>
+                    <option value="6 months">6 months</option>
+                    <option value="12 months">12 months</option>
+                  </select>
                 </div>
                 <div>
                   <label className="text-xs text-muted-foreground block mb-1">Cost</label>
@@ -331,19 +436,43 @@ function EditCandidateModal({ onClose }) {
                   <option value="Bank Transfer">Bank Transfer</option>
                 </select>
               </div>
+              <datalist id="editEmpSuggestionsList">
+                {employeeNames.map((n, idx) => <option key={idx} value={n} />)}
+              </datalist>
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="text-xs text-muted-foreground block mb-1">Start Date</label>
-                  <input type="date" name="startDate" value={formData.startDate || ""} onChange={handleChange} className="w-full bg-zinc-800 border border-border rounded-xl p-2.5 text-sm outline-none" />
+                  <input type="date" name="startDate" value={formData.startDate || ""} onChange={handleChange} className="w-full bg-zinc-800 border border-border rounded-xl p-2.5 text-sm text-foreground [color-scheme:dark] outline-none cursor-pointer" />
                 </div>
                 <div>
                   <label className="text-xs text-muted-foreground block mb-1">End Date</label>
-                  <input type="date" name="endDate" value={formData.endDate || ""} onChange={handleChange} className="w-full bg-zinc-800 border border-border rounded-xl p-2.5 text-sm outline-none" />
+                  <input type="date" name="endDate" value={formData.endDate || ""} onChange={handleChange} className="w-full bg-zinc-800 border border-border rounded-xl p-2.5 text-sm text-foreground [color-scheme:dark] outline-none cursor-pointer" />
                 </div>
               </div>
-              <div>
-                <label className="text-xs text-muted-foreground block mb-1">Sales Agent</label>
-                <input name="salesAgent" value={formData.salesAgent || ""} onChange={handleChange} className="w-full bg-zinc-800 border border-border rounded-xl p-2.5 text-sm outline-none" />
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="text-xs text-muted-foreground block mb-1">Sales Agent</label>
+                  <input list="editEmpSuggestionsList" name="salesAgent" value={formData.salesAgent || ""} onChange={handleChange} className="w-full bg-zinc-800 border border-border rounded-xl p-2.5 text-sm outline-none" placeholder="Agent Name" />
+                </div>
+                <div>
+                  <label className="text-xs text-muted-foreground block mb-1">Mentor</label>
+                  <input list="editEmpSuggestionsList" name="mentor" value={formData.mentor || ""} onChange={handleChange} className="w-full bg-zinc-800 border border-border rounded-xl p-2.5 text-sm outline-none" placeholder="Mentor Name" />
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="text-xs text-muted-foreground block mb-1">Candidate Status</label>
+                  <select name="status" value={formData.status || "Active"} onChange={handleChange} className="w-full bg-zinc-800 border border-border rounded-xl p-2.5 text-sm outline-none font-semibold text-amber-400">
+                    <option value="Active" className="text-foreground">Active</option>
+                    <option value="Inactive" className="text-foreground">Inactive</option>
+                    <option value="Dropped Out" className="text-foreground">Dropped Out</option>
+                    <option value="Completed" className="text-foreground">Completed</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="text-xs text-muted-foreground block mb-1">Progress ({formData.progress || 0}%)</label>
+                  <input type="range" min="0" max="100" name="progress" value={formData.progress || 0} onChange={handleChange} className="w-full mt-2 accent-emerald-500 cursor-pointer" />
+                </div>
               </div>
             </div>
           </div>

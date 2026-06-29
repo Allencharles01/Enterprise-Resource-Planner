@@ -1,14 +1,78 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { trainingPrograms } from "./trainingData";
+import { api } from "@/lib/api";
 import TrainingStatusBadge from "./TrainingStatusBadge";
 import TrainingProgressBar from "./TrainingProgressBar";
 import TrainingParticipantsModal from "./TrainingParticipantsModal";
 
 export default function TrainingTable() {
   const [selectedProgram, setSelectedProgram] = useState(null);
+  const [liveCourses, setLiveCourses] = useState([]);
+  const [liveCandidates, setLiveCandidates] = useState([]);
+
+  useEffect(() => {
+    api.get("/api/training/courses").then((res) => setLiveCourses(res.data || [])).catch(() => {});
+    api.get("/api/training/candidates").then((res) => setLiveCandidates(res.data || [])).catch(() => {});
+  }, []);
+
+  // Merge live database courses with seed static programs
+  const combinedPrograms = [
+    ...trainingPrograms.map((p) => {
+      const enrolledCandidates = liveCandidates.filter((c) => c.courseName === p.name);
+      const totalEnrolled = p.enrolled + enrolledCandidates.length;
+      const completedCount = p.completed + enrolledCandidates.filter((c) => c.status === "Completed").length;
+      return {
+        ...p,
+        enrolled: totalEnrolled,
+        completed: completedCount,
+        participants: [
+          ...(p.participants || []),
+          ...enrolledCandidates.map((c) => ({
+            id: c._id,
+            name: c.name,
+            email: c.email,
+            contact: c.phone || "N/A",
+            progress: c.progress || 0,
+            status: c.status || "Enrolled",
+            courseName: c.courseName,
+            cost: c.cost,
+            education: c.education,
+            university: c.university,
+          })),
+        ],
+      };
+    }),
+    ...liveCourses.filter((c) => !trainingPrograms.some((tp) => tp.name === c.name)).map((c) => {
+      const enrolledCandidates = liveCandidates.filter((cand) => cand.courseName === c.name);
+      return {
+        id: c._id,
+        name: c.name,
+        category: "Technical",
+        duration: "8 weeks",
+        instructor: "Enterprise Mentor",
+        enrolled: enrolledCandidates.length,
+        completed: enrolledCandidates.filter((cand) => cand.status === "Completed").length,
+        revenue: `${c.currency || "₹"} ${c.price}`,
+        progress: enrolledCandidates.length > 0 ? Math.round(enrolledCandidates.reduce((acc, curr) => acc + (curr.progress || 0), 0) / enrolledCandidates.length) : 0,
+        status: "Active",
+        participants: enrolledCandidates.map((cand) => ({
+          id: cand._id,
+          name: cand.name,
+          email: cand.email,
+          contact: cand.phone || "N/A",
+          progress: cand.progress || 0,
+          status: cand.status || "Enrolled",
+          courseName: cand.courseName,
+          cost: cand.cost,
+          education: cand.education,
+          university: cand.university,
+        })),
+      };
+    }),
+  ];
 
   return (
     <>
@@ -44,7 +108,7 @@ export default function TrainingTable() {
             </thead>
 
             <tbody>
-              {trainingPrograms.map((program) => (
+              {combinedPrograms.map((program) => (
                 <tr
                   key={program.id}
                   className="border-b border-gray-100 dark:border-white/5 hover:bg-gray-50 dark:hover:bg-white/[0.03] transition"

@@ -1,8 +1,9 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { BookOpen, Users, TrendingUp } from "lucide-react";
-import { trainingStats } from "./trainingData";
+import { api } from "@/lib/api";
 
 const iconMap = {
   book: BookOpen,
@@ -17,9 +18,35 @@ const colorMap = {
 };
 
 export default function TrainingStatsCards() {
+  const [cards, setCards] = useState([
+    { id: 2, title: "Total Programs", value: "8", subText: "Active Pathways", icon: "book" },
+    { id: 3, title: "Total Enrolled", value: "0", subText: "Active Trainees", icon: "users" },
+    { id: 4, title: "Completion Rate", value: "0%", subText: "Average Score", icon: "trend" },
+  ]);
+
+  useEffect(() => {
+    Promise.all([
+      api.get("/api/training/courses").catch(() => ({ data: [] })),
+      api.get("/api/training/candidates").catch(() => ({ data: [] })),
+    ]).then(([coursesRes, candRes]) => {
+      const courses = coursesRes.data || [];
+      const cands = candRes.data || [];
+      const totalProg = 8 + courses.length;
+      const totalCand = cands.length;
+      const completedCands = cands.filter(c => c.status === "Completed").length;
+      const rate = totalCand > 0 ? Math.round((completedCands / totalCand) * 100) : 0;
+
+      setCards([
+        { id: 2, title: "Total Programs", value: String(totalProg), subText: "Curriculum Pathways", icon: "book" },
+        { id: 3, title: "Total Enrolled", value: String(totalCand), subText: "Active Participants", icon: "users" },
+        { id: 4, title: "Completion Rate", value: `${rate}%`, subText: "Average Score", icon: "trend" },
+      ]);
+    });
+  }, []);
+
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-      {trainingStats.slice(1, 4).map((item) => {
+      {cards.map((item) => {
         const Icon = iconMap[item.icon];
         const color = colorMap[item.title];
 
