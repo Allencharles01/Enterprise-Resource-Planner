@@ -7,6 +7,7 @@ import {
   Eye,
   FileText,
 } from "lucide-react";
+import BudgetModal from "@/components/sales/BudgetModal";
 
 const badgeStyle = (status = "") => {
   const value = String(status).toLowerCase();
@@ -56,10 +57,9 @@ const placementBadgeStyle = (placement = "") => {
   return "bg-slate-100 text-slate-600 border border-slate-200 dark:bg-slate-500/10 dark:text-slate-400 dark:border-slate-500/20";
 };
 
-
-
 export default function SalesEmployeeMonthlyAccordion({ activeTab, data }) {
   const [openMonth, setOpenMonth] = useState(data?.[0]?.month || "");
+  const [selectedBudgetProject, setSelectedBudgetProject] = useState(null);
 
   const getTitle = () => {
     if (activeTab === "Client Projects") return "Client Projects Detailed View";
@@ -67,19 +67,64 @@ export default function SalesEmployeeMonthlyAccordion({ activeTab, data }) {
     return "Training Detailed View";
   };
 
+  const handleBudgetClick = (project) => {
+    setSelectedBudgetProject({
+      ...project,
+
+      project: project.project || project.projectName,
+      client: project.client || project.clientName,
+      manager: project.manager || "Rahul Sharma",
+
+      agreed: project.agreed || project.budget || "₹0",
+      received: project.received || "₹0",
+      remaining: project.remaining || "₹0",
+
+      progress: project.progress ?? 0,
+      status: project.status || project.leadStatus || "Pending",
+      deadline: project.deadline || "N/A",
+
+      services: project.services || ["Service details pending"],
+      payments: project.payments || [],
+
+      agreementDate:
+        project.agreementDate ||
+        project.submitted ||
+        project.submittedDate ||
+        "N/A",
+    });
+  };
+
   const renderClientProjectsTable = (records) => (
     <table className="w-full min-w-[1200px] text-left border-collapse">
       <thead>
         <tr className="border-b border-border text-xs uppercase text-muted-foreground tracking-wider">
-          <th className="py-4 px-4 whitespace-nowrap font-bold">Project Name</th>
-          <th className="py-4 px-4 whitespace-nowrap font-bold">Client Name</th>
-          <th className="py-4 px-4 whitespace-nowrap font-bold">Budget</th>
-          <th className="py-4 px-4 whitespace-nowrap font-bold">Lead Status</th>
-          <th className="py-4 px-4 whitespace-nowrap font-bold">Approval Status</th>
-          <th className="py-4 px-4 whitespace-nowrap font-bold">Deadline</th>
-          <th className="py-4 px-4 whitespace-nowrap font-bold">Submitted</th>
-          <th className="py-4 px-4 whitespace-nowrap font-bold">Report</th>
-          <th className="py-4 px-4 whitespace-nowrap font-bold">Actions</th>
+          <th className="py-4 px-4 whitespace-nowrap font-bold">
+            Project Name
+          </th>
+          <th className="py-4 px-4 whitespace-nowrap font-bold">
+            Client Name
+          </th>
+          <th className="py-4 px-4 whitespace-nowrap font-bold">
+            Budget
+          </th>
+          <th className="py-4 px-4 whitespace-nowrap font-bold">
+            Lead Status
+          </th>
+          <th className="py-4 px-4 whitespace-nowrap font-bold">
+            Approval Status
+          </th>
+          <th className="py-4 px-4 whitespace-nowrap font-bold">
+            Deadline
+          </th>
+          <th className="py-4 px-4 whitespace-nowrap font-bold">
+            Submitted
+          </th>
+          <th className="py-4 px-4 whitespace-nowrap font-bold">
+            Report
+          </th>
+          <th className="py-4 px-4 whitespace-nowrap font-bold">
+            Actions
+          </th>
         </tr>
       </thead>
 
@@ -94,29 +139,34 @@ export default function SalesEmployeeMonthlyAccordion({ activeTab, data }) {
               {item.clientName || item.client}
             </td>
 
-            <td className="py-4 px-4 font-bold text-foreground whitespace-nowrap">
-              {item.budget}
+            <td className="py-4 px-4 whitespace-nowrap">
+              <button
+                onClick={() => handleBudgetClick(item)}
+                className="font-bold underline text-emerald-400 hover:text-emerald-300 transition"
+              >
+                {item.budget || item.agreed}
+              </button>
             </td>
 
-           <td className="py-4 px-4 whitespace-nowrap">
-  <span
-    className={`px-3 py-1 rounded-full text-xs font-bold ${badgeStyle(
-      item.leadStatus || item.status
-    )}`}
-  >
-    {item.leadStatus || item.status}
-  </span>
-</td>
+            <td className="py-4 px-4 whitespace-nowrap">
+              <span
+                className={`px-3 py-1 rounded-full text-xs font-bold ${badgeStyle(
+                  item.leadStatus || item.status
+                )}`}
+              >
+                {item.leadStatus || item.status}
+              </span>
+            </td>
 
             <td className="py-4 px-4 whitespace-nowrap">
-  <span
-    className={`px-3 py-1 rounded-full text-xs font-bold ${badgeStyle(
-      item.approvalStatus || item.approval
-    )}`}
-  >
-    {item.approvalStatus || item.approval}
-  </span>
-</td>
+              <span
+                className={`px-3 py-1 rounded-full text-xs font-bold ${badgeStyle(
+                  item.approvalStatus || item.approval
+                )}`}
+              >
+                {item.approvalStatus || item.approval}
+              </span>
+            </td>
 
             <td className="py-4 px-4 text-muted-foreground whitespace-nowrap">
               {item.deadline}
@@ -146,206 +196,190 @@ export default function SalesEmployeeMonthlyAccordion({ activeTab, data }) {
   );
 
   const renderInternshipsTable = (records) => (
-  <table className="w-full min-w-[1200px] text-left border-collapse">
-    <thead>
-      <tr className="border-b border-border text-xs uppercase text-muted-foreground tracking-wider">
-        <th className="py-4 px-4 whitespace-nowrap font-bold">
-          Candidate Name
-        </th>
-
-        <th className="py-4 px-4 whitespace-nowrap font-bold">
-          Program
-        </th>
-
-        <th className="py-4 px-4 whitespace-nowrap font-bold">
-          Email
-        </th>
-
-        <th className="py-4 px-4 whitespace-nowrap font-bold">
-          Phone
-        </th>
-
-        <th className="py-4 px-4 whitespace-nowrap font-bold">
-          Course Fee
-        </th>
-
-        <th className="py-4 px-4 whitespace-nowrap font-bold">
-          Internship Duration
-        </th>
-
-        <th className="py-4 px-4 whitespace-nowrap font-bold">
-          Approval Status
-        </th>
-
-        <th className="py-4 px-4 whitespace-nowrap font-bold">
-          Submitted
-        </th>
-
-        <th className="py-4 px-4 whitespace-nowrap font-bold">
-          Placement
-        </th>
-
-        <th className="py-4 px-4 whitespace-nowrap font-bold">
-          View Profile
-        </th>
-      </tr>
-    </thead>
-
-    <tbody className="divide-y divide-border/40 text-sm">
-      {records.map((item, index) => (
-        <tr key={index} className="hover:bg-muted/30 transition-colors">
-          <td className="py-4 px-4 font-bold text-foreground whitespace-nowrap">
-            {item.candidateName}
-          </td>
-
-          <td className="py-4 px-4 text-muted-foreground whitespace-nowrap">
-            {item.program}
-          </td>
-
-          <td className="py-4 px-4 text-muted-foreground whitespace-nowrap">
-            {item.email}
-          </td>
-
-          <td className="py-4 px-4 text-muted-foreground whitespace-nowrap">
-            {item.phone}
-          </td>
-
-          <td className="py-4 px-4 font-bold text-foreground whitespace-nowrap">
-            {item.courseFee || item.fee}
-          </td>
-
-          <td className="py-4 px-4 text-muted-foreground whitespace-nowrap">
-            {item.duration}
-          </td>
-
-          <td className="py-4 px-4 whitespace-nowrap">
-            <span
-              className={`px-3 py-1 rounded-full text-xs font-bold ${badgeStyle(
-                item.approvalStatus || item.approval
-              )}`}
-            >
-              {item.approvalStatus || item.approval}
-            </span>
-          </td>
-
-          <td className="py-4 px-4 text-muted-foreground whitespace-nowrap">
-            {item.submittedDate || item.submitted}
-          </td>
-
-          <td className="py-4 px-4 whitespace-nowrap">
-            <span
-              className={`px-3 py-1 rounded-full text-xs font-bold ${placementBadgeStyle(
-                item.placement
-              )}`}
-            >
-              {item.placement}
-            </span>
-          </td>
-
-          <td className="py-4 px-4 whitespace-nowrap">
-            <button className="flex items-center gap-2 px-3.5 py-2 rounded-xl border border-border/80 hover:bg-indigo-500/10 hover:border-indigo-500/40 text-xs font-bold transition shadow-sm">
-              <Eye size={15} className="text-indigo-400" />
-              View Profile
-            </button>
-          </td>
+    <table className="w-full min-w-[1200px] text-left border-collapse">
+      <thead>
+        <tr className="border-b border-border text-xs uppercase text-muted-foreground tracking-wider">
+          <th className="py-4 px-4 whitespace-nowrap font-bold">
+            Candidate Name
+          </th>
+          <th className="py-4 px-4 whitespace-nowrap font-bold">
+            Program
+          </th>
+          <th className="py-4 px-4 whitespace-nowrap font-bold">
+            Email
+          </th>
+          <th className="py-4 px-4 whitespace-nowrap font-bold">
+            Phone
+          </th>
+          <th className="py-4 px-4 whitespace-nowrap font-bold">
+            Course Fee
+          </th>
+          <th className="py-4 px-4 whitespace-nowrap font-bold">
+            Internship Duration
+          </th>
+          <th className="py-4 px-4 whitespace-nowrap font-bold">
+            Approval Status
+          </th>
+          <th className="py-4 px-4 whitespace-nowrap font-bold">
+            Submitted
+          </th>
+          <th className="py-4 px-4 whitespace-nowrap font-bold">
+            Placement
+          </th>
+          <th className="py-4 px-4 whitespace-nowrap font-bold">
+            View Profile
+          </th>
         </tr>
-      ))}
-    </tbody>
-  </table>
-);
+      </thead>
+
+      <tbody className="divide-y divide-border/40 text-sm">
+        {records.map((item, index) => (
+          <tr key={index} className="hover:bg-muted/30 transition-colors">
+            <td className="py-4 px-4 font-bold text-foreground whitespace-nowrap">
+              {item.candidateName}
+            </td>
+
+            <td className="py-4 px-4 text-muted-foreground whitespace-nowrap">
+              {item.program}
+            </td>
+
+            <td className="py-4 px-4 text-muted-foreground whitespace-nowrap">
+              {item.email}
+            </td>
+
+            <td className="py-4 px-4 text-muted-foreground whitespace-nowrap">
+              {item.phone}
+            </td>
+
+            <td className="py-4 px-4 font-bold text-foreground whitespace-nowrap">
+              {item.courseFee || item.fee}
+            </td>
+
+            <td className="py-4 px-4 text-muted-foreground whitespace-nowrap">
+              {item.duration}
+            </td>
+
+            <td className="py-4 px-4 whitespace-nowrap">
+              <span
+                className={`px-3 py-1 rounded-full text-xs font-bold ${badgeStyle(
+                  item.approvalStatus || item.approval
+                )}`}
+              >
+                {item.approvalStatus || item.approval}
+              </span>
+            </td>
+
+            <td className="py-4 px-4 text-muted-foreground whitespace-nowrap">
+              {item.submittedDate || item.submitted}
+            </td>
+
+            <td className="py-4 px-4 whitespace-nowrap">
+              <span
+                className={`px-3 py-1 rounded-full text-xs font-bold ${placementBadgeStyle(
+                  item.placement
+                )}`}
+              >
+                {item.placement}
+              </span>
+            </td>
+
+            <td className="py-4 px-4 whitespace-nowrap">
+              <button className="flex items-center gap-2 px-3.5 py-2 rounded-xl border border-border/80 hover:bg-indigo-500/10 hover:border-indigo-500/40 text-xs font-bold transition shadow-sm">
+                <Eye size={15} className="text-indigo-400" />
+                View Profile
+              </button>
+            </td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  );
 
   const renderTrainingTable = (records) => (
-  <table className="w-full min-w-[1200px] text-left border-collapse">
-    <thead>
-      <tr className="border-b border-border text-xs uppercase text-muted-foreground tracking-wider">
-        <th className="py-4 px-4 whitespace-nowrap font-bold">
-          Training Program
-        </th>
-
-        <th className="py-4 px-4 whitespace-nowrap font-bold">
-          Client/Candidate Name
-        </th>
-
-        <th className="py-4 px-4 whitespace-nowrap font-bold">
-          Training Fee
-        </th>
-
-        <th className="py-4 px-4 whitespace-nowrap font-bold">
-          Start Date
-        </th>
-
-        <th className="py-4 px-4 whitespace-nowrap font-bold">
-          Status
-        </th>
-
-        <th className="py-4 px-4 whitespace-nowrap font-bold">
-          Approval Status
-        </th>
-
-        <th className="py-4 px-4 whitespace-nowrap font-bold">
-          Submitted Date
-        </th>
-
-        <th className="py-4 px-4 whitespace-nowrap font-bold">
-          View Profile
-        </th>
-      </tr>
-    </thead>
-
-    <tbody className="divide-y divide-border/40 text-sm">
-      {records.map((item, index) => (
-        <tr key={index} className="hover:bg-muted/30 transition-colors">
-          <td className="py-4 px-4 font-bold text-foreground whitespace-nowrap">
-            {item.trainingProgram || item.trainingName}
-          </td>
-
-          <td className="py-4 px-4 text-muted-foreground whitespace-nowrap">
-            {item.clientName || item.candidateName}
-          </td>
-
-          <td className="py-4 px-4 font-bold text-foreground whitespace-nowrap">
-            {item.trainingFee || item.fee}
-          </td>
-
-          <td className="py-4 px-4 text-muted-foreground whitespace-nowrap">
-            {item.startDate}
-          </td>
-
-          <td className="py-4 px-4 whitespace-nowrap">
-            <span
-              className={`px-3 py-1 rounded-full text-xs font-bold ${badgeStyle(
-                item.status
-              )}`}
-            >
-              {item.status}
-            </span>
-          </td>
-
-          <td className="py-4 px-4 whitespace-nowrap">
-            <span
-              className={`px-3 py-1 rounded-full text-xs font-bold ${badgeStyle(
-                item.approvalStatus || item.approval
-              )}`}
-            >
-              {item.approvalStatus || item.approval}
-            </span>
-          </td>
-
-          <td className="py-4 px-4 text-muted-foreground whitespace-nowrap">
-            {item.submittedDate || item.submitted}
-          </td>
-
-          <td className="py-4 px-4 whitespace-nowrap">
-            <button className="flex items-center gap-2 px-3.5 py-2 rounded-xl border border-border/80 hover:bg-indigo-500/10 hover:border-indigo-500/40 text-xs font-bold transition shadow-sm">
-              <Eye size={15} className="text-indigo-400" />
-              View Profile
-            </button>
-          </td>
+    <table className="w-full min-w-[1200px] text-left border-collapse">
+      <thead>
+        <tr className="border-b border-border text-xs uppercase text-muted-foreground tracking-wider">
+          <th className="py-4 px-4 whitespace-nowrap font-bold">
+            Training Program
+          </th>
+          <th className="py-4 px-4 whitespace-nowrap font-bold">
+            Client/Candidate Name
+          </th>
+          <th className="py-4 px-4 whitespace-nowrap font-bold">
+            Training Fee
+          </th>
+          <th className="py-4 px-4 whitespace-nowrap font-bold">
+            Start Date
+          </th>
+          <th className="py-4 px-4 whitespace-nowrap font-bold">
+            Status
+          </th>
+          <th className="py-4 px-4 whitespace-nowrap font-bold">
+            Approval Status
+          </th>
+          <th className="py-4 px-4 whitespace-nowrap font-bold">
+            Submitted Date
+          </th>
+          <th className="py-4 px-4 whitespace-nowrap font-bold">
+            View Profile
+          </th>
         </tr>
-      ))}
-    </tbody>
-  </table>
-);
+      </thead>
+
+      <tbody className="divide-y divide-border/40 text-sm">
+        {records.map((item, index) => (
+          <tr key={index} className="hover:bg-muted/30 transition-colors">
+            <td className="py-4 px-4 font-bold text-foreground whitespace-nowrap">
+              {item.trainingProgram || item.trainingName}
+            </td>
+
+            <td className="py-4 px-4 text-muted-foreground whitespace-nowrap">
+              {item.clientName || item.candidateName}
+            </td>
+
+            <td className="py-4 px-4 font-bold text-foreground whitespace-nowrap">
+              {item.trainingFee || item.fee}
+            </td>
+
+            <td className="py-4 px-4 text-muted-foreground whitespace-nowrap">
+              {item.startDate}
+            </td>
+
+            <td className="py-4 px-4 whitespace-nowrap">
+              <span
+                className={`px-3 py-1 rounded-full text-xs font-bold ${badgeStyle(
+                  item.status
+                )}`}
+              >
+                {item.status}
+              </span>
+            </td>
+
+            <td className="py-4 px-4 whitespace-nowrap">
+              <span
+                className={`px-3 py-1 rounded-full text-xs font-bold ${badgeStyle(
+                  item.approvalStatus || item.approval
+                )}`}
+              >
+                {item.approvalStatus || item.approval}
+              </span>
+            </td>
+
+            <td className="py-4 px-4 text-muted-foreground whitespace-nowrap">
+              {item.submittedDate || item.submitted}
+            </td>
+
+            <td className="py-4 px-4 whitespace-nowrap">
+              <button className="flex items-center gap-2 px-3.5 py-2 rounded-xl border border-border/80 hover:bg-indigo-500/10 hover:border-indigo-500/40 text-xs font-bold transition shadow-sm">
+                <Eye size={15} className="text-indigo-400" />
+                View Profile
+              </button>
+            </td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  );
 
   const renderTable = (records) => {
     if (activeTab === "Client Projects") {
@@ -418,6 +452,13 @@ export default function SalesEmployeeMonthlyAccordion({ activeTab, data }) {
           );
         })}
       </div>
+
+      {selectedBudgetProject && (
+        <BudgetModal
+          project={selectedBudgetProject}
+          onClose={() => setSelectedBudgetProject(null)}
+        />
+      )}
     </div>
   );
 }

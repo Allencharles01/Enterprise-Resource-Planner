@@ -5,6 +5,10 @@ import SalesEmployeeNavbar from "./SalesEmployeeNavbar";
 import SalesEmployeeTabs from "./SalesEmployeeTabs";
 import SalesEmployeeStatsCards from "./SalesEmployeeStatsCards";
 import SalesEmployeeMonthlyAccordion from "./SalesEmployeeMonthlyAccordion";
+
+import NewLeadModal from "./NewLeadModal";
+
+
 import {
   employeeInfo,
   tabs,
@@ -14,6 +18,7 @@ import {
 
 export default function SalesEmployeeDashboard() {
   const [activeTab, setActiveTab] = useState("Client Projects");
+  const [isNewLeadOpen, setIsNewLeadOpen] = useState(false);
 
   return (
     <div className="flex min-h-screen w-full relative overflow-hidden">
@@ -34,13 +39,16 @@ export default function SalesEmployeeDashboard() {
                 </p>
               </div>
 
-              <button className="px-6 py-3 rounded-xl bg-primary text-primary-foreground font-semibold shadow-lg shadow-primary/20 hover:scale-105 transition">
-                + New Lead
-              </button>
+              <button
+  onClick={() => setIsNewLeadOpen(true)}
+  className="px-6 py-3 rounded-xl bg-primary text-primary-foreground font-semibold shadow-lg shadow-primary/20 hover:scale-105 transition"
+>
+  + New Lead
+</button>
             </div>
 
             {/* Employee Profile Card */}
-            <div className="glass-card rounded-2xl p-5 border border-border">
+            <div className="glass-card w-full max-w-lg rounded-2xl p-5 border border-border">
               <div className="flex items-center gap-4">
                 <div className="w-12 h-12 rounded-full bg-gradient-to-tr from-violet-600 via-indigo-600 to-purple-500 text-white flex items-center justify-center font-bold shadow-lg shadow-indigo-500/30">
                   {employeeInfo.initials}
@@ -79,7 +87,12 @@ export default function SalesEmployeeDashboard() {
             />
           </div>
         </main>
-      </div>
+            </div>
+
+      <NewLeadModal
+        isOpen={isNewLeadOpen}
+        onClose={() => setIsNewLeadOpen(false)}
+      />
     </div>
   );
 }
