@@ -55,6 +55,7 @@ authRouter.post("/register", async (req, res) => {
 const LoginSchema = z.object({
   orgSlug: z.string().optional(),
   email: z.string().optional(),
+  username: z.string().optional(),
   adminId: z.string().optional(),
   isAdmin: z.boolean().optional(),
   password: z.string().min(1),
@@ -67,7 +68,7 @@ authRouter.post("/login", async (req, res) => {
       .status(400)
       .json({ error: "invalid_input", issues: input.error.issues });
 
-  const { orgSlug, email, adminId, isAdmin, password } = input.data;
+  const { orgSlug, email, username, adminId, isAdmin, password } = input.data;
   let user;
   let org;
 
@@ -81,14 +82,20 @@ authRouter.post("/login", async (req, res) => {
       role: { $in: ["org_admin", "super_admin"] },
       isActive: true,
     });
-  } else if (orgSlug && email) {
-    // Employee login
-    org = await OrganizationModel.findOne({ slug: orgSlug });
+  } else if (username || email || orgSlug) {
+    // Employee login via username or email
+    const targetSlug = orgSlug || "novanectar";
+    org = await OrganizationModel.findOne({ slug: targetSlug });
     if (!org) return res.status(401).json({ error: "invalid_credentials" });
 
+    const loginIdentifier = (username || email || "").toLowerCase();
+    const escapedIdentifier = loginIdentifier.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
     user = await UserModel.findOne({
       orgId: org._id,
-      email: email.toLowerCase(),
+      $or: [
+        { email: loginIdentifier },
+        { name: { $regex: new RegExp(`^${escapedIdentifier}$`, "i") } }
+      ],
       isActive: true,
     });
   } else {
