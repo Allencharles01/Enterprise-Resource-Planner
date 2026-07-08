@@ -11,6 +11,9 @@ import {
   ChevronRight,
   ChevronDown,
   Building2,
+  MessageSquare,
+  Bell,
+  ClipboardList,
 } from "lucide-react";
 import { useRouter, usePathname } from "next/navigation";
 import Link from "next/link";
@@ -183,10 +186,10 @@ export function DashboardLayout({ children, adminName = "Admin" }) {
                     onClick={() =>
                       setIsDepartmentDropdownOpen(!isDepartmentDropdownOpen)
                     }
-                    className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500/20 hover:text-emerald-700 dark:hover:text-emerald-300 transition-colors font-medium text-sm border border-emerald-500/20"
+                    title="Department"
+                    className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500/20 hover:text-emerald-700 dark:hover:text-emerald-300 transition-colors border border-emerald-500/20 cursor-pointer shadow-sm"
                   >
-                    <Building2 size={16} />
-                    Department
+                    <Building2 size={18} />
                     <motion.div
                       animate={{ rotate: isDepartmentDropdownOpen ? 180 : 0 }}
                       transition={{ duration: 0.2, ease: "easeInOut" }}
@@ -234,10 +237,16 @@ export function DashboardLayout({ children, adminName = "Admin" }) {
                     onClick={() =>
                       setIsEmployeesDropdownOpen(!isEmployeesDropdownOpen)
                     }
-                    className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-blue-500/10 text-blue-500 hover:bg-blue-500/20 hover:text-blue-600 transition-colors font-medium text-sm border border-blue-500/20"
+                    title="Employees"
+                    className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-blue-500/10 text-blue-500 hover:bg-blue-500/20 hover:text-blue-600 transition-colors border border-blue-500/20 cursor-pointer shadow-sm"
                   >
-                    <UserPlus size={16} />
-                    Employees
+                    <UserPlus size={18} />
+                    <motion.div
+                      animate={{ rotate: isEmployeesDropdownOpen ? 180 : 0 }}
+                      transition={{ duration: 0.2, ease: "easeInOut" }}
+                    >
+                      <ChevronDown size={14} />
+                    </motion.div>
                   </button>
 
                   <AnimatePresence>
@@ -290,116 +299,52 @@ export function DashboardLayout({ children, adminName = "Admin" }) {
                   </AnimatePresence>
                 </div>
 
-                <div className="relative" ref={calendarRef}>
-                  <button
-                    onClick={() => setIsCalendarOpen(!isCalendarOpen)}
-                    className={`p-2 rounded-full transition-colors ${isCalendarOpen ? "bg-primary/20 text-primary" : "hover:bg-muted text-muted-foreground hover:text-foreground"}`}
-                  >
-                    <CalendarIcon size={20} />
-                  </button>
+                <button
+                  onClick={() => setIsNewRequestsOpen(true)}
+                  title="New Requests"
+                  className="w-10 h-10 rounded-full bg-amber-500/10 text-amber-500 hover:bg-amber-500/20 hover:text-amber-600 transition-all border border-amber-500/20 shadow-sm flex items-center justify-center cursor-pointer hover:scale-105 active:scale-95"
+                >
+                  <ClipboardList size={18} />
+                </button>
 
-                  {/* Calendar Popup */}
-                  <AnimatePresence>
-                    {isCalendarOpen && (
-                      <motion.div
-                        initial={{ opacity: 0, y: 10, scale: 0.95 }}
-                        animate={{ opacity: 1, y: 0, scale: 1 }}
-                        exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                        transition={{ duration: 0.2 }}
-                        className="absolute right-0 top-full mt-2 p-4 bg-background border border-border shadow-2xl rounded-2xl w-72 z-50 origin-top-right"
-                      >
-                        <div className="flex justify-between items-center mb-4">
-                          <button
-                            onClick={() =>
-                              setCurrentDate(
-                                new Date(
-                                  currentDate.getFullYear(),
-                                  currentDate.getMonth() - 1,
-                                  1,
-                                ),
-                              )
-                            }
-                            className="p-1 hover:bg-muted rounded-full text-muted-foreground transition-colors"
-                          >
-                            <ChevronLeft size={18} />
-                          </button>
-                          <div className="font-semibold text-foreground">
-                            {monthNames[currentDate.getMonth()]}{" "}
-                            {currentDate.getFullYear()}
-                          </div>
-                          <button
-                            onClick={() =>
-                              setCurrentDate(
-                                new Date(
-                                  currentDate.getFullYear(),
-                                  currentDate.getMonth() + 1,
-                                  1,
-                                ),
-                              )
-                            }
-                            className="p-1 hover:bg-muted rounded-full text-muted-foreground transition-colors"
-                          >
-                            <ChevronRight size={18} />
-                          </button>
-                        </div>
+                <button
+                  onClick={() => {
+                    setToastMessage("Messages: Function to be defined later");
+                    setTimeout(() => setToastMessage(null), 3000);
+                  }}
+                  title="Messages"
+                  className="w-10 h-10 rounded-full bg-violet-500/10 text-violet-500 hover:bg-violet-500/20 hover:text-violet-600 transition-all border border-violet-500/20 shadow-sm flex items-center justify-center cursor-pointer hover:scale-105 active:scale-95"
+                >
+                  <MessageSquare size={18} />
+                </button>
 
-                        <div className="grid grid-cols-7 gap-1 mb-2">
-                          {["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"].map(
-                            (day) => (
-                              <div
-                                key={day}
-                                className="text-center text-xs font-medium text-muted-foreground py-1"
-                              >
-                                {day}
-                              </div>
-                            ),
-                          )}
-                        </div>
+                <button
+                  onClick={() => {
+                    setToastMessage("Notifications: Function to be defined later");
+                    setTimeout(() => setToastMessage(null), 3000);
+                  }}
+                  title="Notifications"
+                  className="w-10 h-10 rounded-full bg-pink-500/10 text-pink-500 hover:bg-pink-500/20 hover:text-pink-600 transition-all border border-pink-500/20 shadow-sm flex items-center justify-center cursor-pointer hover:scale-105 active:scale-95"
+                >
+                  <Bell size={18} />
+                </button>
 
-                        <div className="grid grid-cols-7 gap-1">
-                          {Array.from({ length: firstDayOfMonth }).map(
-                            (_, i) => (
-                              <div key={`empty-${i}`} className="p-2" />
-                            ),
-                          )}
-                          {Array.from({ length: daysInMonth }).map((_, i) => {
-                            const isToday =
-                              new Date().getDate() === i + 1 &&
-                              new Date().getMonth() ===
-                                currentDate.getMonth() &&
-                              new Date().getFullYear() ===
-                                currentDate.getFullYear();
-                            return (
-                              <button
-                                key={i + 1}
-                                className={`p-2 w-8 h-8 flex items-center justify-center rounded-full text-sm mx-auto transition-all ${
-                                  isToday
-                                    ? "bg-primary text-white font-bold shadow-md shadow-primary/30"
-                                    : "text-foreground hover:bg-muted font-medium"
-                                }`}
-                              >
-                                {i + 1}
-                              </button>
-                            );
-                          })}
-                        </div>
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
-                </div>
+                {/* Hidden Calendar Ref container for DOM safety if ref is attached */}
+                <div className="hidden" ref={calendarRef} />
 
                 {/* Admin Control Panel Profile Icon */}
                 <button
                   onClick={() => router.push("/control-panel")}
                   title="Admin Control Panel"
-                  className="w-10 h-10 rounded-full bg-gradient-to-tr from-violet-600 via-indigo-600 to-purple-500 text-white font-extrabold flex items-center justify-center shadow-lg shadow-indigo-500/30 hover:scale-105 active:scale-95 transition-all border-2 border-indigo-300/40 text-sm"
+                  className="w-10 h-10 rounded-full bg-gradient-to-tr from-violet-600 via-indigo-600 to-purple-500 text-white font-extrabold flex items-center justify-center shadow-lg shadow-indigo-500/30 hover:scale-105 active:scale-95 transition-all border-2 border-indigo-300/40 text-sm ml-1 cursor-pointer"
                 >
                   {userInitials}
                 </button>
 
                 <button
                   onClick={toggleTheme}
-                  className="p-2 rounded-full hover:bg-muted text-muted-foreground hover:text-foreground transition-colors ml-1"
+                  title="Light/Dark mode"
+                  className="p-2 rounded-full hover:bg-muted text-muted-foreground hover:text-foreground transition-colors ml-1 cursor-pointer"
                 >
                   {mounted && theme === "dark" ? (
                     <Sun size={20} />
@@ -407,9 +352,10 @@ export function DashboardLayout({ children, adminName = "Admin" }) {
                     <Moon size={20} />
                   )}
                 </button>
+
                 <button
                   onClick={handleLogout}
-                  className="flex items-center gap-2 px-4 py-2 rounded-lg bg-red-500/10 text-red-500 hover:bg-red-500/20 hover:text-red-600 transition-colors font-medium text-sm ml-2 border border-red-500/20"
+                  className="flex items-center gap-2 px-4 py-2 rounded-lg bg-red-500/10 text-red-500 hover:bg-red-500/20 hover:text-red-600 transition-colors font-medium text-sm ml-2 border border-red-500/20 cursor-pointer"
                 >
                   <LogOut size={16} />
                   Logout

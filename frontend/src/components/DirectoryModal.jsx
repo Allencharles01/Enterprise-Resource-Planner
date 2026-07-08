@@ -9,9 +9,11 @@ import {
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { api } from "@/lib/api";
+import { EmployeeDetailsModal } from "./EmployeeDetailsModal";
 
 export function DirectoryModal({ isOpen, onClose }) {
   const [employees, setEmployees] = useState([]);
+  const [selectedEmployee, setSelectedEmployee] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
@@ -187,7 +189,14 @@ export function DirectoryModal({ isOpen, onClose }) {
                             {emp.employeeNumber || snoStr}
                           </td>
                           <td className="px-6 py-4 font-medium text-primary bg-primary/5 font-mono">
-                            {emp.employeeCode}
+                            <button
+                              type="button"
+                              onClick={() => setSelectedEmployee(emp)}
+                              className="px-2.5 py-1 bg-blue-500/10 hover:bg-blue-500/20 text-blue-400 rounded-lg font-bold underline underline-offset-4 cursor-pointer transition-all hover:scale-105"
+                              title="Click to view/edit Employee Details"
+                            >
+                              {emp.employeeCode}
+                            </button>
                           </td>
                           <td className="px-6 py-4 font-bold text-foreground">
                             {emp.personal?.firstName}{" "}
@@ -270,6 +279,21 @@ export function DirectoryModal({ isOpen, onClose }) {
           )}
         </motion.div>
       </div>
+
+      <EmployeeDetailsModal
+        isOpen={Boolean(selectedEmployee)}
+        employee={selectedEmployee}
+        onClose={() => setSelectedEmployee(null)}
+        onUpdated={() => {
+          setSelectedEmployee(null);
+          setIsLoading(true);
+          api
+            .get("/api/employees")
+            .then((res) => setEmployees(res.data || []))
+            .catch((err) => console.error("Failed to refresh directory:", err))
+            .finally(() => setIsLoading(false));
+        }}
+      />
     </AnimatePresence>
   );
 }

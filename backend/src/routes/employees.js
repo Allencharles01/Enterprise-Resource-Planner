@@ -74,6 +74,61 @@ employeesRouter.post(
   },
 );
 
+const UpdateEmployeeSchema = z.object({
+  employeeCode: z.string().optional(),
+  personal: z
+    .object({
+      firstName: z.string().optional(),
+      lastName: z.string().optional(),
+      phone: z.string().optional(),
+      contactEmail: z.string().optional(),
+    })
+    .optional(),
+  work: z
+    .object({
+      department: z.string().optional(),
+      designation: z.string().optional(),
+      companyEmail: z.string().optional(),
+      manager: z.string().optional(),
+      status: z.string().optional(),
+    })
+    .optional(),
+});
+
+employeesRouter.put(
+  "/:id",
+  requireAuth,
+  requireRole(["org_admin", "super_admin", "hr", "manager"]),
+  async (req, res) => {
+    const input = UpdateEmployeeSchema.safeParse(req.body);
+    if (!input.success)
+      return res
+        .status(400)
+        .json({ error: "invalid_input", issues: input.error.issues });
+
+    const orgId = req.auth.orgId;
+    const { id } = req.params;
+
+    const employee = await EmployeeModel.findOne({ _id: id, orgId });
+    if (!employee) {
+      return res.status(404).json({ error: "Employee not found" });
+    }
+
+    if (input.data.employeeCode !== undefined) {
+      employee.employeeCode = input.data.employeeCode;
+    }
+    if (input.data.personal) {
+      employee.personal = { ...employee.personal, ...input.data.personal };
+    }
+    if (input.data.work) {
+      employee.work = { ...employee.work, ...input.data.work };
+    }
+
+    await employee.save();
+    res.json({ success: true, employee });
+  },
+);
+
 const DeleteEmployeeSchema = z.object({
   employeeCode: z.string().optional(),
   employeeNumber: z.string().optional(),

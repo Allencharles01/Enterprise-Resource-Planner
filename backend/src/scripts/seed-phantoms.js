@@ -137,8 +137,9 @@ async function seed() {
     }
     console.log("3 Superadmins created.");
 
-    console.log("Generating 700 Realistic International Phantom Employees (Emp Number 004 to 703)...");
+    console.log("Generating 700 Realistic International Phantom Employees & Users (Emp Number 004 to 703)...");
     const phantomEmployees = [];
+    const phantomUsers = [];
     for (let i = 1; i <= 700; i++) {
       const empNumInt = i + 3;
       const empNumStr = String(empNumInt).padStart(3, "0");
@@ -150,9 +151,24 @@ async function seed() {
       
       // Emp ID starting with "Ph" + initial + last name snippet + number
       const empId = `Ph${firstName.slice(0, 3)}${lastName.slice(0, 3)}${empNumStr}`.replace(/[^a-zA-Z0-9]/g, "");
+      const contactEmail = `${firstName.toLowerCase()}.${lastName.toLowerCase()}${empNumStr}@novanectar.demo`;
+
+      const userId = new mongoose.Types.ObjectId();
+      const passwordHash = bcrypt.hashSync(`${empId}_`, 10);
+
+      phantomUsers.push({
+        _id: userId,
+        orgId: org._id,
+        name: empId,
+        email: contactEmail.toLowerCase(),
+        passwordHash,
+        role: "employee",
+        isActive: true,
+      });
 
       phantomEmployees.push({
         orgId: org._id,
+        userId: userId,
         employeeCode: empId,
         employeeNumber: empNumStr,
         tag: "Phantom Employees",
@@ -160,7 +176,7 @@ async function seed() {
         personal: {
           firstName,
           lastName,
-          contactEmail: `${firstName.toLowerCase()}.${lastName.toLowerCase()}${empNumStr}@novanectar.demo`,
+          contactEmail,
         },
         work: {
           department: deptInfo.dept,
@@ -172,9 +188,10 @@ async function seed() {
       });
     }
 
-    // Batch insert 700 phantom employees
+    // Batch insert 700 phantom users and employees
+    await UserModel.insertMany(phantomUsers);
     await EmployeeModel.insertMany(phantomEmployees);
-    console.log("Successfully created 700 Realistic Phantom Employees!");
+    console.log("Successfully created 700 Realistic Phantom Users and Employees!");
 
     const totalEmployees = await EmployeeModel.countDocuments();
     console.log(`Total Employees in Directory: ${totalEmployees}`);
