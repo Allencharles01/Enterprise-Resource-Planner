@@ -90,9 +90,10 @@ export default function SalesEmployeeDashboard() {
             </div>
 
       <NewLeadModal
-        isOpen={isNewLeadOpen}
-        onClose={() => setIsNewLeadOpen(false)}
-      />
+  isOpen={isNewLeadOpen}
+  onClose={() => setIsNewLeadOpen(false)}
+  activeTab={activeTab}
+/>
     </div>
   );
 }

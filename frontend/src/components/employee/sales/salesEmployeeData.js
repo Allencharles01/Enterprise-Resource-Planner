@@ -103,30 +103,23 @@ export const monthlyData = {
         {
           projectName: "E-Commerce Platform",
           project: "E-Commerce Platform",
-
           clientName: "RetailX Corp",
           client: "RetailX Corp",
-
           budget: "₹4,50,000",
           agreed: "₹4,50,000",
           received: "₹2,25,000",
           remaining: "₹2,25,000",
-
           manager: "Rahul Sharma",
           deadline: "30 Jun 2026",
           progress: 50,
-
           leadStatus: "On Track",
           approvalStatus: "Approved",
           status: "On Track",
           approval: "Approved",
-
           submitted: "02 Jun 2026",
           submittedDate: "02 Jun 2026",
-
           services: ["Web Development", "Admin Panel", "Payment Integration"],
           agreementDate: "02 Jun 2026",
-
           payments: [
             {
               title: "Advance Payment",
@@ -143,30 +136,23 @@ export const monthlyData = {
         {
           projectName: "CRM Integration Suite",
           project: "CRM Integration Suite",
-
           clientName: "Synapse Technologies",
           client: "Synapse Technologies",
-
           budget: "₹2,80,000",
           agreed: "₹2,80,000",
           received: "₹1,40,000",
           remaining: "₹1,40,000",
-
           manager: "Rahul Sharma",
           deadline: "28 Jun 2026",
           progress: 50,
-
           leadStatus: "Pending Approval",
           approvalStatus: "Pending Approval",
           status: "Pending Approval",
           approval: "Pending Approval",
-
           submitted: "05 Jun 2026",
           submittedDate: "05 Jun 2026",
-
           services: ["CRM Setup", "Lead Tracking", "Automation Workflow"],
           agreementDate: "05 Jun 2026",
-
           payments: [
             {
               title: "Initial Payment",
@@ -183,30 +169,23 @@ export const monthlyData = {
         {
           projectName: "Mobile App Development",
           project: "Mobile App Development",
-
           clientName: "UrbanEase Pvt Ltd",
           client: "UrbanEase Pvt Ltd",
-
           budget: "₹6,20,000",
           agreed: "₹6,20,000",
           received: "₹3,10,000",
           remaining: "₹3,10,000",
-
           manager: "Rahul Sharma",
           deadline: "15 Jul 2026",
           progress: 50,
-
           leadStatus: "On Track",
           approvalStatus: "Approved",
           status: "On Track",
           approval: "Approved",
-
           submitted: "08 Jun 2026",
           submittedDate: "08 Jun 2026",
-
           services: ["Mobile App UI", "Backend APIs", "User Authentication"],
           agreementDate: "08 Jun 2026",
-
           payments: [
             {
               title: "Advance Payment",
@@ -223,30 +202,23 @@ export const monthlyData = {
         {
           projectName: "Digital Marketing Suite",
           project: "Digital Marketing Suite",
-
           clientName: "BrandBoost Inc",
           client: "BrandBoost Inc",
-
           budget: "₹1,20,000",
           agreed: "₹1,20,000",
           received: "₹45,000",
           remaining: "₹75,000",
-
           manager: "Rahul Sharma",
           deadline: "20 Jun 2026",
           progress: 38,
-
           leadStatus: "Needs Update",
           approvalStatus: "Needs Update",
           status: "Needs Update",
           approval: "Needs Update",
-
           submitted: "10 Jun 2026",
           submittedDate: "10 Jun 2026",
-
           services: ["Campaign Planning", "Social Media Strategy", "Ad Setup"],
           agreementDate: "10 Jun 2026",
-
           payments: [
             {
               title: "Initial Payment",
@@ -265,30 +237,23 @@ export const monthlyData = {
         {
           projectName: "Cloud Migration",
           project: "Cloud Migration",
-
           clientName: "DataVault Systems",
           client: "DataVault Systems",
-
           budget: "₹5,10,000",
           agreed: "₹5,10,000",
           received: "₹4,10,000",
           remaining: "₹1,00,000",
-
           manager: "Rahul Sharma",
           deadline: "25 May 2026",
           progress: 80,
-
           leadStatus: "On Track",
           approvalStatus: "Approved",
           status: "On Track",
           approval: "Approved",
-
           submitted: "06 May 2026",
           submittedDate: "06 May 2026",
-
           services: ["Cloud Setup", "Database Migration", "Deployment Support"],
           agreementDate: "06 May 2026",
-
           payments: [
             {
               title: "Advance Payment",
@@ -305,30 +270,23 @@ export const monthlyData = {
         {
           projectName: "Website Redesign",
           project: "Website Redesign",
-
           clientName: "GreenLeaf Organics",
           client: "GreenLeaf Organics",
-
           budget: "₹95,000",
           agreed: "₹95,000",
           received: "₹25,000",
           remaining: "₹70,000",
-
           manager: "Rahul Sharma",
           deadline: "20 May 2026",
           progress: 26,
-
           leadStatus: "Rejected",
           approvalStatus: "Rejected",
           status: "Rejected",
           approval: "Rejected",
-
           submitted: "02 May 2026",
           submittedDate: "02 May 2026",
-
           services: ["Website Redesign", "Landing Page", "Basic SEO"],
           agreementDate: "02 May 2026",
-
           payments: [
             {
               title: "Token Payment",
@@ -340,30 +298,23 @@ export const monthlyData = {
         {
           projectName: "Inventory Management Portal",
           project: "Inventory Management Portal",
-
           clientName: "SupplyCore Ltd",
           client: "SupplyCore Ltd",
-
           budget: "₹2,80,000",
           agreed: "₹2,80,000",
           received: "₹2,00,000",
           remaining: "₹80,000",
-
           manager: "Rahul Sharma",
           deadline: "29 May 2026",
           progress: 71,
-
           leadStatus: "Approved",
           approvalStatus: "Approved",
           status: "Approved",
           approval: "Approved",
-
           submitted: "11 May 2026",
           submittedDate: "11 May 2026",
-
           services: ["Inventory Dashboard", "Stock Alerts", "Admin Module"],
           agreementDate: "11 May 2026",
-
           payments: [
             {
               title: "Advance Payment",
@@ -387,30 +338,23 @@ export const monthlyData = {
         {
           projectName: "HR Management System",
           project: "HR Management System",
-
           clientName: "PeopleFirst Solutions",
           client: "PeopleFirst Solutions",
-
           budget: "₹3,40,000",
           agreed: "₹3,40,000",
           received: "₹3,40,000",
           remaining: "₹0",
-
           manager: "Rahul Sharma",
           deadline: "18 Apr 2026",
           progress: 100,
-
           leadStatus: "Approved",
           approvalStatus: "Approved",
           status: "Approved",
           approval: "Approved",
-
           submitted: "01 Apr 2026",
           submittedDate: "01 Apr 2026",
-
           services: ["HR Dashboard", "Employee Records", "Leave Management"],
           agreementDate: "01 Apr 2026",
-
           payments: [
             {
               title: "Advance Payment",
@@ -427,30 +371,23 @@ export const monthlyData = {
         {
           projectName: "Booking Portal",
           project: "Booking Portal",
-
           clientName: "TravelNest India",
           client: "TravelNest India",
-
           budget: "₹2,10,000",
           agreed: "₹2,10,000",
           received: "₹1,60,000",
           remaining: "₹50,000",
-
           manager: "Rahul Sharma",
           deadline: "22 Apr 2026",
           progress: 76,
-
           leadStatus: "On Track",
           approvalStatus: "Approved",
           status: "On Track",
           approval: "Approved",
-
           submitted: "04 Apr 2026",
           submittedDate: "04 Apr 2026",
-
           services: ["Booking System", "Package Listing", "Payment Module"],
           agreementDate: "04 Apr 2026",
-
           payments: [
             {
               title: "Advance Payment",
@@ -475,42 +412,111 @@ export const monthlyData = {
       records: [
         {
           candidateName: "Neha Gupta",
+          name: "Neha Gupta",
           program: "Full Stack Development",
           email: "neha.gupta@gmail.com",
           phone: "+91 98765 43210",
           courseFee: "₹25,000",
+          courseCost: "₹25,000",
           duration: "3 Months",
           approvalStatus: "Approved",
           approval: "Approved",
-          placement: "Placed",
+          placement: "Under Review",
           submittedDate: "01 Jun 2026",
           submitted: "01 Jun 2026",
+
+          department: "BTech Computer Science",
+          education: "B.Tech",
+          university: "UPES",
+          mentor: "Allen Charles",
+          progress: 61,
+          internStatus: "Active",
+          startDate: "01 Jun 2026",
+          endDate: "01 Sep 2026",
+          salesAgent: "Rahul Sharma",
+          projectsCompleted: "2/3",
+          skills: ["React", "JavaScript", "Node.js", "Communication"],
         },
         {
           candidateName: "Rohan Verma",
+          name: "Rohan Verma",
           program: "Digital Marketing",
           email: "rohan.verma@gmail.com",
           phone: "+91 87654 32109",
           courseFee: "₹18,000",
+          courseCost: "₹18,000",
           duration: "2 Months",
           approvalStatus: "Pending Approval",
           approval: "Pending Approval",
-          placement: "In Process",
+          placement: "Under Review",
           submittedDate: "03 Jun 2026",
           submitted: "03 Jun 2026",
+
+          department: "Bachelors In Computers Application",
+          education: "BCA",
+          university: "UPES",
+          mentor: "",
+          progress: 0,
+          internStatus: "Not Approved",
+          startDate: "N/A",
+          endDate: "N/A",
+          salesAgent: "Rahul Sharma",
+          projectsCompleted: "0/3",
+          skills: ["SEO", "Content Strategy", "Social Media"],
         },
         {
           candidateName: "Simran Kaur",
+          name: "Simran Kaur",
           program: "Data Science & ML",
           email: "simran.kaur@gmail.com",
           phone: "+91 76543 21098",
           courseFee: "₹30,000",
+          courseCost: "₹30,000",
           duration: "6 Months",
           approvalStatus: "Approved",
           approval: "Approved",
-          placement: "Interview Scheduled",
+          placement: "Placed",
           submittedDate: "06 Jun 2026",
           submitted: "06 Jun 2026",
+
+          department: "Bachelors In Computers Application",
+          education: "BCA",
+          university: "UPES",
+          mentor: "Noah",
+          progress: 100,
+          internStatus: "Completed",
+          startDate: "06 Jun 2026",
+          endDate: "06 Dec 2026",
+          salesAgent: "Rahul Sharma",
+          projectsCompleted: "3/3",
+          skills: ["Python", "Machine Learning", "Data Analysis"],
+        },
+        {
+          candidateName: "Arjun Mehta",
+          name: "Arjun Mehta",
+          program: "Frontend Development",
+          email: "arjun.mehta@gmail.com",
+          phone: "+91 90909 70707",
+          courseFee: "₹20,000",
+          courseCost: "₹20,000",
+          duration: "2 Months",
+          approvalStatus: "Approved",
+          approval: "Approved",
+          placement: "Under Review",
+          submittedDate: "09 Jun 2026",
+          submitted: "09 Jun 2026",
+
+          department: "BTech Computer Science",
+          education: "B.Tech",
+          university: "UPES",
+          mentor: "Kanak Mehta",
+          progress: 0,
+          internStatus: "Dropped Out",
+          startDate: "09 Jun 2026",
+          endDate: "09 Aug 2026",
+          salesAgent: "Rahul Sharma",
+          projectsCompleted: "0/3",
+          skills: ["HTML", "CSS", "JavaScript"],
         },
       ],
     },
@@ -520,29 +526,57 @@ export const monthlyData = {
       records: [
         {
           candidateName: "Aman Verma",
+          name: "Aman Verma",
           program: "Cloud Computing",
           email: "aman.verma@gmail.com",
           phone: "+91 98765 12340",
           courseFee: "₹28,000",
+          courseCost: "₹28,000",
           duration: "3 Months",
           approvalStatus: "Approved",
           approval: "Approved",
           placement: "Placed",
           submittedDate: "12 May 2026",
           submitted: "12 May 2026",
+
+          department: "BTech Computer Science",
+          education: "B.Tech",
+          university: "UPES",
+          mentor: "Allen Charles",
+          progress: 82,
+          internStatus: "Active",
+          startDate: "12 May 2026",
+          endDate: "12 Aug 2026",
+          salesAgent: "Rahul Sharma",
+          projectsCompleted: "2/3",
+          skills: ["AWS", "Linux", "Cloud Deployment"],
         },
         {
           candidateName: "Priya Singh",
+          name: "Priya Singh",
           program: "UI/UX Design",
           email: "priya.singh@gmail.com",
           phone: "+91 99887 77665",
           courseFee: "₹22,000",
+          courseCost: "₹22,000",
           duration: "2 Months",
           approvalStatus: "Needs Update",
           approval: "Needs Update",
           placement: "Not Placed",
           submittedDate: "18 May 2026",
           submitted: "18 May 2026",
+
+          department: "Bachelors In Computers Application",
+          education: "BCA",
+          university: "UPES",
+          mentor: "",
+          progress: 0,
+          internStatus: "Not Approved",
+          startDate: "N/A",
+          endDate: "N/A",
+          salesAgent: "Rahul Sharma",
+          projectsCompleted: "0/3",
+          skills: ["Figma", "Wireframing", "Design Thinking"],
         },
       ],
     },
@@ -552,16 +586,30 @@ export const monthlyData = {
       records: [
         {
           candidateName: "Karan Malhotra",
+          name: "Karan Malhotra",
           program: "Cyber Security",
           email: "karan.malhotra@gmail.com",
           phone: "+91 90909 80808",
           courseFee: "₹35,000",
+          courseCost: "₹35,000",
           duration: "4 Months",
           approvalStatus: "Approved",
           approval: "Approved",
           placement: "Placed",
           submittedDate: "08 Apr 2026",
           submitted: "08 Apr 2026",
+
+          department: "BTech Computer Science",
+          education: "B.Tech",
+          university: "UPES",
+          mentor: "Noah",
+          progress: 100,
+          internStatus: "Completed",
+          startDate: "08 Apr 2026",
+          endDate: "08 Aug 2026",
+          salesAgent: "Rahul Sharma",
+          projectsCompleted: "4/4",
+          skills: ["Networking", "Security Basics", "Linux"],
         },
       ],
     },
@@ -578,12 +626,48 @@ export const monthlyData = {
           clientName: "BrightEdge Corp",
           trainingFee: "₹1,20,000",
           fee: "₹1,20,000",
-          status: "Approved",
+
+          category: "Paid Training Course",
+          duration: "2 Weeks",
+          instructor: "Enterprise Mentor",
+          progress: 18,
+
           approvalStatus: "Approved",
           approval: "Approved",
           startDate: "18 Jun 2026",
           submittedDate: "07 Jun 2026",
           submitted: "07 Jun 2026",
+
+          participants: [
+            {
+              id: 1,
+              name: "James Potter",
+              initials: "JP",
+              email: "Jpotter@gmail.com",
+              contact: "9876543214",
+              progress: 0,
+              attendance: 0,
+              status: "Active",
+              course: "Corporate Sales Training",
+              mentor: "Enterprise Mentor",
+              startDate: "N/A",
+              certificate: "Certificate will be issued upon completion.",
+            },
+            {
+              id: 2,
+              name: "Ananya Sharma",
+              initials: "AS",
+              email: "ananya.sharma@gmail.com",
+              contact: "9876543201",
+              progress: 35,
+              attendance: 80,
+              status: "Active",
+              course: "Corporate Sales Training",
+              mentor: "Enterprise Mentor",
+              startDate: "18 Jun 2026",
+              certificate: "Certificate will be issued upon completion.",
+            },
+          ],
         },
         {
           trainingProgram: "React Developer Training",
@@ -591,12 +675,34 @@ export const monthlyData = {
           clientName: "TechBridge Academy",
           trainingFee: "₹90,000",
           fee: "₹90,000",
-          status: "Pending Approval",
+
+          category: "Paid Training Course",
+          duration: "1 Month",
+          instructor: "",
+          progress: 0,
+
           approvalStatus: "Pending Approval",
           approval: "Pending Approval",
           startDate: "24 Jun 2026",
           submittedDate: "10 Jun 2026",
           submitted: "10 Jun 2026",
+
+          participants: [
+            {
+              id: 3,
+              name: "Rohan Mehta",
+              initials: "RM",
+              email: "rohan.mehta@gmail.com",
+              contact: "9876501122",
+              progress: 0,
+              attendance: 0,
+              status: "Active",
+              course: "React Developer Training",
+              mentor: "Not yet assigned",
+              startDate: "N/A",
+              certificate: "Certificate will be issued upon completion.",
+            },
+          ],
         },
         {
           trainingProgram: "Advanced Excel Training",
@@ -604,12 +710,34 @@ export const monthlyData = {
           clientName: "FinEdge Consultants",
           trainingFee: "₹75,000",
           fee: "₹75,000",
-          status: "On Track",
+
+          category: "Paid Training Course",
+          duration: "1 Week",
+          instructor: "Enterprise Mentor",
+          progress: 15,
+
           approvalStatus: "Approved",
           approval: "Approved",
           startDate: "27 Jun 2026",
           submittedDate: "12 Jun 2026",
           submitted: "12 Jun 2026",
+
+          participants: [
+            {
+              id: 4,
+              name: "Priya Kapoor",
+              initials: "PK",
+              email: "priya.kapoor@gmail.com",
+              contact: "9988776655",
+              progress: 15,
+              attendance: 60,
+              status: "Active",
+              course: "Advanced Excel Training",
+              mentor: "Enterprise Mentor",
+              startDate: "27 Jun 2026",
+              certificate: "Certificate will be issued upon completion.",
+            },
+          ],
         },
       ],
     },
@@ -623,12 +751,48 @@ export const monthlyData = {
           clientName: "CloudPeak Pvt Ltd",
           trainingFee: "₹1,50,000",
           fee: "₹1,50,000",
-          status: "Approved",
+
+          category: "Paid Training Course",
+          duration: "3 Weeks",
+          instructor: "Enterprise Mentor",
+          progress: 92,
+
           approvalStatus: "Approved",
           approval: "Approved",
           startDate: "15 May 2026",
           submittedDate: "02 May 2026",
           submitted: "02 May 2026",
+
+          participants: [
+            {
+              id: 5,
+              name: "Karan Malhotra",
+              initials: "KM",
+              email: "karan.malhotra@gmail.com",
+              contact: "9090980808",
+              progress: 100,
+              attendance: 95,
+              status: "Completed",
+              course: "AWS Basics Training",
+              mentor: "Enterprise Mentor",
+              startDate: "15 May 2026",
+              certificate: "Certificate issued successfully.",
+            },
+            {
+              id: 6,
+              name: "Meera Nair",
+              initials: "MN",
+              email: "meera.nair@gmail.com",
+              contact: "9876509988",
+              progress: 85,
+              attendance: 90,
+              status: "Active",
+              course: "AWS Basics Training",
+              mentor: "Enterprise Mentor",
+              startDate: "15 May 2026",
+              certificate: "Certificate will be issued upon completion.",
+            },
+          ],
         },
         {
           trainingProgram: "Digital Marketing Bootcamp",
@@ -636,12 +800,34 @@ export const monthlyData = {
           clientName: "MarketMinds Academy",
           trainingFee: "₹1,10,000",
           fee: "₹1,10,000",
-          status: "Needs Update",
+
+          category: "Paid Training Course",
+          duration: "2 Weeks",
+          instructor: "",
+          progress: 0,
+
           approvalStatus: "Needs Update",
           approval: "Needs Update",
           startDate: "21 May 2026",
           submittedDate: "06 May 2026",
           submitted: "06 May 2026",
+
+          participants: [
+            {
+              id: 7,
+              name: "Sahil Verma",
+              initials: "SV",
+              email: "sahil.verma@gmail.com",
+              contact: "8765432109",
+              progress: 20,
+              attendance: 70,
+              status: "Active",
+              course: "Digital Marketing Bootcamp",
+              mentor: "Not yet assigned",
+              startDate: "21 May 2026",
+              certificate: "Certificate will be issued upon completion.",
+            },
+          ],
         },
       ],
     },
