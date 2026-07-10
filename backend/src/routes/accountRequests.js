@@ -3,6 +3,7 @@ import { Resend } from "resend";
 import AccountRequest from "dbms/AccountRequest.js";
 import { EmployeeModel } from "dbms/Employee.js";
 import { UserModel } from "dbms/User.js";
+import Notification from "dbms/Notification.js";
 import { env } from "../lib/env.js";
 import { requireAuth } from "../middleware/requireAuth.js";
 import bcrypt from "bcryptjs";
@@ -52,6 +53,14 @@ accountRequestsRouter.post("/", async (req, res) => {
       "NovaNectar ERP - Account Request Received",
       htmlMsg,
     );
+
+    await Notification.create({
+      title: `New Account Request: ${name}`,
+      message: `${name} (${email}) requested employee account registration.`,
+      category: "account",
+      link: "accounts",
+      isRead: false,
+    });
 
     res.status(201).json(newRequest);
   } catch (error) {
@@ -178,3 +187,17 @@ accountRequestsRouter.post("/:id/reject", requireAuth, async (req, res) => {
     res.status(500).json({ error: "Failed to reject request" });
   }
 });
+
+accountRequestsRouter.patch("/:id/read", requireAuth, async (req, res) => {
+  try {
+    const request = await AccountRequest.findByIdAndUpdate(
+      req.params.id,
+      { isRead: true },
+      { new: true }
+    );
+    res.json(request || { success: true });
+  } catch (error) {
+    res.status(500).json({ error: "Failed to mark request read" });
+  }
+});
+

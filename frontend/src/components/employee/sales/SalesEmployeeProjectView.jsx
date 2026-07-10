@@ -54,6 +54,11 @@ export default function SalesEmployeeProjectView({
   const agreementDate = project.agreementDate || submittedDate || "N/A";
   const services = project.services || ["Service details pending"];
   const payments = project.payments || [];
+  const salesAgent =
+    project.salesAgent ||
+    project.manager ||
+    (typeof window !== "undefined" ? localStorage.getItem("userName") : null) ||
+    "Sales Agent";
 
   const paymentStatus =
     remaining === "₹0" || remaining === "0" ? "Fully Paid" : "Partially Paid";
@@ -127,7 +132,7 @@ export default function SalesEmployeeProjectView({
                 <span className="flex items-center gap-2">
                   <UserRound size={16} className="text-pink-500" />
                   <strong className="text-foreground">Sales Agent:</strong>
-                  Rahul Sharma
+                  {salesAgent}
                 </span>
 
                 <span className="flex items-center gap-2">

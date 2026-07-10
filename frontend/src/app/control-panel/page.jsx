@@ -1,10 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { DashboardLayout } from "@/components/DashboardLayout";
 import { EditProjectsModal } from "@/components/EditProjectsModal";
 import { InternshipModals } from "@/components/InternshipModals";
 import { TrainingModals } from "@/components/TrainingModals";
+import { EmployeeDetailsModal } from "@/components/EmployeeDetailsModal";
+import { api } from "@/lib/api";
 import {
   FolderKanban,
   GraduationCap,
@@ -18,9 +20,11 @@ import {
   Settings,
   Sparkles,
   ArrowUpRight,
+  FileText,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
+import { EditProfileRequestsModal } from "@/components/EditProfileRequestsModal";
 
 export default function ControlPanelPage() {
   const router = useRouter();
@@ -28,6 +32,50 @@ export default function ControlPanelPage() {
   const [internshipModal, setInternshipModal] = useState(null);
   const [trainingModal, setTrainingModal] = useState(null);
   const [activeToast, setActiveToast] = useState(null);
+  const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
+  const [isProfileRequestsOpen, setIsProfileRequestsOpen] = useState(false);
+  const [pendingCount, setPendingCount] = useState(0);
+  const [adminRecord, setAdminRecord] = useState(null);
+
+  const fetchAdminData = () => {
+    api
+      .get("/api/auth/me")
+      .then((res) => {
+        const u = res.data?.user || res.data;
+        if (u) {
+          const names = (u.name || "Admin User").split(" ");
+          setAdminRecord({
+            _id: u.id || "admin_1",
+            id: u.id || "admin_1",
+            userId: u.id,
+            employeeCode: u.employeeCode || "ADMIN",
+            personal: {
+              firstName: names[0] || "Admin",
+              lastName: names.slice(1).join(" ") || "Emp",
+              contactEmail: u.email || "admin@novanectar.com",
+            },
+            work: {
+              companyEmail: u.email || "admin@novanectar.com",
+              designation: u.designation || "System Administrator",
+              department: u.department || "Executive Suite",
+              manager: "None",
+            },
+          });
+        }
+      })
+      .catch((err) => console.error("Failed to fetch admin record:", err));
+
+    api
+      .get("/api/profileChangeRequests?status=pending")
+      .then((res) => {
+        setPendingCount((res.data || []).length);
+      })
+      .catch(() => {});
+  };
+
+  useEffect(() => {
+    fetchAdminData();
+  }, []);
 
   const showToast = (actionName) => {
     setActiveToast(`Opened workflow: ${actionName}`);
@@ -234,13 +282,30 @@ export default function ControlPanelPage() {
               </div>
             </div>
 
-            <div className="flex-1 flex items-center justify-center">
+            <div className="flex-1 grid grid-cols-2 gap-4 items-center justify-center my-auto pt-2">
               <button
-                onClick={() => showToast("Accounts -> Edit your profile")}
-                className="w-full py-6 rounded-2xl bg-gradient-to-r from-purple-600 via-indigo-600 to-violet-600 text-white font-extrabold text-lg shadow-xl shadow-purple-500/20 hover:scale-[1.01] active:scale-[0.99] transition-all flex items-center justify-center gap-3"
+                onClick={() => setIsProfileModalOpen(true)}
+                className="w-full min-h-[120px] rounded-2xl bg-gradient-to-br from-purple-600 via-indigo-600 to-violet-700 text-white font-extrabold shadow-lg shadow-purple-500/20 hover:scale-105 active:scale-95 transition-all flex flex-col items-center justify-center gap-2 p-5 text-center cursor-pointer border border-purple-400/30 group"
               >
-                <Settings size={22} className="animate-spin duration-1000" />
-                Edit your profile
+                <div className="p-2.5 rounded-xl bg-white/10 group-hover:bg-white/20 transition-colors shadow-inner">
+                  <Settings size={24} className="animate-spin duration-1000" />
+                </div>
+                <span className="text-xs sm:text-sm leading-tight">Edit Your Profile</span>
+              </button>
+
+              <button
+                onClick={() => setIsProfileRequestsOpen(true)}
+                className="w-full min-h-[120px] rounded-2xl bg-gradient-to-br from-pink-600 via-rose-600 to-purple-700 text-white font-extrabold shadow-lg shadow-pink-500/20 hover:scale-105 active:scale-95 transition-all flex flex-col items-center justify-center gap-2 p-5 text-center cursor-pointer border border-pink-400/30 relative group"
+              >
+                {pendingCount > 0 && (
+                  <span className="absolute top-2.5 right-2.5 px-2 py-0.5 rounded-full bg-amber-400 text-black text-[10px] font-black shadow-lg animate-bounce">
+                    {pendingCount}
+                  </span>
+                )}
+                <div className="p-2.5 rounded-xl bg-white/10 group-hover:bg-white/20 transition-colors shadow-inner">
+                  <FileText size={24} />
+                </div>
+                <span className="text-xs sm:text-sm leading-tight">Edit Profile Requests</span>
               </button>
             </div>
           </motion.div>
@@ -260,6 +325,23 @@ export default function ControlPanelPage() {
       <TrainingModals
         activeModal={trainingModal}
         onClose={() => setTrainingModal(null)}
+      />
+
+      {/* Admin Profile Modal */}
+      {adminRecord && (
+        <EmployeeDetailsModal
+          employee={adminRecord}
+          isOpen={isProfileModalOpen}
+          onClose={() => setIsProfileModalOpen(false)}
+          onUpdated={() => fetchAdminData()}
+        />
+      )}
+
+      {/* Edit Profile Requests Modal */}
+      <EditProfileRequestsModal
+        isOpen={isProfileRequestsOpen}
+        onClose={() => setIsProfileRequestsOpen(false)}
+        onUpdated={() => fetchAdminData()}
       />
 
       {/* Toast Notification */}

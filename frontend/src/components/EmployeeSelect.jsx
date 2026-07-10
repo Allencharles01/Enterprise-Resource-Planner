@@ -8,6 +8,7 @@ export function EmployeeSelect({
   onEmployeeClick,
   placeholder = "Search employee...",
   departmentFilter,
+  strictDepartmentFilter,
 }) {
   const [isOpen, setIsOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
@@ -49,7 +50,7 @@ export function EmployeeSelect({
       emp.employeeCode.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesDept = departmentFilter
       ? emp.work?.department === departmentFilter ||
-        emp.work?.department === "Management"
+        (!strictDepartmentFilter && emp.work?.department === "Management")
       : true;
     return matchesSearch && matchesDept;
   });

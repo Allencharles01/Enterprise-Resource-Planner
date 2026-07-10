@@ -8,6 +8,8 @@ const ProjectSchema = new Schema(
     clientCountryCode: { type: String, default: "+1" },
     clientEmail: { type: String },
     manager: { type: String, required: true },
+    broughtBySalesAgent: { type: String },
+    foundOnOwn: { type: Boolean, default: false },
     status: { type: String, required: true, default: "Ongoing" },
     budget: { type: String },
     currency: { type: String, default: "USD" },

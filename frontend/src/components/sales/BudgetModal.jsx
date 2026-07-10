@@ -3,6 +3,7 @@
 import { X, Briefcase, Clock, Download } from "lucide-react";
 import { useEffect } from "react";
 import { createPortal } from "react-dom";
+import { formatAmount } from "@/lib/formatAmount";
 
 export default function BudgetModal({ project, onClose }) {
   useEffect(() => {
@@ -37,7 +38,7 @@ export default function BudgetModal({ project, onClose }) {
       (payment) => `
         <tr>
           <td>${payment.date}</td>
-          <td>${payment.amount}</td>
+          <td>${formatAmount(payment.amount)}</td>
           <td>${payment.title}</td>
         </tr>
       `
@@ -175,17 +176,17 @@ export default function BudgetModal({ project, onClose }) {
 
             <tr>
               <td class="bold">Total Agreed Amount</td>
-              <td class="bold">${financial.agreed}</td>
+              <td class="bold">${formatAmount(financial.agreed)}</td>
             </tr>
 
             <tr>
               <td class="bold">Total Received</td>
-              <td class="green">${financial.received}</td>
+              <td class="green">${formatAmount(financial.received)}</td>
             </tr>
 
             <tr>
               <td class="bold">Remaining Balance</td>
-              <td class="red">${financial.remaining}</td>
+              <td class="red">${formatAmount(financial.remaining)}</td>
             </tr>
           </table>
 
@@ -344,17 +345,17 @@ const handleDownloadSummary = () => {
 
           <div class="cards">
             <div class="card">
-              <h2>${financial.agreed}</h2>
+              <h2>${formatAmount(financial.agreed)}</h2>
               <p>Total Agreed</p>
             </div>
 
             <div class="card">
-              <h2>${financial.received}</h2>
+              <h2>${formatAmount(financial.received)}</h2>
               <p>Received</p>
             </div>
 
             <div class="card">
-              <h2>${financial.remaining}</h2>
+              <h2>${formatAmount(financial.remaining)}</h2>
               <p>Remaining</p>
             </div>
 
@@ -446,20 +447,20 @@ const handleDownloadSummary = () => {
         <div className="overflow-y-auto flex-1 space-y-4 py-4">
           <div className="grid grid-cols-3 gap-3 px-5">
             <div className="rounded-xl bg-muted/40 p-3 text-center">
-              <p className="text-xl font-bold">{financial.agreed}</p>
+              <p className="text-xl font-bold">{formatAmount(financial.agreed)}</p>
               <p className="text-xs text-muted-foreground mt-1">Total Agreed</p>
             </div>
 
             <div className="rounded-xl bg-muted/40 p-3 text-center">
               <p className="text-xl font-bold text-green-500">
-                {financial.received}
+                {formatAmount(financial.received)}
               </p>
               <p className="text-xs text-muted-foreground mt-1">Total Received</p>
             </div>
 
             <div className="rounded-xl bg-muted/40 p-3 text-center">
               <p className="text-xl font-bold text-red-500">
-                {financial.remaining}
+                {formatAmount(financial.remaining)}
               </p>
               <p className="text-xs text-muted-foreground mt-1">Remaining</p>
             </div>
@@ -519,7 +520,7 @@ const handleDownloadSummary = () => {
                   </div>
 
                   <div className="text-sm font-bold text-green-500">
-                    {payment.amount}
+                    {formatAmount(payment.amount)}
                   </div>
                 </div>
               ))}

@@ -28,6 +28,19 @@ export default function AdminDashboard() {
       return;
     }
 
+    const userRole = localStorage.getItem("userRole");
+    const userDepartment = (localStorage.getItem("userDepartment") || "").toLowerCase();
+    const userName = (localStorage.getItem("userName") || "").toLowerCase();
+    if (userRole === "employee") {
+      if (userDepartment.includes("sales") || userName.includes("sales")) {
+        router.replace("/employee/sales");
+        return;
+      } else if (userDepartment.includes("digital") || userName.includes("digital")) {
+        router.replace("/employee/digitaldashboard");
+        return;
+      }
+    }
+
     const fetchProjects = async () => {
       try {
         const response = await api.get("/api/projects");
@@ -117,7 +130,7 @@ export default function AdminDashboard() {
               </span>
             </div>
             <h3 className="text-lg font-semibold text-foreground">
-              Today's Deadlines
+              Today&apos;s Deadlines
             </h3>
             <p className="text-sm text-muted-foreground mt-1">
               Tasks requiring immediate attention
@@ -155,50 +168,55 @@ export default function AdminDashboard() {
               No ongoing projects found.
             </div>
           ) : (
-            <div className="space-y-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
               {projects
                 .filter(isOngoing)
                 .map((project, idx) => (
                   <motion.div
                     key={project._id}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
+                    initial={{ opacity: 0, y: 20, scale: 0.96 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
                     transition={{ delay: idx * 0.1 }}
-                    whileHover={{ scale: 1.01 }}
+                    whileHover={{ y: -5, scale: 1.02 }}
                     onClick={() => router.push(`/projects/${project._id}`)}
-                    className="glass-card rounded-xl p-5 border border-border/50 hover:border-primary/50 transition-all cursor-pointer flex flex-col sm:flex-row sm:items-center justify-between gap-4 group"
+                    className="glass-card min-h-[180px] rounded-2xl p-5 border border-border/60 hover:border-primary/60 transition-all cursor-pointer flex flex-col justify-between group shadow-lg hover:shadow-xl relative overflow-hidden bg-gradient-to-b from-slate-900/40 to-slate-900/80"
                   >
-                    <div className="flex-1">
-                      <div className="flex items-center gap-3 mb-1">
-                        <h3 className="text-lg font-semibold text-foreground group-hover:text-primary transition-colors">
-                          {project.name}
-                        </h3>
-                        <span className="px-2.5 py-0.5 rounded-full bg-blue-500/10 text-blue-500 text-xs font-medium border border-blue-500/20">
+                    {/* Top Section */}
+                    <div>
+                      <div className="flex items-center justify-between gap-2 mb-4">
+                        <span className="px-3 py-1 rounded-full bg-blue-500/10 text-blue-400 text-xs font-bold border border-blue-500/20 tracking-wide uppercase">
                           {project.status}
                         </span>
+                        <div className="w-9 h-9 rounded-full bg-slate-800/80 group-hover:bg-primary group-hover:text-white transition-colors flex items-center justify-center text-muted-foreground shadow-sm">
+                          <ChevronRight size={18} className="group-hover:translate-x-0.5 transition-transform" />
+                        </div>
                       </div>
-                      <div className="flex flex-wrap items-center text-sm text-muted-foreground gap-x-4 gap-y-2 mt-2">
-                        <span className="flex items-center gap-1.5">
-                          <span className="font-medium">Assigned to:</span>{" "}
-                          {project.manager}
-                        </span>
-                        <span className="flex items-center gap-1.5">
-                          <span className="font-medium">Deadline:</span>{" "}
-                          {new Date(project.createdAt).toLocaleDateString()}
-                        </span>
-                        {project.remainingTasks !== undefined && (
-                          <span className="flex items-center gap-1.5 text-amber-500">
-                            <span className="font-medium">
-                              Remaining Tasks:
-                            </span>{" "}
-                            {project.remainingTasks}
-                          </span>
-                        )}
-                      </div>
+
+                      <h3 className="text-xl font-extrabold text-foreground group-hover:text-primary transition-colors line-clamp-2 leading-snug">
+                        {project.name}
+                      </h3>
                     </div>
 
-                    <div className="hidden sm:flex p-2 rounded-full bg-background group-hover:bg-primary group-hover:text-white transition-colors text-muted-foreground">
-                      <ChevronRight size={20} />
+                    {/* Bottom Details Section */}
+                    <div className="space-y-3 pt-4 border-t border-border/40 text-xs">
+                      <div className="flex items-center justify-between text-muted-foreground">
+                        <span className="font-semibold text-slate-400">Assigned to:</span>
+                        <span className="font-bold text-foreground truncate max-w-[130px]">{project.manager}</span>
+                      </div>
+
+                      <div className="flex items-center justify-between text-muted-foreground">
+                        <span className="font-semibold text-slate-400">Deadline:</span>
+                        <span className="font-mono font-medium text-slate-300">
+                          {new Date(project.createdAt).toLocaleDateString()}
+                        </span>
+                      </div>
+
+                      {project.remainingTasks !== undefined && (
+                        <div className="flex items-center justify-between bg-amber-500/10 border border-amber-500/20 px-3 py-2 rounded-xl text-amber-400 font-bold">
+                          <span>Remaining Tasks</span>
+                          <span className="text-sm font-black">{project.remainingTasks}</span>
+                        </div>
+                      )}
                     </div>
                   </motion.div>
                 ))}

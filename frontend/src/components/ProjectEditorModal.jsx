@@ -50,6 +50,8 @@ export function ProjectEditorModal({ isOpen, project, onClose, onUpdated }) {
     files: [],
     projectLead: null,
     deadline: "",
+    broughtBySalesAgent: "",
+    foundOnOwn: false,
   });
 
   const [departments, setDepartments] = useState({
@@ -60,9 +62,23 @@ export function ProjectEditorModal({ isOpen, project, onClose, onUpdated }) {
     testing: { ...initialDeptData },
   });
 
+  const [employees, setEmployees] = useState([]);
+  const [showBroughtDropdown, setShowBroughtDropdown] = useState(false);
+  const [broughtSearch, setBroughtSearch] = useState("");
+
+  useEffect(() => {
+    api.get("/api/employees").then((res) => {
+      setEmployees(res.data || []);
+    }).catch(() => {});
+  }, []);
+
   useEffect(() => {
     if (project) {
       setStatus(project.status || "Ongoing");
+      const matchingLead = employees.find(
+        (e) => `${e.personal?.firstName || ""} ${e.personal?.lastName || ""}`.trim().toLowerCase() === (project.manager || "").trim().toLowerCase()
+      ) || null;
+
       setBasicDetails({
         projectTitle: project.name || "",
         clientName: project.client || "",
@@ -73,9 +89,12 @@ export function ProjectEditorModal({ isOpen, project, onClose, onUpdated }) {
         currency: project.currency || "USD ($)",
         projectDetails: project.projectDetails || "",
         files: project.files || [],
-        projectLead: null, // can be looked up or kept null
+        projectLead: matchingLead,
         deadline: project.deadline ? project.deadline.split("T")[0] : "",
+        broughtBySalesAgent: project.broughtBySalesAgent || "",
+        foundOnOwn: project.foundOnOwn || false,
       });
+      setBroughtSearch(project.broughtBySalesAgent || "");
 
       if (project.departments) {
         setDepartments({
@@ -87,7 +106,49 @@ export function ProjectEditorModal({ isOpen, project, onClose, onUpdated }) {
         });
       }
     }
-  }, [project]);
+  }, [project, employees]);
+
+  const salesEmployees = employees.filter((e) => {
+    const isSales = e.work?.department?.toLowerCase() === "sales";
+    if (!isSales) return false;
+    if (!broughtSearch) return true;
+    const q = broughtSearch.toLowerCase();
+    const fullName = `${e.personal?.firstName || ""} ${e.personal?.lastName || ""}`.toLowerCase();
+    const empCode = (e.employeeCode || "").toLowerCase();
+    const empNum = (e.employeeNumber || "").toLowerCase();
+    const loginId = (e.work?.companyEmail || "").toLowerCase();
+    const personalEmail = (e.personal?.contactEmail || "").toLowerCase();
+    return (
+      fullName.includes(q) ||
+      empCode.includes(q) ||
+      empNum.includes(q) ||
+      loginId.includes(q) ||
+      personalEmail.includes(q)
+    );
+  });
+
+  const handleAgentSelect = (emp) => {
+    const name = `${emp.personal?.firstName || ""} ${emp.personal?.lastName || ""}`.trim();
+    setBroughtSearch(name);
+    setBasicDetails({
+      ...basicDetails,
+      broughtBySalesAgent: name,
+      projectLead: emp
+    });
+    setShowBroughtDropdown(false);
+  };
+
+  const handleAgentTextChange = (text) => {
+    setBroughtSearch(text);
+    const matchingEmp = employees.find(
+      (e) => `${e.personal?.firstName || ""} ${e.personal?.lastName || ""}`.trim().toLowerCase() === text.trim().toLowerCase()
+    ) || null;
+    setBasicDetails({
+      ...basicDetails,
+      broughtBySalesAgent: text,
+      projectLead: matchingEmp
+    });
+  };
 
   const handleDepartmentChange = (dept, data) => {
     setDepartments((prev) => ({ ...prev, [dept]: data }));
@@ -136,7 +197,7 @@ export function ProjectEditorModal({ isOpen, project, onClose, onUpdated }) {
           className="relative w-full max-w-6xl max-h-[92vh] bg-background border border-border shadow-2xl rounded-3xl overflow-hidden flex flex-col"
         >
           {/* Header */}
-          <div className="flex items-center justify-between p-6 border-b border-border/60 bg-muted/20 gap-4 flex-wrap">
+          <div className="flex flex-shrink-0 items-center justify-between p-6 border-b border-border/60 bg-muted/20 gap-4 flex-wrap">
             <div className="flex items-center gap-3">
               <div className="p-2.5 bg-primary/10 text-primary rounded-xl border border-primary/20">
                 <Sliders size={24} />
@@ -208,12 +269,12 @@ export function ProjectEditorModal({ isOpen, project, onClose, onUpdated }) {
           </div>
 
           {/* Modal Tabs */}
-          <div className="flex border-b border-border bg-muted/20 px-6 pt-3 gap-2 overflow-x-auto">
+          <div className="flex flex-shrink-0 border-b border-border bg-muted/20 px-6 pt-3 gap-6 overflow-x-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
             {tabs.map((tab) => (
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`flex items-center gap-2 px-4 py-3 text-xs font-bold border-b-2 transition-all rounded-t-xl whitespace-nowrap ${
+                className={`flex items-center gap-2 px-6 py-3 text-sm font-bold border-b-2 transition-all rounded-t-xl whitespace-nowrap ${
                   activeTab === tab.id
                     ? "border-primary text-primary bg-background shadow-sm"
                     : "border-transparent text-muted-foreground hover:text-foreground"
@@ -300,6 +361,73 @@ export function ProjectEditorModal({ isOpen, project, onClose, onUpdated }) {
                         setBasicDetails({ ...basicDetails, budget: fmt });
                       }}
                     />
+                  </div>
+
+                  {/* Sales Agent Responsible */}
+                  <div className="space-y-2">
+                    <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-2">
+                      Sales Agent Responsible
+                    </label>
+                    <div className="relative">
+                      <input
+                        type="text"
+                        disabled={basicDetails.foundOnOwn}
+                        placeholder={basicDetails.foundOnOwn ? "Not applicable (Found us on own)" : "Type to search Sales Agent..."}
+                        className="w-full px-4 py-3 bg-muted/40 border border-border rounded-xl text-sm font-bold text-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 disabled:opacity-50"
+                        value={broughtSearch}
+                        onChange={(e) => handleAgentTextChange(e.target.value)}
+                        onFocus={() => !basicDetails.foundOnOwn && setShowBroughtDropdown(true)}
+                        onBlur={() => {
+                          setTimeout(() => setShowBroughtDropdown(false), 200);
+                        }}
+                      />
+                      {showBroughtDropdown && !basicDetails.foundOnOwn && (
+                        <div className="absolute z-50 w-full mt-2 bg-background border border-border rounded-xl shadow-xl max-h-48 overflow-y-auto">
+                          {salesEmployees.length === 0 ? (
+                            <div className="p-3 text-xs text-muted-foreground">No Sales employees found</div>
+                          ) : (
+                            salesEmployees.map((e) => {
+                              const name = `${e.personal?.firstName || ""} ${e.personal?.lastName || ""}`.trim();
+                              return (
+                                <button
+                                  key={e.id || e._id}
+                                  type="button"
+                                  onMouseDown={() => handleAgentSelect(e)}
+                                  className="w-full text-left p-3 hover:bg-muted text-sm text-foreground transition-colors"
+                                >
+                                  {name} (Sales)
+                                </button>
+                              );
+                            })
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Checkbox: Client found us on their own */}
+                  <div className="flex items-center gap-3 pt-2 md:col-span-2">
+                    <input
+                      type="checkbox"
+                      id="foundOnOwn"
+                      className="w-5 h-5 rounded border-border text-primary focus:ring-primary/50 bg-background cursor-pointer"
+                      checked={basicDetails.foundOnOwn || false}
+                      onChange={(e) => {
+                        const checked = e.target.checked;
+                        setBasicDetails({
+                          ...basicDetails,
+                          foundOnOwn: checked,
+                          broughtBySalesAgent: "",
+                          projectLead: null,
+                        });
+                        if (checked) {
+                          setBroughtSearch("");
+                        }
+                      }}
+                    />
+                    <label htmlFor="foundOnOwn" className="text-sm font-semibold text-foreground cursor-pointer select-none">
+                      Client found us on their own without any assistance from a sales agent
+                    </label>
                   </div>
 
                   <div className="space-y-2 md:col-span-2 pt-4 border-t border-border/50">

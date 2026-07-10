@@ -14,6 +14,9 @@ import {
   MessageSquare,
   Bell,
   ClipboardList,
+  User,
+  FileText,
+  Settings,
 } from "lucide-react";
 import { useRouter, usePathname } from "next/navigation";
 import Link from "next/link";
@@ -22,7 +25,11 @@ import { motion, AnimatePresence } from "framer-motion";
 import { DirectoryModal } from "./DirectoryModal";
 import { AdminsModal } from "./AdminsModal";
 import { NewRequestsModal } from "./NewRequestsModal";
+import { MessagesModal } from "./MessagesModal";
+import { NotificationsModal } from "./NotificationsModal";
 import { ManualEmployeeModal } from "./ManualEmployeeModal";
+import { EmployeeDetailsModal } from "./EmployeeDetailsModal";
+import { EditProfileRequestsModal } from "./EditProfileRequestsModal";
 import { api } from "@/lib/api";
 
 export function DashboardLayout({ children, adminName = "Admin" }) {
@@ -34,10 +41,82 @@ export function DashboardLayout({ children, adminName = "Admin" }) {
   const [isDirectoryOpen, setIsDirectoryOpen] = useState(false);
   const [isAdminsOpen, setIsAdminsOpen] = useState(false);
   const [isNewRequestsOpen, setIsNewRequestsOpen] = useState(false);
+  const [isMessagesOpen, setIsMessagesOpen] = useState(false);
+  const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
+  const [activeRequestsCount, setActiveRequestsCount] = useState(0);
+  const [activeNotificationsCount, setActiveNotificationsCount] = useState(0);
+  const [activeMessagesCount, setActiveMessagesCount] = useState(0);
   const [isManualOpen, setIsManualOpen] = useState(false);
   const [isDepartmentDropdownOpen, setIsDepartmentDropdownOpen] =
     useState(false);
+  const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
+  const [isEditProfileRequestsOpen, setIsEditProfileRequestsOpen] = useState(false);
+  const [isAdminEditProfileOpen, setIsAdminEditProfileOpen] = useState(false);
+  const [adminRecord, setAdminRecord] = useState(null);
+  const [pendingProfileReqCount, setPendingProfileReqCount] = useState(0);
   const [toastMessage, setToastMessage] = useState(null);
+
+  const fetchAdminMe = () => {
+    api.get("/api/auth/me").then((res) => {
+      const u = res.data?.user || res.data;
+      if (u) {
+        const names = (u.name || "Admin User").split(" ");
+        setAdminRecord({
+          _id: u.id || "admin_1",
+          id: u.id || "admin_1",
+          userId: u.id,
+          employeeCode: u.employeeCode || "ADMIN",
+          personal: {
+            firstName: names[0] || "Admin",
+            lastName: names.slice(1).join(" ") || "Emp",
+            contactEmail: u.email || "admin@novanectar.com",
+          },
+          work: {
+            companyEmail: u.email || "admin@novanectar.com",
+            designation: u.designation || "System Administrator",
+            department: u.department || "Executive Suite",
+            manager: "None",
+          },
+        });
+      }
+    }).catch(() => {});
+  };
+
+  useEffect(() => {
+    fetchAdminMe();
+    const fetchCounts = () => {
+        const adminId = adminRecord?._id || adminRecord?.id || "ADMIN_ID";
+        Promise.all([
+          api.get("/api/customerInquiries").catch(() => ({ data: [] })),
+          api.get("/api/accountRequests").catch(() => ({ data: [] })),
+          api.get("/api/profileChangeRequests").catch(() => ({ data: [] })),
+          api.get("/api/notifications").catch(() => ({ data: { unreadCount: 0 } })),
+          api.get(`/api/internalChat/unread?userId=${adminId}&code=ADMIN&role=admin`).catch(() => ({ data: { unreadCount: 0 } })),
+          api.get("/api/emails").catch(() => ({ data: [] })),
+        ]).then(([inqRes, accRes, profileRes, notifRes, chatRes, emailRes]) => {
+          const inqCount = (inqRes.data || []).filter((i) => !i.isRead).length;
+          const accCount = (accRes.data || []).filter((a) => a.status === "pending" && !a.isRead).length;
+          const profileCount = (profileRes.data || []).filter((p) => p.status === "pending" && !p.isRead).length;
+          setActiveRequestsCount(inqCount + accCount + profileCount);
+          setPendingProfileReqCount((profileRes.data || []).filter((p) => p.status === "pending").length);
+          setActiveNotificationsCount(notifRes.data?.unreadCount || 0);
+
+          const unreadChats = chatRes.data?.unreadCount || 0;
+          const unreadEmails = (emailRes.data || []).filter((e) => !e.isRead && (e.direction === "inbound" || !e.direction)).length;
+          setActiveMessagesCount(unreadChats + unreadEmails);
+        });
+    };
+    fetchCounts();
+    const interval = setInterval(fetchCounts, 30000);
+    window.addEventListener("messagesRead", fetchCounts);
+    window.addEventListener("notificationsRead", fetchCounts);
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener("messagesRead", fetchCounts);
+      window.removeEventListener("notificationsRead", fetchCounts);
+    };
+  }, [isNewRequestsOpen, isNotificationsOpen, isEditProfileRequestsOpen, isAdminEditProfileOpen, isMessagesOpen]);
+
   const getInitials = (str) => {
     if (!str) return "AC";
     const p = str.trim().split(" ");
@@ -71,11 +150,40 @@ export function DashboardLayout({ children, adminName = "Admin" }) {
   };
 
   useEffect(() => {
-    setMounted(true);
+    Promise.resolve().then(() => setMounted(true));
     const token = localStorage.getItem("token");
     if (!token) {
       router.push("/login");
       return;
+    }
+
+    const checkRBAC = (role, department, userName) => {
+      const r = (role || "").toLowerCase();
+      const d = (department || "").toLowerCase();
+      const u = (userName || "").toLowerCase();
+      if (r === "employee") {
+        if (d.includes("sales") || u.includes("sales")) {
+          router.replace("/employee/sales");
+          return true;
+        } else if (d.includes("digital") || u.includes("digital")) {
+          router.replace("/employee/digitaldashboard");
+          return true;
+        } else {
+          router.replace("/login");
+          return true;
+        }
+      }
+      return false;
+    };
+
+    // Check immediate local cache
+    const cachedRole = localStorage.getItem("userRole");
+    const cachedDept = localStorage.getItem("userDepartment");
+    const cachedName = localStorage.getItem("userName");
+    if (cachedRole) {
+      if (checkRBAC(cachedRole, cachedDept, cachedName)) {
+        return;
+      }
     }
 
     const fetchUser = async () => {
@@ -86,6 +194,14 @@ export function DashboardLayout({ children, adminName = "Admin" }) {
           setDisplayName(parts[0]);
           setUserInitials(getInitials(data.user.name));
           localStorage.setItem("userName", data.user.name);
+          if (data.user.role) localStorage.setItem("userRole", data.user.role);
+          if (data.user.department) localStorage.setItem("userDepartment", data.user.department);
+          if (data.user.designation) localStorage.setItem("userDesignation", data.user.designation);
+          if (data.user.employeeCode) localStorage.setItem("userEmployeeCode", data.user.employeeCode);
+          if (data.user.status) localStorage.setItem("userStatus", data.user.status);
+          if (data.user.joiningDate) localStorage.setItem("userJoiningDate", data.user.joiningDate);
+
+          checkRBAC(data.user.role, data.user.department, data.user.name);
         }
       } catch (err) {
         console.error("Failed to fetch user info", err);
@@ -94,8 +210,10 @@ export function DashboardLayout({ children, adminName = "Admin" }) {
 
     const storedName = localStorage.getItem("userName");
     if (storedName) {
-      setDisplayName(storedName.trim().split(" ")[0]);
-      setUserInitials(getInitials(storedName));
+      Promise.resolve().then(() => {
+        setDisplayName(storedName.trim().split(" ")[0]);
+        setUserInitials(getInitials(storedName));
+      });
     } else {
       fetchUser();
     }
@@ -302,31 +420,40 @@ export function DashboardLayout({ children, adminName = "Admin" }) {
                 <button
                   onClick={() => setIsNewRequestsOpen(true)}
                   title="New Requests"
-                  className="w-10 h-10 rounded-full bg-amber-500/10 text-amber-500 hover:bg-amber-500/20 hover:text-amber-600 transition-all border border-amber-500/20 shadow-sm flex items-center justify-center cursor-pointer hover:scale-105 active:scale-95"
+                  className="relative w-10 h-10 rounded-full bg-amber-500/10 text-amber-500 hover:bg-amber-500/20 hover:text-amber-600 transition-all border border-amber-500/20 shadow-sm flex items-center justify-center cursor-pointer hover:scale-105 active:scale-95"
                 >
                   <ClipboardList size={18} />
+                  {activeRequestsCount > 0 && (
+                    <span className="absolute -top-1.5 -right-1.5 min-w-[18px] h-[18px] px-1 bg-rose-500 text-white rounded-full text-[10px] font-bold flex items-center justify-center shadow-md animate-pulse border border-background">
+                      {activeRequestsCount}
+                    </span>
+                  )}
                 </button>
 
                 <button
-                  onClick={() => {
-                    setToastMessage("Messages: Function to be defined later");
-                    setTimeout(() => setToastMessage(null), 3000);
-                  }}
-                  title="Messages"
-                  className="w-10 h-10 rounded-full bg-violet-500/10 text-violet-500 hover:bg-violet-500/20 hover:text-violet-600 transition-all border border-violet-500/20 shadow-sm flex items-center justify-center cursor-pointer hover:scale-105 active:scale-95"
+                  onClick={() => setIsMessagesOpen(true)}
+                  title="Messages & Email Box"
+                  className="relative w-10 h-10 rounded-full bg-violet-500/10 text-violet-500 hover:bg-violet-500/20 hover:text-violet-600 transition-all border border-violet-500/20 shadow-sm flex items-center justify-center cursor-pointer hover:scale-105 active:scale-95"
                 >
                   <MessageSquare size={18} />
+                  {activeMessagesCount > 0 && (
+                    <span className="absolute -top-1.5 -right-1.5 min-w-[18px] h-[18px] px-1 bg-violet-500 text-white rounded-full text-[10px] font-bold flex items-center justify-center shadow-md animate-pulse border border-background">
+                      {activeMessagesCount}
+                    </span>
+                  )}
                 </button>
 
                 <button
-                  onClick={() => {
-                    setToastMessage("Notifications: Function to be defined later");
-                    setTimeout(() => setToastMessage(null), 3000);
-                  }}
-                  title="Notifications"
-                  className="w-10 h-10 rounded-full bg-pink-500/10 text-pink-500 hover:bg-pink-500/20 hover:text-pink-600 transition-all border border-pink-500/20 shadow-sm flex items-center justify-center cursor-pointer hover:scale-105 active:scale-95"
+                  onClick={() => setIsNotificationsOpen(true)}
+                  title="Notifications Center"
+                  className="w-10 h-10 rounded-full bg-pink-500/10 text-pink-500 hover:bg-pink-500/20 hover:text-pink-600 transition-all border border-pink-500/20 shadow-sm flex items-center justify-center cursor-pointer hover:scale-105 active:scale-95 relative"
                 >
                   <Bell size={18} />
+                  {activeNotificationsCount > 0 && (
+                    <span className="absolute -top-1.5 -right-1.5 min-w-[18px] h-[18px] px-1 bg-pink-500 text-white rounded-full text-[10px] font-bold flex items-center justify-center shadow-md animate-pulse border border-background">
+                      {activeNotificationsCount}
+                    </span>
+                  )}
                 </button>
 
                 {/* Hidden Calendar Ref container for DOM safety if ref is attached */}
@@ -383,9 +510,37 @@ export function DashboardLayout({ children, adminName = "Admin" }) {
         isOpen={isNewRequestsOpen}
         onClose={() => setIsNewRequestsOpen(false)}
       />
+      <MessagesModal
+        isOpen={isMessagesOpen}
+        onClose={() => setIsMessagesOpen(false)}
+      />
+      <NotificationsModal
+        isOpen={isNotificationsOpen}
+        onClose={() => setIsNotificationsOpen(false)}
+        onNavigate={(target) => {
+          if (target === "inquiries" || target === "accounts")
+            setIsNewRequestsOpen(true);
+          if (target === "messages") setIsMessagesOpen(true);
+        }}
+      />
       <ManualEmployeeModal
         isOpen={isManualOpen}
         onClose={() => setIsManualOpen(false)}
+      />
+
+      {adminRecord && (
+        <EmployeeDetailsModal
+          employee={adminRecord}
+          isOpen={isAdminEditProfileOpen}
+          onClose={() => setIsAdminEditProfileOpen(false)}
+          onUpdated={() => fetchAdminMe()}
+        />
+      )}
+
+      <EditProfileRequestsModal
+        isOpen={isEditProfileRequestsOpen}
+        onClose={() => setIsEditProfileRequestsOpen(false)}
+        onUpdated={() => {}}
       />
 
       <AnimatePresence>

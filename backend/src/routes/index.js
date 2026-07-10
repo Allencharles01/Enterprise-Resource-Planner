@@ -8,6 +8,11 @@ import { createStubRouter } from "./stub.js";
 import { projectsRouter } from "./projects.js";
 import { internshipsRouter } from "./internships.js";
 import { trainingRouter } from "./training.js";
+import { customerInquiriesRouter } from "./customerInquiries.js";
+import { emailsRouter } from "./emails.js";
+import { notificationsRouter } from "./notifications.js";
+import { internalChatRouter } from "./internalChat.js";
+import { profileChangeRequestsRouter } from "./profileChangeRequests.js";
 
 export const apiRouter = Router();
 
@@ -15,9 +20,16 @@ apiRouter.use("/auth", authRouter);
 apiRouter.use("/orgs", orgRouter);
 apiRouter.use("/employees", employeesRouter);
 apiRouter.use("/accountRequests", accountRequestsRouter);
+apiRouter.use("/customerInquiries", customerInquiriesRouter);
+apiRouter.use("/emails", emailsRouter);
+apiRouter.use("/notifications", notificationsRouter);
 apiRouter.use("/admins", adminsRouter);
 apiRouter.use("/internships", internshipsRouter);
 apiRouter.use("/training", trainingRouter);
+apiRouter.use("/internalChat", internalChatRouter);
+apiRouter.use("/profileChangeRequests", profileChangeRequestsRouter);
+
+
 
 // Stubs for remaining ERP modules (implemented incrementally)
 apiRouter.use("/attendance", createStubRouter("attendance"));

@@ -1,8 +1,41 @@
 import { Router } from "express";
 import InternshipCandidate from "dbms/InternshipCandidate.js";
 import InternshipCourse from "dbms/InternshipCourse.js";
+import Notification from "dbms/Notification.js";
+import { EmployeeModel } from "dbms/Employee.js";
 
 export const internshipsRouter = Router();
+
+async function createAssignmentNotification(salesAgent, type, candidateId) {
+  if (!salesAgent) return;
+  try {
+    const employees = await EmployeeModel.find();
+    const emp = employees.find(e => {
+      const fullName = `${e.personal?.firstName || ""} ${e.personal?.lastName || ""}`.trim().toLowerCase();
+      return fullName === salesAgent.trim().toLowerCase();
+    });
+
+    const empCode = emp ? emp.employeeCode : "EMP001";
+    const msg = type === "Internship"
+      ? "Admin has assigned an Internship candidate to you."
+      : "Admin has assigned a Training candidate to you.";
+
+    await Notification.create({
+      title: `${type} Candidate Assigned`,
+      message: msg,
+      category: "message",
+      isRead: false,
+      metadata: {
+        employeeCode: empCode,
+        employeeName: salesAgent,
+        refId: String(candidateId),
+        refType: type === "Internship" ? "InternshipCandidate" : "TrainingCandidate"
+      }
+    });
+  } catch (e) {
+    console.error("Failed to create assignment notification:", e);
+  }
+}
 
 // --- CANDIDATES CRUD ---
 
@@ -21,6 +54,9 @@ internshipsRouter.post("/candidates", async (req, res) => {
   try {
     const candidate = new InternshipCandidate(req.body);
     await candidate.save();
+    if (candidate.salesAgent) {
+      await createAssignmentNotification(candidate.salesAgent, "Internship", candidate._id);
+    }
     res.status(201).json(candidate);
   } catch (err) {
     res.status(400).json({ error: err.message || "Failed to create candidate" });
@@ -30,6 +66,7 @@ internshipsRouter.post("/candidates", async (req, res) => {
 // Update candidate
 internshipsRouter.put("/candidates/:id", async (req, res) => {
   try {
+    const original = await InternshipCandidate.findById(req.params.id);
     const updated = await InternshipCandidate.findByIdAndUpdate(
       req.params.id,
       req.body,
@@ -37,6 +74,9 @@ internshipsRouter.put("/candidates/:id", async (req, res) => {
     );
     if (!updated) {
       return res.status(404).json({ error: "Candidate not found" });
+    }
+    if (updated.salesAgent && (!original || original.salesAgent !== updated.salesAgent)) {
+      await createAssignmentNotification(updated.salesAgent, "Internship", updated._id);
     }
     res.json(updated);
   } catch (err) {

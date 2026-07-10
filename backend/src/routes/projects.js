@@ -27,6 +27,8 @@ projectsRouter.post("/", async (req, res) => {
       clientCountryCode: basicDetails.clientCountryCode || "+1",
       clientEmail: basicDetails.clientEmail,
       manager: projectManager,
+      broughtBySalesAgent: basicDetails.broughtBySalesAgent,
+      foundOnOwn: basicDetails.foundOnOwn,
       budget: basicDetails.budget,
       currency: basicDetails.currency || "USD",
       projectDetails: basicDetails.projectDetails,
@@ -97,8 +99,14 @@ projectsRouter.put("/:id", async (req, res) => {
       if (basicDetails.projectDetails !== undefined) project.projectDetails = basicDetails.projectDetails;
       if (basicDetails.files !== undefined) project.files = basicDetails.files;
       if (basicDetails.deadline) project.deadline = new Date(basicDetails.deadline);
-      if (basicDetails.projectLead) {
-        project.manager = `${basicDetails.projectLead.personal?.firstName || ""} ${basicDetails.projectLead.personal?.lastName || ""}`.trim();
+      if (basicDetails.broughtBySalesAgent !== undefined) project.broughtBySalesAgent = basicDetails.broughtBySalesAgent;
+      if (basicDetails.foundOnOwn !== undefined) project.foundOnOwn = basicDetails.foundOnOwn;
+      if (basicDetails.projectLead !== undefined) {
+        if (basicDetails.projectLead) {
+          project.manager = `${basicDetails.projectLead.personal?.firstName || ""} ${basicDetails.projectLead.personal?.lastName || ""}`.trim();
+        } else {
+          project.manager = "Unassigned";
+        }
       }
     }
 

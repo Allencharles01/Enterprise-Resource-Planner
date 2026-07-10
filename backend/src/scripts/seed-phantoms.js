@@ -83,6 +83,8 @@ const DEPTS = [
   { dept: "Design", desig: "UI/UX Designer", mgr: "Ekta Chaudhary" },
   { dept: "Product", desig: "Product Manager", mgr: "Allen Charles" },
   { dept: "HR", desig: "HR Specialist", mgr: "Allen Charles" },
+  { dept: "Sales", desig: "Sales Executive", mgr: "Allen Charles" },
+  { dept: "Digital Marketing", desig: "Marketing Specialist", mgr: "Ekta Chaudhary" },
 ];
 
 async function seed() {

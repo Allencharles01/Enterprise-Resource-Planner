@@ -31,6 +31,7 @@ import {
 import axios from "axios";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { formatAmount } from "@/lib/formatAmount";
 
 // Custom WOW Interactive Calendar Picker Component
 function CustomDatePicker({ selectedDate, onSelectDate, onClose }) {
@@ -294,19 +295,53 @@ export default function LoginPage() {
           : { username: username.trim(), password };
       const response = await axios.post(`${apiUrl}/api/auth/login`, payload);
       setMessage("Login successful! Redirecting...");
-      // Save token and user details to localStorage
       localStorage.setItem("token", response.data.token);
       localStorage.setItem("userName", response.data.user.name);
       localStorage.setItem("userRole", response.data.user.role);
+      localStorage.setItem(
+        "userDepartment",
+        response.data.user.department || ""
+      );
+      localStorage.setItem(
+        "userDesignation",
+        response.data.user.designation || ""
+      );
+      localStorage.setItem(
+        "userEmployeeCode",
+        response.data.user.employeeCode || ""
+      );
+      localStorage.setItem(
+        "userStatus",
+        response.data.user.status || ""
+      );
+      localStorage.setItem(
+        "userJoiningDate",
+        response.data.user.joiningDate || ""
+      );
       sessionStorage.setItem("active_session", "true");
       console.log("Token and user details saved");
-      // Simulate redirection to dashboard
+      // Redirect to dashboard based on role & department
       setTimeout(() => {
-        router.push("/");
+        const dept = (response.data.user.department || "").toLowerCase();
+        const uname = (username || "").toLowerCase();
+        if (
+          loginType === "employee" &&
+          (dept.includes("sales") || uname.includes("sales"))
+        ) {
+          router.push("/employee/sales");
+        } else if (
+          loginType === "employee" &&
+          (dept.includes("digital") || uname.includes("digital"))
+        ) {
+          router.push("/employee/digitaldashboard");
+        } else {
+          router.push("/");
+        }
       }, 1000);
     } catch (err) {
       setError(
-        err.response?.data?.error ||
+        err.response?.data?.message ||
+          err.response?.data?.error ||
           "An error occurred during login. Please try again.",
       );
     } finally {
@@ -314,9 +349,37 @@ export default function LoginPage() {
     }
   };
 
-  const handleCustomerSubmit = (e) => {
+  const [customerSubmitting, setCustomerSubmitting] = useState(false);
+
+  const handleCustomerSubmit = async (e) => {
     e.preventDefault();
-    setCustomerSubmitted(true);
+    setCustomerSubmitting(true);
+    try {
+      const apiUrl =
+        process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:4000";
+      let fileData = "";
+      let fileName = "";
+      if (customerForm.file) {
+        fileName = customerForm.file.name;
+        const reader = new FileReader();
+        fileData = await new Promise((resolve) => {
+          reader.onload = () => resolve(reader.result);
+          reader.onerror = () => resolve("");
+          reader.readAsDataURL(customerForm.file);
+        });
+      }
+      await axios.post(`${apiUrl}/api/customerInquiries`, {
+        ...customerForm,
+        fileName,
+        fileData,
+      });
+      setCustomerSubmitted(true);
+    } catch (err) {
+      console.error("Failed to submit inquiry:", err);
+      setCustomerSubmitted(true);
+    } finally {
+      setCustomerSubmitting(false);
+    }
   };
 
   const handleForgotSubmit = (e) => {
@@ -379,7 +442,7 @@ export default function LoginPage() {
             for speed, scale, and simplicity.
           </p>
 
-          {/* Green Customer Button */}
+          {/* Violet/Indigo Customer Button */}
           <motion.button
             whileHover={{ scale: 1.03 }}
             whileTap={{ scale: 0.98 }}
@@ -388,7 +451,7 @@ export default function LoginPage() {
               setShowCustomerModal(true);
             }}
             type="button"
-            className="mt-8 bg-gradient-to-r from-emerald-600 via-teal-600 to-green-600 hover:from-emerald-500 hover:via-teal-500 hover:to-green-500 text-white font-bold px-7 py-4 rounded-2xl shadow-xl shadow-emerald-600/30 transition-all flex items-center gap-3 w-fit border border-emerald-400/40 cursor-pointer group"
+            className="mt-8 bg-gradient-to-r from-violet-600 via-indigo-600 to-purple-600 hover:from-violet-500 hover:via-indigo-500 hover:to-purple-500 text-white font-bold px-7 py-4 rounded-2xl shadow-xl shadow-indigo-600/30 transition-all flex items-center gap-3 w-fit border border-violet-400/40 cursor-pointer group"
           >
             <span className="tracking-wide">Are you a Customer? Click here</span>
             <ArrowRight
@@ -586,7 +649,7 @@ export default function LoginPage() {
 
               <div className="text-center mt-4">
                 <p className="text-sm text-muted-foreground">
-                  Don't have an account?{" "}
+                  Don&apos;t have an account?{" "}
                   <Link
                     href="/register"
                     className="text-primary hover:underline font-medium"
@@ -605,7 +668,7 @@ export default function LoginPage() {
                   setCustomerSubmitted(false);
                   setShowCustomerModal(true);
                 }}
-                className="w-full bg-gradient-to-r from-emerald-600 to-green-600 hover:from-emerald-500 hover:to-green-500 text-white font-semibold py-2.5 px-4 rounded-xl shadow-md shadow-emerald-600/20 transition-all flex items-center justify-center gap-2 text-sm"
+                className="w-full bg-gradient-to-r from-violet-600 via-indigo-600 to-purple-600 hover:from-violet-500 hover:via-indigo-500 hover:to-purple-500 text-white font-semibold py-2.5 px-4 rounded-xl shadow-md shadow-indigo-600/20 transition-all flex items-center justify-center gap-2 text-sm border border-violet-400/40"
               >
                 <span>Are you a Customer? Click here</span>
                 <ArrowRight size={16} />
@@ -649,7 +712,7 @@ export default function LoginPage() {
                       Customer Inquiry Form
                     </h2>
                     <p className="text-sm text-slate-400 mt-1">
-                      Tell us about your project and we'll connect with you soon.
+                      Tell us about your project and we&apos;ll connect with you soon.
                     </p>
                   </div>
                 </div>
@@ -679,11 +742,15 @@ export default function LoginPage() {
                   <h3 className="text-3xl font-extrabold text-white tracking-tight">
                     Inquiry Received!
                   </h3>
-                  <div className="text-slate-300 text-base leading-relaxed bg-slate-800/60 p-6 rounded-2xl border border-emerald-500/30 shadow-inner">
-                    The Information is sent to our Internal Department for
-                    review. We'll reach out to you via your registered Phone
-                    number or registered Email ID. so keep an eye out. Thank for
-                    choosing NovaNectar Services.
+                  <div className="text-slate-300 text-base leading-relaxed bg-slate-800/60 p-6 rounded-2xl border border-emerald-500/30 shadow-inner space-y-3">
+                    <p>
+                      Your project inquiry has been sent to our Internal Department for
+                      review. We&apos;ll reach out to you via your registered phone
+                      number or email address shortly.
+                    </p>
+                    <p className="text-sm text-emerald-400 font-semibold flex items-center justify-center gap-2 border-t border-slate-700/60 pt-3">
+                      <Sparkles size={16} /> A copy of this form has been sent to your primary Email ID ({customerForm.email}).
+                    </p>
                   </div>
                   <motion.button
                     whileHover={{ scale: 1.03 }}
@@ -1012,17 +1079,17 @@ export default function LoginPage() {
                               <option value="AED (AED)">AED (AED)</option>
                             </select>
                             <input
-                              type="number"
+                              type="text"
                               required
                               value={customerForm.budgetRange}
                               onChange={(e) =>
                                 setCustomerForm({
                                   ...customerForm,
-                                  budgetRange: e.target.value,
+                                  budgetRange: formatAmount(e.target.value),
                                 })
                               }
                               className="w-full bg-slate-800/80 hover:bg-slate-800 border border-slate-700/80 hover:border-emerald-500/60 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 rounded-xl px-4 py-3 text-sm text-white transition-all outline-none placeholder:text-slate-500 shadow-inner font-semibold"
-                              placeholder="e.g. 15000"
+                              placeholder="e.g. 1,25,000"
                             />
                           </div>
                         </div>
@@ -1151,7 +1218,7 @@ export default function LoginPage() {
                       Reset Password
                     </h2>
                     <p className="text-xs text-slate-400 mt-0.5">
-                      We'll send a secure recovery link
+                      We&apos;ll send a secure recovery link
                     </p>
                   </div>
                 </div>

@@ -13,12 +13,18 @@ import {
   ChevronLeft,
   ChevronRight,
   X,
+  Settings,
+  User,
+  MessageSquare,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useTheme } from "next-themes";
-import EmployeeMessagesModal from "./EmployeeMessagesModal";
+import { motion, AnimatePresence } from "framer-motion";
+import { MessagesModal } from "@/components/MessagesModal";
 import EmployeeRemindersModal from "./EmployeeRemindersModal";
+import { EmployeeSelfProfileModal } from "./EmployeeSelfProfileModal";
+import { api } from "@/lib/api";
 
 export default function SalesEmployeeNavbar() {
   const router = useRouter();
@@ -29,38 +35,126 @@ export default function SalesEmployeeNavbar() {
   const [isRemindersOpen, setIsRemindersOpen] = useState(false);
   const [isCalendarOpen, setIsCalendarOpen] = useState(false);
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
+  const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
+  const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
+  const [internalChatCount, setInternalChatCount] = useState(0);
 
   const [currentDate, setCurrentDate] = useState(new Date());
   const [reminders, setReminders] = useState([]);
   const [selectedNotification, setSelectedNotification] = useState(null);
 
-  const [leadMessages, setLeadMessages] = useState([
-    {
-      id: 1,
-      type: "message",
-      title: "New message from Lead",
-      message: "A lead has requested an update on the project proposal.",
-      time: "Today, 10:30 AM",
-      isRead: false,
-    },
-    {
-      id: 2,
-      type: "message",
-      title: "Admin Message",
-      message: "Please review your pending leads before EOD.",
-      time: "Today, 12:15 PM",
-      isRead: false,
-    },
-  ]);
+  const [leadMessages, setLeadMessages] = useState([]);
+  const [apiNotifications, setApiNotifications] = useState([]);
+  const [apiUnreadCount, setApiUnreadCount] = useState(0);
+
+  const fetchNotifications = async () => {
+    try {
+      const empCode = localStorage.getItem("userEmployeeCode") || "EMP001";
+      const empName = localStorage.getItem("userName") || "Rahul Sharma";
+      const res = await api.get(`/api/notifications?employeeCode=${empCode}&employeeName=${encodeURIComponent(empName)}`);
+      setApiNotifications(res.data?.notifications || []);
+      setApiUnreadCount(res.data?.unreadCount || 0);
+    } catch (e) {
+      console.error("Failed to fetch API notifications:", e);
+    }
+  };
 
   const calendarRef = useRef(null);
   const notificationRef = useRef(null);
 
-  const employeeName = "Rahul Sharma";
+  const [userInfo, setUserInfo] = useState({
+    name: "Rahul Sharma",
+    designation: "Senior Sales Executive",
+    id: "EMP001",
+    status: "Active",
+    joiningDate: "June 2026",
+  });
 
   useEffect(() => {
     setMounted(true);
     loadReminders();
+
+    const storedName = localStorage.getItem("userName");
+    const storedDesignation = localStorage.getItem("userDesignation");
+    const storedId = localStorage.getItem("userEmployeeCode");
+    const storedStatus = localStorage.getItem("userStatus");
+    const storedJoining = localStorage.getItem("userJoiningDate");
+
+    if (storedName || storedDesignation || storedId) {
+      setUserInfo({
+        name: storedName || "Employee",
+        designation: storedDesignation || "Senior Sales Executive",
+        id: storedId || "EMP001",
+        status: storedStatus || "Active",
+        joiningDate: storedJoining || "June 2026",
+      });
+    }
+
+    const fetchUserData = async () => {
+      const token = localStorage.getItem("token");
+      if (!token) return;
+      try {
+        const apiUrl = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:4000";
+        const res = await fetch(`${apiUrl}/api/auth/me`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (res.ok) {
+          const data = await res.json();
+          if (data?.user) {
+            const uName = data.user.name || storedName || "Employee";
+            const uDesig = data.user.designation || storedDesignation || "Senior Sales Executive";
+            const uId = data.user.employeeCode || storedId || "EMP001";
+            const uStatus = data.user.status || storedStatus || "Active";
+            const uJoining = data.user.joiningDate || storedJoining || "June 2026";
+
+            setUserInfo({
+              name: uName,
+              designation: uDesig,
+              id: uId,
+              status: uStatus,
+              joiningDate: uJoining,
+            });
+
+            localStorage.setItem("userName", uName);
+            localStorage.setItem("userDesignation", uDesig);
+            localStorage.setItem("userEmployeeCode", uId);
+            localStorage.setItem("userStatus", uStatus);
+            localStorage.setItem("userJoiningDate", uJoining);
+          }
+        }
+      } catch (err) {
+        console.error("Error fetching user data:", err);
+      }
+    };
+
+    fetchUserData();
+
+    const fetchChatCount = async () => {
+      try {
+        const apiUrl = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:4000";
+        const empCode = localStorage.getItem("userEmployeeCode") || "EMP001";
+        const res = await fetch(`${apiUrl}/api/internalChat/unread?code=${empCode}`);
+        if (res.ok) {
+          const data = await res.json();
+          setInternalChatCount(data?.unreadCount || 0);
+        }
+      } catch (e) {}
+    };
+    fetchChatCount();
+    fetchNotifications();
+    const interval = setInterval(() => {
+      fetchChatCount();
+      fetchNotifications();
+    }, 30000);
+    const handleMessagesRead = () => {
+      fetchChatCount();
+      fetchNotifications();
+    };
+    window.addEventListener("messagesRead", handleMessagesRead);
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener("messagesRead", handleMessagesRead);
+    };
   }, []);
 
   const loadReminders = () => {
@@ -124,10 +218,11 @@ export default function SalesEmployeeNavbar() {
     (message) => message.isRead !== true,
   ).length;
 
-  const unreadNotificationCount = unreadReminderCount + unreadMessageCount;
+  const unreadNotificationCount = unreadReminderCount + apiUnreadCount;
 
   const handleNotificationClick = () => {
     loadReminders();
+    fetchNotifications();
     setIsNotificationsOpen((prev) => !prev);
   };
 
@@ -152,15 +247,21 @@ export default function SalesEmployeeNavbar() {
     );
   };
 
-  const openNotificationDetails = (notification) => {
+  const openNotificationDetails = async (notification) => {
     setSelectedNotification(notification);
 
     if (notification.type === "reminder") {
       markReminderAsRead(notification.id);
-    }
-
-    if (notification.type === "message") {
+    } else if (notification.type === "message") {
       markMessageAsRead(notification.id);
+    } else {
+      // It is an API notification from the database
+      try {
+        await api.patch(`/api/notifications/${notification._id}/read`);
+        fetchNotifications();
+      } catch (err) {
+        console.error("Failed to mark API notification as read:", err);
+      }
     }
   };
 
@@ -237,7 +338,7 @@ export default function SalesEmployeeNavbar() {
 
               <div>
                 <h1 className="text-xl font-bold text-slate-950 dark:text-foreground">
-                  Welcome back, {employeeName}
+                  Welcome back, {userInfo.name}
                 </h1>
 
                 <p className="text-xs font-medium text-gradient">
@@ -313,16 +414,29 @@ export default function SalesEmployeeNavbar() {
                           month === today.getMonth() &&
                           year === today.getFullYear();
 
+                        const hasReminder = reminders.some((r) => {
+                          if (!r.dateTime) return false;
+                          const d = new Date(r.dateTime);
+                          return (
+                            d.getDate() === day &&
+                            d.getMonth() === month &&
+                            d.getFullYear() === year
+                          );
+                        });
+
                         return (
                           <button
                             key={day}
-                            className={`p-2 w-8 h-8 flex items-center justify-center rounded-full text-sm mx-auto transition-all ${
+                            className={`relative p-2 w-8 h-8 flex items-center justify-center rounded-full text-sm mx-auto transition-all ${
                               isToday
                                 ? "bg-indigo-500 text-white font-bold shadow-md shadow-indigo-500/40"
                                 : "text-slate-100 hover:bg-slate-800 font-medium"
                             }`}
                           >
-                            {day}
+                            <span>{day}</span>
+                            {hasReminder && (
+                              <span className="absolute bottom-1 right-1 w-1.5 h-1.5 rounded-full bg-rose-500 shadow-sm animate-pulse" />
+                            )}
                           </button>
                         );
                       })}
@@ -335,9 +449,14 @@ export default function SalesEmployeeNavbar() {
               <button
                 title="Messages"
                 onClick={() => setIsMessagesOpen(true)}
-                className="p-2 rounded-full text-slate-500 hover:text-blue-600 hover:bg-blue-50 transition dark:text-muted-foreground dark:hover:text-blue-400 dark:hover:bg-blue-500/10"
+                className="relative p-2 rounded-full text-slate-500 hover:text-blue-600 hover:bg-blue-50 transition dark:text-muted-foreground dark:hover:text-blue-400 dark:hover:bg-blue-500/10"
               >
                 <Mail size={20} />
+                {internalChatCount + unreadMessageCount > 0 && (
+                  <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] rounded-full bg-blue-500 px-1 text-[10px] font-bold text-white flex items-center justify-center animate-pulse shadow-sm">
+                    {internalChatCount + unreadMessageCount}
+                  </span>
+                )}
               </button>
 
               {/* Reminders */}
@@ -389,7 +508,7 @@ export default function SalesEmployeeNavbar() {
                     </div>
 
                     <div className="max-h-[360px] overflow-y-auto p-4 space-y-3">
-                      {reminders.length === 0 && leadMessages.length === 0 && (
+                      {reminders.length === 0 && leadMessages.length === 0 && apiNotifications.length === 0 && (
                         <p className="text-sm text-slate-400">
                           No notifications yet.
                         </p>
@@ -470,6 +589,42 @@ export default function SalesEmployeeNavbar() {
                         </button>
                       ))}
 
+                      {apiNotifications.map((notif) => (
+                        <button
+                          key={notif._id}
+                          onClick={() => openNotificationDetails(notif)}
+                          className={`w-full rounded-xl border px-4 py-3 text-left transition ${
+                            notif.isRead
+                              ? "border-slate-700/50 bg-slate-900/40"
+                              : "border-rose-500/30 bg-rose-500/10 hover:bg-rose-500/15"
+                          }`}
+                        >
+                          <div className="flex items-start gap-3">
+                            <Bell size={18} className="mt-1 text-rose-400" />
+
+                            <div className="min-w-0 flex-1">
+                              <div className="flex items-center gap-2">
+                                <h3 className="text-sm font-bold text-white">
+                                  {notif.title}
+                                </h3>
+
+                                {!notif.isRead && (
+                                  <span className="h-2 w-2 rounded-full bg-rose-500 animate-pulse" />
+                                )}
+                              </div>
+
+                              <p className="mt-1 line-clamp-2 text-sm text-slate-300">
+                                {notif.message}
+                              </p>
+
+                              <p className="mt-2 text-xs font-semibold text-rose-300">
+                                {new Date(notif.createdAt).toLocaleDateString()} {new Date(notif.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                              </p>
+                            </div>
+                          </div>
+                        </button>
+                      ))}
+
                       {selectedNotification && (
                         <div className="mt-4 rounded-xl border border-slate-700/70 bg-[#111827] p-4">
                           <div className="flex items-start justify-between gap-4">
@@ -515,12 +670,42 @@ export default function SalesEmployeeNavbar() {
                 )}
               </button>
 
-              <button
-                title="Employee Profile"
-                className="w-10 h-10 rounded-full bg-gradient-to-tr from-violet-600 via-indigo-600 to-purple-500 text-white font-extrabold flex items-center justify-center shadow-lg shadow-indigo-500/30 hover:scale-105 active:scale-95 transition-all border-2 border-indigo-300/40 text-sm"
-              >
-                {getInitials(employeeName)}
-              </button>
+              <div className="relative">
+                <button
+                  onClick={() => setIsProfileModalOpen(true)}
+                  title="Account Info (Profile Updates)"
+                  className="w-10 h-10 rounded-full bg-gradient-to-tr from-violet-600 via-indigo-600 to-purple-500 text-white font-extrabold flex items-center justify-center shadow-lg shadow-indigo-500/30 hover:scale-105 active:scale-95 transition-all border-2 border-indigo-300/40 text-sm cursor-pointer"
+                >
+                  {getInitials(userInfo.name)}
+                </button>
+
+                <AnimatePresence>
+                  {isProfileDropdownOpen && (
+                    <motion.div
+                      initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                      animate={{ opacity: 1, y: 0, scale: 1 }}
+                      exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                      transition={{ duration: 0.2 }}
+                      className="absolute right-0 top-full mt-2 py-2 bg-[#111827] border border-slate-700/80 shadow-2xl rounded-xl w-60 z-50 origin-top-right flex flex-col text-slate-100"
+                    >
+                      <div className="px-4 py-2.5 border-b border-slate-800">
+                        <p className="text-xs font-bold text-white truncate">{userInfo.name}</p>
+                        <p className="text-[11px] text-blue-400 font-mono mt-0.5">{userInfo.id} • {userInfo.designation}</p>
+                      </div>
+                      <button
+                        onClick={() => {
+                          setIsProfileModalOpen(true);
+                          setIsProfileDropdownOpen(false);
+                        }}
+                        className="px-4 py-3 text-left text-xs font-bold hover:bg-slate-800 text-slate-200 transition-colors flex items-center gap-2.5 cursor-pointer"
+                      >
+                        <Settings size={15} className="text-purple-400" />
+                        <span>Account Info</span>
+                      </button>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
 
               <button
                 onClick={handleLogout}
@@ -534,7 +719,7 @@ export default function SalesEmployeeNavbar() {
         </div>
       </nav>
 
-      <EmployeeMessagesModal
+      <MessagesModal
         isOpen={isMessagesOpen}
         onClose={() => setIsMessagesOpen(false)}
       />
@@ -545,6 +730,13 @@ export default function SalesEmployeeNavbar() {
           setIsRemindersOpen(false);
           loadReminders();
         }}
+      />
+
+      <EmployeeSelfProfileModal
+        isOpen={isProfileModalOpen}
+        onClose={() => setIsProfileModalOpen(false)}
+        userInfo={userInfo}
+        onUpdate={(newInfo) => setUserInfo({ ...userInfo, ...newInfo })}
       />
     </>
   );

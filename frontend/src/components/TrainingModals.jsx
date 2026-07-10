@@ -25,6 +25,88 @@ const formatNumberInput = (val) => {
   return Number(clean).toLocaleString("en-IN");
 };
 
+function SalesAgentSearch({ value, onChange, employees, placeholder = "Search Sales Agent...", focusBorderColor = "focus:border-emerald-500" }) {
+  const [search, setSearch] = useState("");
+  const [isOpen, setIsOpen] = useState(false);
+
+  useEffect(() => {
+    setSearch(value || "");
+  }, [value]);
+
+  const salesEmployees = employees.filter((e) => {
+    const isSales = e.work?.department?.toLowerCase() === "sales";
+    if (!isSales) return false;
+
+    if (!search) return true;
+
+    const q = search.toLowerCase();
+    const fullName = `${e.personal?.firstName || ""} ${e.personal?.lastName || ""}`.toLowerCase();
+    const empCode = (e.employeeCode || "").toLowerCase();
+    const empNum = (e.employeeNumber || "").toLowerCase();
+    const contactEmail = (e.personal?.contactEmail || "").toLowerCase();
+    const companyEmail = (e.work?.companyEmail || "").toLowerCase();
+
+    return (
+      fullName.includes(q) ||
+      empCode.includes(q) ||
+      empNum.includes(q) ||
+      contactEmail.includes(q) ||
+      companyEmail.includes(q)
+    );
+  });
+
+  return (
+    <div className="relative">
+      <input
+        type="text"
+        value={search}
+        onChange={(e) => {
+          setSearch(e.target.value);
+          setIsOpen(true);
+          onChange(e.target.value);
+        }}
+        onFocus={() => setIsOpen(true)}
+        onBlur={() => {
+          setTimeout(() => setIsOpen(false), 200);
+        }}
+        placeholder={placeholder}
+        className={`w-full bg-zinc-800 border border-border rounded-xl p-3 text-sm outline-none ${focusBorderColor} text-foreground`}
+      />
+      {isOpen && (
+        <div className="absolute z-[100] w-full mt-1 bg-zinc-800 border border-border rounded-xl shadow-xl max-h-60 overflow-y-auto divide-y divide-zinc-700/50">
+          {salesEmployees.length === 0 ? (
+            <div className="p-3 text-xs text-muted-foreground">No Sales employees found</div>
+          ) : (
+            salesEmployees.map((e) => {
+              const name = `${e.personal?.firstName || ""} ${e.personal?.lastName || ""}`.trim();
+              const empId = e.employeeCode || e.employeeNumber || "N/A";
+              const email = e.work?.companyEmail || e.personal?.contactEmail || "N/A";
+              return (
+                <button
+                  key={e.id || e._id}
+                  type="button"
+                  onMouseDown={() => {
+                    setSearch(name);
+                    onChange(name);
+                    setIsOpen(false);
+                  }}
+                  className="w-full text-left p-3 hover:bg-zinc-700/50 flex flex-col gap-0.5 text-xs text-foreground transition"
+                >
+                  <div className="font-semibold text-sm text-foreground">{name}</div>
+                  <div className="text-muted-foreground flex justify-between">
+                    <span>ID: {empId}</span>
+                    <span>{email}</span>
+                  </div>
+                </button>
+              );
+            })
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
 // --- MODAL COMPONENTS ---
 
 // 1. ADD COURSE
@@ -309,7 +391,7 @@ function AddCandidateModal({ onClose }) {
     progress: 0,
   });
   const [courses, setCourses] = useState([]);
-  const [employeeNames, setEmployeeNames] = useState([]);
+  const [employees, setEmployees] = useState([]);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -325,11 +407,11 @@ function AddCandidateModal({ onClose }) {
       }
     });
     api.get("/api/employees").then((res) => {
-      const list = res.data || [];
-      const names = list.map((e) => `${e.personal?.firstName || ""} ${e.personal?.lastName || ""}`.trim()).filter(Boolean);
-      setEmployeeNames(names);
+      setEmployees(res.data || []);
     }).catch(() => {});
   }, []);
+
+  const employeeNames = employees.map((e) => `${e.personal?.firstName || ""} ${e.personal?.lastName || ""}`.trim()).filter(Boolean);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -431,7 +513,7 @@ function AddCandidateModal({ onClose }) {
           </datalist>
           <div>
             <label className="text-xs text-muted-foreground block mb-1">Sales Agent</label>
-            <input list="trainEmpSuggest" name="salesAgent" value={formData.salesAgent} onChange={handleChange} className="w-full bg-zinc-800 border border-border rounded-xl p-2.5 text-sm outline-none focus:border-amber-500" placeholder="Representative Name" />
+            <SalesAgentSearch value={formData.salesAgent} onChange={(val) => setFormData(prev => ({ ...prev, salesAgent: val }))} employees={employees} focusBorderColor="focus:border-amber-500" />
           </div>
         </div>
       </div>
@@ -453,7 +535,7 @@ function EditCandidateModal({ onClose }) {
   const [formData, setFormData] = useState(null);
   const [statusTab, setStatusTab] = useState("Active");
   const [courses, setCourses] = useState([]);
-  const [employeeNames, setEmployeeNames] = useState([]);
+  const [employees, setEmployees] = useState([]);
   const [loading, setLoading] = useState(false);
 
   const filteredCandidates = candidates.filter((c) => {
@@ -465,14 +547,14 @@ function EditCandidateModal({ onClose }) {
   useEffect(() => {
     api.get("/api/training/courses").then((res) => setCourses(res.data || []));
     api.get("/api/employees").then((res) => {
-      const list = res.data || [];
-      const names = list.map((e) => `${e.personal?.firstName || ""} ${e.personal?.lastName || ""}`.trim()).filter(Boolean);
-      setEmployeeNames(names);
+      setEmployees(res.data || []);
     }).catch(() => {});
     api.get("/api/training/candidates").then((res) => {
       setCandidates(res.data || []);
     });
   }, []);
+
+  const employeeNames = employees.map((e) => `${e.personal?.firstName || ""} ${e.personal?.lastName || ""}`.trim()).filter(Boolean);
 
   useEffect(() => {
     if (filteredCandidates.length > 0) {
@@ -630,7 +712,7 @@ function EditCandidateModal({ onClose }) {
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="text-xs text-muted-foreground block mb-1">Sales Agent</label>
-                  <input list="trainEditEmpSuggest" name="salesAgent" value={formData.salesAgent || ""} onChange={handleChange} className="w-full bg-zinc-800 border border-border rounded-xl p-2.5 text-sm outline-none" placeholder="Agent Name" />
+                  <SalesAgentSearch value={formData.salesAgent || ""} onChange={(val) => setFormData(prev => ({ ...prev, salesAgent: val }))} employees={employees} focusBorderColor="focus:border-amber-500" />
                 </div>
                 <div>
                   <label className="text-xs text-muted-foreground block mb-1">Status</label>

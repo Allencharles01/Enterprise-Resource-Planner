@@ -1,3 +1,5 @@
+import { useState, useEffect } from "react";
+import { api } from "@/lib/api";
 import { EmployeeSelect } from "@/components/EmployeeSelect";
 import {
   FileText,
@@ -12,6 +14,62 @@ import {
 } from "lucide-react";
 
 export function BasicDetailsTab({ data, onChange, onEmployeeClick }) {
+  const [employees, setEmployees] = useState([]);
+  const [showBroughtDropdown, setShowBroughtDropdown] = useState(false);
+  const [broughtSearch, setBroughtSearch] = useState("");
+
+  useEffect(() => {
+    api.get("/api/employees").then((res) => {
+      setEmployees(res.data || []);
+    }).catch(() => {});
+  }, []);
+
+  useEffect(() => {
+    setBroughtSearch(data.broughtBySalesAgent || "");
+  }, [data.broughtBySalesAgent]);
+
+  const salesEmployees = employees.filter((e) => {
+    const isSales = e.work?.department?.toLowerCase() === "sales";
+    if (!isSales) return false;
+    if (!broughtSearch) return true;
+    const q = broughtSearch.toLowerCase();
+    const fullName = `${e.personal?.firstName || ""} ${e.personal?.lastName || ""}`.toLowerCase();
+    const empCode = (e.employeeCode || "").toLowerCase();
+    const empNum = (e.employeeNumber || "").toLowerCase();
+    const loginId = (e.work?.companyEmail || "").toLowerCase();
+    const personalEmail = (e.personal?.contactEmail || "").toLowerCase();
+    return (
+      fullName.includes(q) ||
+      empCode.includes(q) ||
+      empNum.includes(q) ||
+      loginId.includes(q) ||
+      personalEmail.includes(q)
+    );
+  });
+
+  const handleAgentSelect = (emp) => {
+    const name = `${emp.personal?.firstName || ""} ${emp.personal?.lastName || ""}`.trim();
+    setBroughtSearch(name);
+    onChange({
+      ...data,
+      broughtBySalesAgent: name,
+      projectLead: emp
+    });
+    setShowBroughtDropdown(false);
+  };
+
+  const handleAgentTextChange = (text) => {
+    setBroughtSearch(text);
+    const matchingEmp = employees.find(
+      (e) => `${e.personal?.firstName || ""} ${e.personal?.lastName || ""}`.trim().toLowerCase() === text.trim().toLowerCase()
+    ) || null;
+    onChange({
+      ...data,
+      broughtBySalesAgent: text,
+      projectLead: matchingEmp
+    });
+  };
+
   const currencies = ["USD ($)", "EUR (€)", "GBP (£)", "INR (₹)", "CAD ($)", "AUD ($)", "JPY (¥)"];
   const countryCodes = ["+1", "+44", "+91", "+61", "+81", "+49", "+33"];
 
@@ -172,20 +230,74 @@ export function BasicDetailsTab({ data, onChange, onEmployeeClick }) {
           />
         </div>
 
-        {/* Project Lead */}
+        {/* Sales Agent Responsible */}
         <div className="space-y-2">
           <label className="text-sm font-semibold text-foreground flex items-center gap-2">
             <div className="w-4 h-4 rounded-full bg-primary flex items-center justify-center">
               <div className="w-1.5 h-1.5 bg-background rounded-full"></div>
             </div>
-            Project Lead (Incharge)
+            Sales Agent Responsible
           </label>
-          <EmployeeSelect
-            value={data.projectLead}
-            onChange={(emp) => onChange({ ...data, projectLead: emp })}
-            onEmployeeClick={onEmployeeClick}
-            placeholder="Assign Project Lead..."
+          <div className="relative">
+            <input
+              type="text"
+              disabled={data.foundOnOwn}
+              placeholder={data.foundOnOwn ? "Not applicable (Found us on own)" : "Type to search Sales Agent..."}
+              className="w-full px-4 py-3 bg-background border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all text-foreground text-sm disabled:opacity-50 disabled:bg-muted/30"
+              value={broughtSearch}
+              onChange={(e) => handleAgentTextChange(e.target.value)}
+              onFocus={() => !data.foundOnOwn && setShowBroughtDropdown(true)}
+              onBlur={() => {
+                setTimeout(() => setShowBroughtDropdown(false), 200);
+              }}
+            />
+            {showBroughtDropdown && !data.foundOnOwn && (
+              <div className="absolute z-50 w-full mt-2 bg-background border border-border rounded-xl shadow-xl max-h-48 overflow-y-auto">
+                {salesEmployees.length === 0 ? (
+                  <div className="p-3 text-xs text-muted-foreground">No Sales employees found</div>
+                ) : (
+                  salesEmployees.map((e) => {
+                    const name = `${e.personal?.firstName || ""} ${e.personal?.lastName || ""}`.trim();
+                    return (
+                      <button
+                        key={e.id || e._id}
+                        type="button"
+                        onMouseDown={() => handleAgentSelect(e)}
+                        className="w-full text-left p-3 hover:bg-muted text-sm text-foreground transition-colors"
+                      >
+                        {name} (Sales)
+                      </button>
+                    );
+                  })
+                )}
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Checkbox: Client found us on their own */}
+        <div className="flex items-center gap-3 pt-4 md:col-span-2">
+          <input
+            type="checkbox"
+            id="foundOnOwn"
+            className="w-5 h-5 rounded border-border text-primary focus:ring-primary/50 bg-background cursor-pointer"
+            checked={data.foundOnOwn || false}
+            onChange={(e) => {
+              const checked = e.target.checked;
+              onChange({
+                ...data,
+                foundOnOwn: checked,
+                broughtBySalesAgent: "",
+                projectLead: null,
+              });
+              if (checked) {
+                setBroughtSearch("");
+              }
+            }}
           />
+          <label htmlFor="foundOnOwn" className="text-sm font-semibold text-foreground cursor-pointer select-none">
+            Client found us on their own without any assistance from a sales agent
+          </label>
         </div>
 
         {/* Project Details & Files Upload Zone */}

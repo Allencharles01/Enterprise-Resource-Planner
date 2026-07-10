@@ -1,8 +1,41 @@
 import { Router } from "express";
 import TrainingCandidate from "dbms/TrainingCandidate.js";
 import TrainingCourse from "dbms/TrainingCourse.js";
+import Notification from "dbms/Notification.js";
+import { EmployeeModel } from "dbms/Employee.js";
 
 export const trainingRouter = Router();
+
+async function createAssignmentNotification(salesAgent, type, candidateId) {
+  if (!salesAgent) return;
+  try {
+    const employees = await EmployeeModel.find();
+    const emp = employees.find(e => {
+      const fullName = `${e.personal?.firstName || ""} ${e.personal?.lastName || ""}`.trim().toLowerCase();
+      return fullName === salesAgent.trim().toLowerCase();
+    });
+
+    const empCode = emp ? emp.employeeCode : "EMP001";
+    const msg = type === "Training"
+      ? "Admin has assigned a Training candidate to you."
+      : "Admin has assigned a Training candidate to you.";
+
+    await Notification.create({
+      title: `${type} Candidate Assigned`,
+      message: msg,
+      category: "message",
+      isRead: false,
+      metadata: {
+        employeeCode: empCode,
+        employeeName: salesAgent,
+        refId: String(candidateId),
+        refType: type === "Training" ? "TrainingCandidate" : "TrainingCandidate"
+      }
+    });
+  } catch (e) {
+    console.error("Failed to create assignment notification:", e);
+  }
+}
 
 // --- CANDIDATES CRUD ---
 
@@ -21,6 +54,9 @@ trainingRouter.post("/candidates", async (req, res) => {
   try {
     const candidate = new TrainingCandidate(req.body);
     await candidate.save();
+    if (candidate.salesAgent) {
+      await createAssignmentNotification(candidate.salesAgent, "Training", candidate._id);
+    }
     res.status(201).json(candidate);
   } catch (err) {
     res.status(400).json({ error: err.message || "Failed to create training candidate" });
@@ -30,6 +66,7 @@ trainingRouter.post("/candidates", async (req, res) => {
 // Update candidate
 trainingRouter.put("/candidates/:id", async (req, res) => {
   try {
+    const original = await TrainingCandidate.findById(req.params.id);
     const updated = await TrainingCandidate.findByIdAndUpdate(
       req.params.id,
       req.body,
@@ -37,6 +74,9 @@ trainingRouter.put("/candidates/:id", async (req, res) => {
     );
     if (!updated) {
       return res.status(404).json({ error: "Training candidate not found" });
+    }
+    if (updated.salesAgent && (!original || original.salesAgent !== updated.salesAgent)) {
+      await createAssignmentNotification(updated.salesAgent, "Training", updated._id);
     }
     res.json(updated);
   } catch (err) {

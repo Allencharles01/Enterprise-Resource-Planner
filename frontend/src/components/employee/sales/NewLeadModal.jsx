@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { X, Upload, Pencil, CheckCircle } from "lucide-react";
+import { api } from "@/lib/api";
 
 const inputClass =
   "w-full rounded-2xl bg-[#1b2333] border border-slate-700/70 px-4 py-3 text-sm text-slate-100 placeholder:text-slate-500 outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/40 transition";
@@ -59,6 +60,20 @@ export default function NewLeadModal({
   const [step, setStep] = useState("form");
   const [files, setFiles] = useState([]);
   const [formData, setFormData] = useState(getInitialFormData(activeTab));
+  const [internshipCourses, setInternshipCourses] = useState([]);
+  const [trainingCourses, setTrainingCourses] = useState([]);
+
+  useEffect(() => {
+    if (isOpen) {
+      api.get("/api/internships/courses")
+        .then((res) => setInternshipCourses(res.data || []))
+        .catch((err) => console.error("Failed to fetch internship courses", err));
+
+      api.get("/api/training/courses")
+        .then((res) => setTrainingCourses(res.data || []))
+        .catch((err) => console.error("Failed to fetch training courses", err));
+    }
+  }, [isOpen]);
 
   const resetModal = () => {
     setStep("form");
@@ -140,9 +155,60 @@ export default function NewLeadModal({
     setStep("preview");
   };
 
-  const handleSubmit = () => {
-    alert("Lead submitted successfully for admin approval.");
-    handleClose();
+  const handleSubmit = async () => {
+    try {
+      const agentName = localStorage.getItem("userName") || "Rahul Sharma";
+
+      if (activeTab === "Internships") {
+        const payload = {
+          name: formData.candidateName,
+          email: formData.email,
+          phone: formData.phone,
+          education: formData.education || "Undergraduate",
+          university: formData.college || "N/A",
+          courseName: formData.internshipProgram,
+          duration: formData.internshipDuration,
+          cost: formData.courseFee,
+          salesAgent: agentName,
+          status: "Active",
+          progress: 0,
+        };
+        await api.post("/api/internships/candidates", payload);
+      } else if (activeTab === "Training") {
+        const payload = {
+          name: formData.contactPersonName,
+          email: formData.email,
+          phone: formData.phone,
+          courseName: formData.trainingProgram,
+          duration: formData.trainingDuration,
+          cost: formData.trainingFee,
+          salesAgent: agentName,
+          status: "Active",
+          progress: 0,
+        };
+        await api.post("/api/training/candidates", payload);
+      } else {
+        const payload = {
+          basicDetails: {
+            projectTitle: formData.name,
+            clientName: formData.name,
+            clientEmail: formData.email,
+            clientPhone: formData.phone,
+            projectLead: { personal: { firstName: agentName, lastName: "" } },
+            budget: formData.budgetRange,
+            deadline: formData.deadline,
+          }
+        };
+        await api.post("/api/projects", payload);
+      }
+
+      alert("Lead submitted successfully for admin approval.");
+      window.dispatchEvent(new Event("leadCreated"));
+      handleClose();
+    } catch (err) {
+      console.error("Failed to submit lead:", err);
+      alert("Failed to submit lead. Please try again.");
+    }
   };
 
   const getModalTitle = () => {
@@ -421,18 +487,22 @@ export default function NewLeadModal({
           <select
             name="internshipProgram"
             value={formData.internshipProgram}
-            onChange={handleChange}
+            onChange={(e) => {
+              handleChange(e);
+              // Clear duration and fee when program changes
+              setFormData(prev => ({
+                ...prev,
+                internshipProgram: e.target.value,
+                internshipDuration: "",
+                courseFee: ""
+              }));
+            }}
             className={inputClass}
           >
             <option value="">Select program</option>
-            <option value="Full Stack Development">Full Stack Development</option>
-            <option value="Frontend Development">Frontend Development</option>
-            <option value="Backend Development">Backend Development</option>
-            <option value="Data Science & ML">Data Science & ML</option>
-            <option value="Cloud Computing">Cloud Computing</option>
-            <option value="Digital Marketing">Digital Marketing</option>
-            <option value="UI/UX Design">UI/UX Design</option>
-            <option value="Cyber Security">Cyber Security</option>
+            {internshipCourses.map((c) => (
+              <option key={c._id} value={c.name}>{c.name}</option>
+            ))}
           </select>
         </div>
 
@@ -443,14 +513,41 @@ export default function NewLeadModal({
           <select
             name="internshipDuration"
             value={formData.internshipDuration}
-            onChange={handleChange}
+            onChange={(e) => {
+              handleChange(e);
+              // Auto-fill fee based on selected duration price
+              const selectedCourse = internshipCourses.find(c => c.name === formData.internshipProgram);
+              if (selectedCourse?.prices) {
+                const durationKey = e.target.value === "1 Month" ? "month1" :
+                                    e.target.value === "2 Months" ? "month2" :
+                                    e.target.value === "3 Months" ? "month3" :
+                                    e.target.value === "6 Months" ? "month6" :
+                                    e.target.value === "12 Months" ? "month12" : "";
+                const fee = selectedCourse.prices[durationKey] || selectedCourse.price || "";
+                setFormData(prev => ({
+                  ...prev,
+                  internshipDuration: e.target.value,
+                  courseFee: fee ? `₹ ${fee}` : ""
+                }));
+              }
+            }}
             className={inputClass}
           >
             <option value="">Select duration</option>
-            <option value="1 Month">1 Month</option>
-            <option value="2 Months">2 Months</option>
-            <option value="3 Months">3 Months</option>
-            <option value="6 Months">6 Months</option>
+            {(() => {
+              const selectedCourse = internshipCourses.find(c => c.name === formData.internshipProgram);
+              const availableDurations = [];
+              if (selectedCourse?.prices) {
+                if (selectedCourse.prices.month1) availableDurations.push("1 Month");
+                if (selectedCourse.prices.month2) availableDurations.push("2 Months");
+                if (selectedCourse.prices.month3) availableDurations.push("3 Months");
+                if (selectedCourse.prices.month6) availableDurations.push("6 Months");
+                if (selectedCourse.prices.month12) availableDurations.push("12 Months");
+              }
+              return availableDurations.map(dur => (
+                <option key={dur} value={dur}>{dur}</option>
+              ));
+            })()}
           </select>
         </div>
 
@@ -558,13 +655,34 @@ export default function NewLeadModal({
           <label className="mb-2 block text-sm font-semibold text-slate-200">
             Training Program
           </label>
-          <input
+          <select
             name="trainingProgram"
             value={formData.trainingProgram ?? ""}
-            onChange={handleChange}
+            onChange={(e) => {
+              handleChange(e);
+              // Auto-fill training fee based on selected program
+              const selectedCourse = trainingCourses.find(c => c.name === e.target.value);
+              if (selectedCourse) {
+                setFormData(prev => ({
+                  ...prev,
+                  trainingProgram: e.target.value,
+                  trainingFee: selectedCourse.price ? `₹ ${selectedCourse.price}` : ""
+                }));
+              } else {
+                setFormData(prev => ({
+                  ...prev,
+                  trainingProgram: e.target.value,
+                  trainingFee: ""
+                }));
+              }
+            }}
             className={inputClass}
-            placeholder="Corporate Sales Training"
-          />
+          >
+            <option value="">Select program</option>
+            {trainingCourses.map((c) => (
+              <option key={c._id} value={c.name}>{c.name}</option>
+            ))}
+          </select>
         </div>
 
         <div>
@@ -591,9 +709,9 @@ export default function NewLeadModal({
             className={inputClass}
           >
             <option value="">Select mode</option>
-            <option value="Online">Online</option>
-            <option value="Offline">Offline</option>
-            <option value="Hybrid">Hybrid</option>
+            <option value="online">online</option>
+            <option value="offline">offline</option>
+            <option value="hybrid">hybrid</option>
           </select>
         </div>
 

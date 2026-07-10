@@ -8,3 +8,5 @@ export * from "./InternshipCandidate";
 export * from "./InternshipCourse";
 export * from "./TrainingCandidate";
 export * from "./TrainingCourse";
+export * from "./CustomerInquiry";
+export * from "./EmailLog";

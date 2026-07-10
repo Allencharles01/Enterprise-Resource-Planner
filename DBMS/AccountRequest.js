@@ -9,6 +9,7 @@ const AccountRequestSchema = new Schema(
       enum: ["pending", "approved", "rejected"],
       default: "pending",
     },
+    isRead: { type: Boolean, default: false },
   },
   { timestamps: true },
 );
