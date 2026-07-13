@@ -4,6 +4,13 @@ import { motion } from "framer-motion";
 import { ChevronRight } from "lucide-react";
 import { inr } from "./digitalMarketingData";
 
+const DESCRIPTIONS = {
+  advertising: "Google, Meta, LinkedIn & Twitter ad performance.",
+  creators: "One-time and partnership creator collaborations.",
+  heavyads: "Billboards, sponsorships and offline campaigns.",
+  documents: "Contracts, invoices and partnership agreements.",
+};
+
 export default function ModuleCard({ module, icon: Icon, onOpen }) {
   const glow = {
     blue: "glow-blue",
@@ -24,61 +31,47 @@ export default function ModuleCard({ module, icon: Icon, onOpen }) {
     .replace(/\b\w/g, (letter) => letter.toUpperCase())
     .replace("And", "&");
 
+  const description = DESCRIPTIONS[module.id.toLowerCase()] || "Track campaign status and metrics.";
+
   return (
     <motion.article
-      whileHover={{ scale: 1.006, y: -1 }}
-      className={`module-card ${glow} grid min-h-[94px] grid-cols-[96px_1fr_230px_210px] items-center rounded-[13px] max-lg:grid-cols-1 max-lg:gap-4 max-lg:p-5`}
+      whileHover={{ scale: 1.02, y: -2 }}
+      className={`module-card ${glow} flex flex-col justify-between p-5 sm:p-6 rounded-[16px] aspect-square transition-all duration-300`}
       style={{ "--module-color": color }}
     >
-      <div
-        className="flex h-full items-center justify-center border-r max-lg:border-r-0"
-        style={{ borderColor: "rgba(30, 41, 59, 0.72)" }}
-      >
-        <span className="module-icon flex h-[64px] w-[64px] items-center justify-center rounded-[13px]">
-          <Icon size={29} strokeWidth={2.4} />
-        </span>
-      </div>
-      <div className="min-w-0 px-4 max-lg:px-0">
-        <h3 className="text-[20px] font-bold tracking-[-0.03em] text-foreground">
+      <div>
+        <div className="flex items-center justify-between mb-4">
+          <span className="module-icon flex h-[52px] w-[52px] items-center justify-center rounded-[13px]">
+            <Icon size={24} strokeWidth={2.4} />
+          </span>
+        </div>
+        <h3 className="text-[18px] font-bold tracking-tight text-foreground">
           {title}
         </h3>
-        <div className="mt-3 flex flex-wrap gap-x-7 gap-y-2">
-          {module.labels.map((label) => (
-            <span
-              key={label}
-              className="flex items-center gap-2 text-[14px] text-muted-foreground"
-            >
-              <span
-                className="h-2 w-2 rounded-full"
-                style={{ background: color, boxShadow: `0 0 12px ${color}` }}
-              />
-              {label}
-            </span>
-          ))}
+        <p className="mt-2 text-xs text-muted-foreground leading-relaxed">
+          {description}
+        </p>
+      </div>
+
+      <div className="mt-5 flex items-end justify-between">
+        <div>
+          <p className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
+            {module.metricLabel}
+          </p>
+          <p
+            className="mt-1 text-[22px] font-extrabold tracking-tight"
+            style={{ color }}
+          >
+            {module.metricText || inr(module.metricValue)}
+          </p>
         </div>
-      </div>
-      <div
-        className="border-l px-7 max-lg:border-l-0 max-lg:px-0"
-        style={{ borderColor: "rgba(30, 41, 59, 0.72)" }}
-      >
-        <p className="text-[13px] font-medium text-muted-foreground">
-          {module.metricLabel}
-        </p>
-        <p
-          className="mt-1 text-[21px] font-bold tracking-[-0.03em]"
-          style={{ color }}
-        >
-          {module.metricText || inr(module.metricValue)}
-        </p>
-      </div>
-      <div className="flex justify-end pr-8 max-lg:justify-start max-lg:pr-0">
         <button
           onClick={() => onOpen(module.id)}
-          className="module-action flex h-11 min-w-[176px] items-center justify-center gap-4 rounded-[8px] border px-5 text-[14px] font-semibold transition cursor-pointer"
+          className="module-action flex h-10 w-24 items-center justify-center gap-2 rounded-[8px] border text-[13px] font-semibold transition cursor-pointer shadow-sm"
           type="button"
         >
           {module.button}
-          <ChevronRight size={19} />
+          <ChevronRight size={16} />
         </button>
       </div>
     </motion.article>

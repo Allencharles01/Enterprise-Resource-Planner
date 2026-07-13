@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import {
   Plus,
   ChevronDown,
@@ -27,27 +27,9 @@ import {
   HeavyAdsModal,
   InvoicesModal,
 } from "@/components/digitaldashboard/modals";
-import {
-  metrics,
-  companies,
-  assignedProjects,
-  monthlySpend,
-  recentActivity,
-} from "@/components/digitaldashboard/data/mockData";
+import { statusColors } from "@/components/digitaldashboard/data/mockData";
 import { useRouter } from "next/navigation";
 import { ThemeProvider } from "@/components/digitaldashboard/context/ThemeContext";
-
-const projectCompanies = [
-  ...new Map(
-    assignedProjects.map((project) => [
-      project.client,
-      {
-        id: project.client,
-        name: project.client,
-      },
-    ])
-  ).values(),
-];
 
 const activityIcon = {
   advertising: Megaphone,
@@ -66,79 +48,151 @@ export default function DigitalDashboardPage({ clientProject = null }) {
   const [modal, setModal] = useState(null);
   const router = useRouter();
 
-  const [companyId, setCompanyId] = useState(() => {
-    if (clientProject) {
-      const matched = companies.find((c) => c.name === clientProject.client);
-      return matched ? matched.id : companies[0].id;
-    }
-    return companies[0].id;
-  });
+  const [projects, setProjects] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [companyId, setCompanyId] = useState("");
+  const [chartFilter, setChartFilter] = useState("This Year");
 
+  // Fetch all projects from database
   useEffect(() => {
-    const storedRole = localStorage.getItem("userRole");
-    const storedDept = (localStorage.getItem("userDepartment") || "").toLowerCase();
-    const storedName = (localStorage.getItem("userName") || "").toLowerCase();
+    const fetchUserDataAndProjects = async () => {
+      const token = localStorage.getItem("token");
+      const storedRole = localStorage.getItem("userRole");
+      const storedDept = (localStorage.getItem("userDepartment") || "").toLowerCase();
+      const storedName = (localStorage.getItem("userName") || "").toLowerCase();
 
-    if (storedRole && storedRole !== "employee") {
-      window.location.href = "/";
-      return;
-    }
-
-    if (storedRole === "employee") {
-      const isDigital = storedDept.includes("digital") || storedName.includes("digital");
-      if (!isDigital) {
-        if (storedDept.includes("sales") || storedName.includes("sales")) {
-          window.location.href = "/employee/sales";
-        } else {
-          window.location.href = "/login";
-        }
+      if (storedRole && storedRole !== "employee") {
+        window.location.href = "/";
         return;
       }
-    }
 
-    const fetchUserData = async () => {
-      const token = localStorage.getItem("token");
-      if (!token) return;
+      if (storedRole === "employee") {
+        const isDigital = storedDept.includes("digital") || storedName.includes("digital");
+        if (!isDigital) {
+          if (storedDept.includes("sales") || storedName.includes("sales")) {
+            window.location.href = "/employee/sales";
+          } else {
+            window.location.href = "/login";
+          }
+          return;
+        }
+      }
+
       try {
         const apiUrl = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:4000";
-        const res = await fetch(`${apiUrl}/api/auth/me`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        if (res.ok) {
-          const data = await res.json();
-          if (data?.user) {
-            const uDept = (data.user.department || "").toLowerCase();
-            const uName = (data.user.name || "").toLowerCase();
-            if (data.user.role && data.user.role !== "employee") {
-              window.location.href = "/";
-              return;
-            }
-            if (data.user.role === "employee") {
-              const isDigital = uDept.includes("digital") || uName.includes("digital");
-              if (!isDigital) {
-                if (uDept.includes("sales") || uName.includes("sales")) {
-                  window.location.href = "/employee/sales";
-                } else {
-                  window.location.href = "/login";
-                }
+        // Verify token/me
+        if (token) {
+          const res = await fetch(`${apiUrl}/api/auth/me`, {
+            headers: { Authorization: `Bearer ${token}` },
+          });
+          if (res.ok) {
+            const data = await res.json();
+            if (data?.user) {
+              const uDept = (data.user.department || "").toLowerCase();
+              const uName = (data.user.name || "").toLowerCase();
+              if (data.user.role && data.user.role !== "employee") {
+                window.location.href = "/";
                 return;
+              }
+              if (data.user.role === "employee") {
+                const isDigital = uDept.includes("digital") || uName.includes("digital");
+                if (!isDigital) {
+                  if (uDept.includes("sales") || uName.includes("sales")) {
+                    window.location.href = "/employee/sales";
+                  } else {
+                    window.location.href = "/login";
+                  }
+                  return;
+                }
               }
             }
           }
         }
+
+        // Fetch projects
+        const projRes = await fetch(`${apiUrl}/api/projects`, {
+          headers: token ? { Authorization: `Bearer ${token}` } : {},
+        });
+        if (projRes.ok) {
+          const data = await projRes.json();
+          // Map backend projects to dashboard-expected format
+          const mapped = data.map((p) => {
+            const rawBdg = parseInt((p.budget || "0").replace(/\D/g, ""), 10) || 0;
+            return {
+              id: p.id || p._id,
+              client: p.client,
+              projectType: p.name,
+              assignedBy: p.manager || "Unassigned",
+              status: p.status || "Active",
+              budget: rawBdg,
+              deadline: p.deadline ? new Date(p.deadline).toLocaleDateString("en-GB", {
+                day: "2-digit",
+                month: "short",
+                year: "numeric"
+              }) : "31 Jul 2026",
+              files: p.files || []
+            };
+          });
+          const filtered = mapped.filter(
+            (p) => !(p.client === "NovaNectar Pvt Ltd" && p.projectType === "Enterprise Resource Planner")
+          );
+          setProjects(filtered);
+        }
       } catch (err) {
-        console.error("Error fetching user data:", err);
+        console.error("Error fetching data:", err);
+      } finally {
+        setLoading(false);
       }
     };
-    fetchUserData();
 
-    if (clientProject) {
-      const matched = companies.find((c) => c.name === clientProject.client);
-      if (matched) setCompanyId(matched.id);
-    }
+    fetchUserDataAndProjects();
   }, [clientProject]);
 
-  const company = companies.find((c) => c.id === companyId) || companies[0];
+  // Compute companies dynamically
+  const projectCompanies = useMemo(() => {
+    if (projects.length === 0) return [];
+    const clientMap = new Map();
+    projects.forEach((p) => {
+      if (!clientMap.has(p.client)) {
+        clientMap.set(p.client, {
+          id: p.client.toLowerCase().replace(/\s+/g, "-"),
+          name: p.client,
+          revenue: 0,
+          spent: 0,
+          roi: 2.1,
+          campaigns: 0,
+        });
+      }
+      const entry = clientMap.get(p.client);
+      entry.revenue += p.budget;
+      entry.spent += Math.round(p.budget * 0.5);
+      entry.campaigns += 1;
+    });
+    return Array.from(clientMap.values());
+  }, [projects]);
+
+  // Set default companyId
+  useEffect(() => {
+    if (projectCompanies.length > 0 && !companyId) {
+      if (clientProject) {
+        const matched = projectCompanies.find((c) => c.name === clientProject.client);
+        setCompanyId(matched ? matched.id : projectCompanies[0].id);
+      } else {
+        setCompanyId(projectCompanies[0].id);
+      }
+    }
+  }, [projectCompanies, clientProject, companyId]);
+
+  const company = useMemo(() => {
+    return projectCompanies.find((c) => c.id === companyId) || projectCompanies[0] || {
+      id: "loading",
+      name: "No Companies",
+      revenue: 0,
+      spent: 0,
+      roi: 0,
+      campaigns: 0
+    };
+  }, [projectCompanies, companyId]);
 
   const close = () => setModal(null);
 
@@ -162,8 +216,115 @@ export default function DigitalDashboardPage({ clientProject = null }) {
     ? `${clientProject.projectType} Management Dashboard`
     : "Track, manage and optimize all campaigns, creator spend, heavy ads, and media documents in one place.";
 
-  const [timeFilter, setTimeFilter] = useState("This Month");
-  const [chartFilter, setChartFilter] = useState("This Year");
+  // Compute metrics dynamically
+  const displayMetrics = useMemo(() => {
+    if (clientProject) {
+      const rawBudget = typeof clientProject.budget === "number"
+        ? clientProject.budget
+        : (parseInt((clientProject.budget || "0").replace(/\D/g, ""), 10) || 0);
+      return {
+        allocatedBudget: { value: "₹" + rawBudget.toLocaleString("en-IN"), growth: "+0%" },
+        spendAmount: { value: "₹" + Math.round(rawBudget * 0.5).toLocaleString("en-IN"), growth: "+0%" }
+      };
+    }
+    const totalAllocated = projects.reduce((sum, p) => sum + p.budget, 0);
+    const totalSpent = projects.reduce((sum, p) => sum + p.budget * 0.5, 0);
+    return {
+      allocatedBudget: { value: "₹" + totalAllocated.toLocaleString("en-IN"), growth: "+14.6%" },
+      spendAmount: { value: "₹" + totalSpent.toLocaleString("en-IN"), growth: "+8.5%" }
+    };
+  }, [projects, clientProject]);
+
+  // Compute feature stats dynamically
+  const featureStats = useMemo(() => {
+    if (clientProject) {
+      const rawBudget = typeof clientProject.budget === "number"
+        ? clientProject.budget
+        : (parseInt((clientProject.budget || "0").replace(/\D/g, ""), 10) || 0);
+      return {
+        advertising: "₹" + Math.round(rawBudget * 0.5).toLocaleString("en-IN"),
+        creators: "₹" + Math.round(rawBudget * 0.15).toLocaleString("en-IN"),
+        heavyAds: "₹" + Math.round(rawBudget * 0.35).toLocaleString("en-IN"),
+        documents: `${clientProject.files?.length || 0} Files`
+      };
+    }
+    const totalBudget = projects.reduce((sum, p) => sum + p.budget, 0);
+    const totalFiles = projects.reduce((sum, p) => sum + (p.files?.length || 0), 0);
+    return {
+      advertising: "₹" + Math.round(totalBudget * 0.5).toLocaleString("en-IN"),
+      creators: "₹" + Math.round(totalBudget * 0.15).toLocaleString("en-IN"),
+      heavyAds: "₹" + Math.round(totalBudget * 0.35).toLocaleString("en-IN"),
+      documents: `${totalFiles} Files`
+    };
+  }, [projects, clientProject]);
+
+  // Spend trend chart data
+  const spendTrend = useMemo(() => {
+    const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+    const monthlyMap = {};
+    months.forEach((m) => { monthlyMap[m] = 0; });
+
+    if (projects.length === 0) {
+      return [
+        { month: "Jan", value: 120000 },
+        { month: "Feb", value: 145000 },
+        { month: "Mar", value: 132000 },
+        { month: "Apr", value: 168000 },
+        { month: "May", value: 190000 },
+        { month: "Jun", value: 210000 },
+        { month: "Jul", value: 225000 }
+      ];
+    }
+
+    projects.forEach((p) => {
+      const parts = p.deadline ? p.deadline.split(" ") : [];
+      const monthStr = parts[1];
+      if (months.includes(monthStr)) {
+        monthlyMap[monthStr] += Math.round(p.budget * 0.5);
+      }
+    });
+
+    return months.map((m) => ({
+      month: m,
+      value: monthlyMap[m] || Math.round(projects.reduce((sum, p) => sum + p.budget, 0) / 12)
+    }));
+  }, [projects]);
+
+  // Recent activity list
+  const dynamicActivities = useMemo(() => {
+    if (projects.length === 0) {
+      return [
+        { id: 1, title: "No campaigns registered yet", detail: "Active projects list is empty", time: "Just now", type: "advertising" }
+      ];
+    }
+    return projects.slice(0, 4).map((p, index) => {
+      const types = ["advertising", "creators", "heavyAds", "invoices"];
+      const type = types[index % types.length];
+      const title = type === "advertising" ? `${p.projectType} campaign launched`
+        : type === "creators" ? `New creator partnership for ${p.client}`
+        : type === "heavyAds" ? `Offline marketing scheduled for ${p.client}`
+        : `New invoices and contracts uploaded`;
+      const detail = type === "advertising" ? "Digital Marketing Campaign"
+        : type === "creators" ? "Collaboration - Revenue Share Model"
+        : type === "heavyAds" ? `${p.client} - Outdoor Advertising`
+        : `Invoice files attached to project`;
+      return {
+        id: p.id,
+        title,
+        detail,
+        time: `${index + 1}d ago`,
+        type
+      };
+    });
+  }, [projects]);
+
+  if (loading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-gray-50 dark:bg-[#050816] text-gray-900 dark:text-white">
+        <div className="text-sm font-medium">Loading Digital Marketing Dashboard...</div>
+      </div>
+    );
+  }
 
   return (
     <ThemeProvider>
@@ -211,8 +372,8 @@ export default function DigitalDashboardPage({ clientProject = null }) {
         <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2">
           <MetricCard
             label="Total Allocated Budget"
-            value={metrics.allocatedBudget.value}
-            growth={metrics.allocatedBudget.growth}
+            value={displayMetrics.allocatedBudget.value}
+            growth={displayMetrics.allocatedBudget.growth}
             chartType="line"
             chartData={[8, 10, 9, 12, 11, 14, 16]}
             color="#3B82F6"
@@ -222,8 +383,8 @@ export default function DigitalDashboardPage({ clientProject = null }) {
           />
           <MetricCard
             label="Spend Amount"
-            value={metrics.spendAmount.value}
-            growth={metrics.spendAmount.growth}
+            value={displayMetrics.spendAmount.value}
+            growth={displayMetrics.spendAmount.growth}
             chartType="bar"
             chartData={[4, 5, 4, 6, 7, 6, 8]}
             color="#EC4899"
@@ -243,24 +404,28 @@ export default function DigitalDashboardPage({ clientProject = null }) {
                   ? `Showing revenue and performance details for ${company.name}`
                   : "Select a company to view revenue and performance details"}
               </p>
-              <select
-                value={companyId}
-                onChange={(e) => setCompanyId(e.target.value)}
-                disabled={!!clientProject}
-                className={`mt-3 w-full max-w-xs rounded-lg border border-gray-200 bg-white px-3.5 py-2.5 text-sm font-medium text-gray-700 focus:border-blue-400 focus:outline-none dark:border-white/10 dark:bg-white/5 dark:text-gray-200 ${
-                  clientProject ? "cursor-not-allowed opacity-70" : ""
-                }`}
-              >
-                {companies.map((c) => (
-                  <option
-                    key={c.id}
-                    value={c.id}
-                    className="bg-white text-gray-900"
-                  >
-                    {c.name}
-                  </option>
-                ))}
-              </select>
+              {projectCompanies.length > 0 ? (
+                <select
+                  value={companyId}
+                  onChange={(e) => setCompanyId(e.target.value)}
+                  disabled={!!clientProject}
+                  className={`mt-3 w-full max-w-xs rounded-lg border border-gray-200 bg-white px-3.5 py-2.5 text-sm font-medium text-gray-700 focus:border-blue-400 focus:outline-none dark:border-white/10 dark:bg-white/5 dark:text-gray-200 ${
+                    clientProject ? "cursor-not-allowed opacity-70" : ""
+                  }`}
+                >
+                  {projectCompanies.map((c) => (
+                    <option
+                      key={c.id}
+                      value={c.id}
+                      className="bg-white text-gray-900"
+                    >
+                      {c.name}
+                    </option>
+                  ))}
+                </select>
+              ) : (
+                <p className="mt-3 text-sm text-gray-400 dark:text-gray-500">No active companies.</p>
+              )}
             </div>
             <div className="grid grid-cols-2 gap-4 sm:grid-cols-4 lg:gap-8">
               <div>
@@ -291,7 +456,7 @@ export default function DigitalDashboardPage({ clientProject = null }) {
             title="Advertising"
             description="Google, Meta, LinkedIn & Twitter ad performance."
             statLabel="Total Spend"
-            stat="₹1,25,000"
+            stat={featureStats.advertising}
             disabled={advertisingAccess.disabled}
             readOnly={advertisingAccess.readOnly}
             onOpen={advertisingAccess.disabled ? undefined : () => setModal("advertising")}
@@ -302,7 +467,7 @@ export default function DigitalDashboardPage({ clientProject = null }) {
             title="Creators"
             description="One-time and partnership creator collaborations."
             statLabel="Total Paid"
-            stat="₹48,000"
+            stat={featureStats.creators}
             disabled={creatorsAccess.disabled}
             readOnly={creatorsAccess.readOnly}
             onOpen={creatorsAccess.disabled ? undefined : () => setModal("creators")}
@@ -313,7 +478,7 @@ export default function DigitalDashboardPage({ clientProject = null }) {
             title="Heavy Ads"
             description="Billboards, sponsorships and offline campaigns."
             statLabel="Total Spend"
-            stat="₹2,10,000"
+            stat={featureStats.heavyAds}
             disabled={heavyAdsAccess.disabled}
             readOnly={heavyAdsAccess.readOnly}
             onOpen={heavyAdsAccess.disabled ? undefined : () => setModal("heavyAds")}
@@ -324,7 +489,7 @@ export default function DigitalDashboardPage({ clientProject = null }) {
             title="Invoices & Documents"
             description="Contracts, invoices and partnership agreements."
             statLabel="Documents"
-            stat="28 Files"
+            stat={featureStats.documents}
             disabled={invoicesAccess.disabled}
             readOnly={invoicesAccess.readOnly}
             onOpen={invoicesAccess.disabled ? undefined : () => setModal("invoices")}
@@ -333,7 +498,7 @@ export default function DigitalDashboardPage({ clientProject = null }) {
 
         {!clientProject && (
           <div className="mb-6">
-            <AssignedProjectsTable />
+            <AssignedProjectsTable projects={projects} />
           </div>
         )}
 
@@ -355,7 +520,7 @@ export default function DigitalDashboardPage({ clientProject = null }) {
               </button>
             </div>
             <div className="h-56">
-              <TrendLineChart data={monthlySpend} color="#8B5CF6" />
+              <TrendLineChart data={spendTrend} color="#8B5CF6" />
             </div>
           </div>
 
@@ -367,8 +532,8 @@ export default function DigitalDashboardPage({ clientProject = null }) {
               <h3 className="text-base font-semibold">Recent Activity</h3>
             </div>
             <div className="space-y-4">
-              {recentActivity.map((a) => {
-                const Icon = activityIcon[a.type];
+              {dynamicActivities.map((a) => {
+                const Icon = activityIcon[a.type] || Megaphone;
                 return (
                   <div key={a.id} className="flex items-start gap-3">
                     <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-gray-100 text-gray-500 dark:bg-white/10 dark:text-gray-300">

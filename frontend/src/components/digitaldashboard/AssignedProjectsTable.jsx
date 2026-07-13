@@ -1,15 +1,23 @@
 import { useState } from "react";
 import { ChevronLeft, ChevronRight, ArrowRight, CalendarDays } from "lucide-react";
-import { assignedProjects, statusColors, formatINR } from "./data/mockData";
+import { statusColors } from "./data/mockData";
 import { useRouter } from "next/navigation";
 
 const PAGE_SIZE = 5;
 
-export default function AssignedProjectsTable({ onViewDetails }) {
+export default function AssignedProjectsTable({ projects = [], onViewDetails }) {
   const [page, setPage] = useState(1);
-  const totalPages = 3;
+  const totalPages = Math.max(1, Math.ceil(projects.length / PAGE_SIZE));
   const start = (page - 1) * PAGE_SIZE;
+  const paginatedProjects = projects.slice(start, start + PAGE_SIZE);
   const router = useRouter();
+
+  const displayBudget = (budget) => {
+    if (typeof budget === "number") {
+      return "₹" + budget.toLocaleString("en-IN");
+    }
+    return budget || "₹0";
+  };
 
   return (
     <div className="rounded-2xl border border-gray-200 bg-white p-5 sm:p-6 dark:border-white/10 dark:bg-[#0B1224]">
@@ -39,7 +47,7 @@ export default function AssignedProjectsTable({ onViewDetails }) {
             </tr>
           </thead>
           <tbody>
-            {assignedProjects.map((p) => (
+            {paginatedProjects.map((p) => (
               <tr key={p.id} className="border-b border-gray-50 last:border-0 dark:border-white/5">
                 <td className="py-3.5 pr-4">
                   <button
@@ -52,11 +60,17 @@ export default function AssignedProjectsTable({ onViewDetails }) {
                 <td className="py-3.5 pr-4 text-gray-600 dark:text-gray-300">{p.projectType}</td>
                 <td className="py-3.5 pr-4 text-gray-600 dark:text-gray-300">{p.assignedBy}</td>
                 <td className="py-3.5 pr-4">
-                  <span className={`rounded-full px-2.5 py-1 text-xs font-medium ${statusColors[p.status]}`}>
+                  <span className={`rounded-full px-2.5 py-1 text-xs font-medium ${
+                    statusColors[p.status] || 
+                    (p.status === "In Progress" || p.status === "Ongoing" ? "bg-blue-500/15 text-blue-600 dark:text-blue-400" :
+                     p.status === "On Track" ? "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400" :
+                     p.status === "Completed" ? "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400" :
+                     "bg-gray-500/15 text-gray-600 dark:text-gray-400")
+                  }`}>
                     {p.status}
                   </span>
                 </td>
-                <td className="py-3.5 pr-4 text-gray-600 dark:text-gray-300">{formatINR(p.budget)}</td>
+                <td className="py-3.5 pr-4 text-gray-600 dark:text-gray-300">{displayBudget(p.budget)}</td>
                 <td className="py-3.5 pr-4 text-gray-600 dark:text-gray-300">{p.deadline}</td>
                 <td className="py-3.5 pr-0 text-right">
                   <button
@@ -68,39 +82,50 @@ export default function AssignedProjectsTable({ onViewDetails }) {
                 </td>
               </tr>
             ))}
+            {projects.length === 0 && (
+              <tr>
+                <td colSpan={7} className="py-8 text-center text-sm text-gray-400 dark:text-gray-500">
+                  No projects assigned.
+                </td>
+              </tr>
+            )}
           </tbody>
         </table>
       </div>
 
-      <div className="mt-5 flex items-center justify-between text-sm text-gray-400 dark:text-gray-500">
-        <span>Showing {start + 1} to {start + assignedProjects.length} of 15 projects</span>
-        <div className="flex items-center gap-1.5">
-          <button
-            onClick={() => setPage((p) => Math.max(1, p - 1))}
-            className="flex h-8 w-8 items-center justify-center rounded-lg border border-gray-200 text-gray-500 hover:bg-gray-50 disabled:opacity-40 dark:border-white/10 dark:text-gray-400 dark:hover:bg-white/10"
-          >
-            <ChevronLeft size={16} />
-          </button>
-          {[1, 2, 3].map((n) => (
+      {projects.length > 0 && (
+        <div className="mt-5 flex items-center justify-between text-sm text-gray-400 dark:text-gray-500">
+          <span>Showing {start + 1} to {start + paginatedProjects.length} of {projects.length} projects</span>
+          <div className="flex items-center gap-1.5">
             <button
-              key={n}
-              onClick={() => setPage(n)}
-              className={`flex h-8 w-8 items-center justify-center rounded-lg text-sm font-medium ${page === n
-                ? "bg-indigo-600 text-white"
-                : "border border-gray-200 text-gray-500 hover:bg-gray-50 dark:border-white/10 dark:text-gray-400 dark:hover:bg-white/10"
-                }`}
+              onClick={() => setPage((p) => Math.max(1, p - 1))}
+              disabled={page === 1}
+              className="flex h-8 w-8 items-center justify-center rounded-lg border border-gray-200 text-gray-500 hover:bg-gray-50 disabled:opacity-40 dark:border-white/10 dark:text-gray-400 dark:hover:bg-white/10"
             >
-              {n}
+              <ChevronLeft size={16} />
             </button>
-          ))}
-          <button
-            onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-            className="flex h-8 w-8 items-center justify-center rounded-lg border border-gray-200 text-gray-500 hover:bg-gray-50 dark:border-white/10 dark:text-gray-400 dark:hover:bg-white/10"
-          >
-            <ChevronRight size={16} />
-          </button>
+            {Array.from({ length: totalPages }, (_, i) => i + 1).map((n) => (
+              <button
+                key={n}
+                onClick={() => setPage(n)}
+                className={`flex h-8 w-8 items-center justify-center rounded-lg text-sm font-medium ${page === n
+                  ? "bg-indigo-600 text-white"
+                  : "border border-gray-200 text-gray-500 hover:bg-gray-50 dark:border-white/10 dark:text-gray-400 dark:hover:bg-white/10"
+                  }`}
+              >
+                {n}
+              </button>
+            ))}
+            <button
+              onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+              disabled={page === totalPages}
+              className="flex h-8 w-8 items-center justify-center rounded-lg border border-gray-200 text-gray-500 hover:bg-gray-50 dark:border-white/10 dark:text-gray-400 dark:hover:bg-white/10"
+            >
+              <ChevronRight size={16} />
+            </button>
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 }
