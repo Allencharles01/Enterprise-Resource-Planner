@@ -1,26 +1,26 @@
 @import "tailwindcss";
 
 :root {
-  --background: #fbf8fa;
-  --foreground: #091426;
-  
-  --primary: #1a2c4e;
-  --primary-foreground: #ffffff;
-  
-  --secondary: #ec4899;
-  --secondary-foreground: #ffffff;
+  --background: #F7F2FF;
+  --foreground: #24123B;
 
-  --accent: #06b6d4;
-  --accent-foreground: #ffffff;
+  --primary: #8B5CF6;
+  --primary-foreground: #FFFFFF;
 
-  --muted: #dcd9db;
-  --muted-foreground: #64748b;
-  
-  --border: #e2e8f0;
-  --input: #e2e8f0;
-  --ring: #1a2c4e;
-  
-  --radius: 0.5rem;
+  --secondary: #A855F7;
+  --secondary-foreground: #FFFFFF;
+
+  --accent: #C084FC;
+  --accent-foreground: #FFFFFF;
+
+  --muted: #F3EDFC;
+  --muted-foreground: #79688F;
+
+  --border: #ECE1FB;
+  --input: #FFFFFF;
+  --ring: #8B5CF6;
+
+  --radius: 0.85rem;
 }
 
 .dark {
@@ -76,12 +76,21 @@
 }
 
 @layer utilities {
+  /* ---------- Glass ---------- */
   .glass {
-    @apply bg-background/60 backdrop-blur-lg border border-border/50 shadow-xl;
-  }
+  @apply bg-white/85 backdrop-blur-xl border border-violet-100 shadow-[0_8px_24px_rgba(139,92,246,0.08)];
+}
+
+.dark .glass {
+  @apply bg-black/20 border-slate-700 shadow-lg;
+}
   .glass-card {
-    @apply bg-white dark:bg-black/20 backdrop-blur-xl border border-border shadow-2xl;
-  }
+  @apply bg-white border border-violet-100 rounded-2xl shadow-[0_8px_24px_rgba(139,92,246,0.08)];
+}
+
+.dark .glass-card {
+  @apply bg-black/20 border-slate-700 shadow-2xl;
+}
   .text-gradient {
     @apply bg-clip-text text-transparent bg-gradient-to-r from-primary via-secondary to-accent;
   }
@@ -101,5 +110,53 @@
   }
   .animation-delay-4000 {
     animation-delay: 4s;
+  }
+
+  /* Digital Marketing Styles */
+  .glow-blue {
+    box-shadow: 0 0 0 1px rgba(59, 130, 246, 0.58), 0 0 25px rgba(59, 130, 246, 0.22), inset 0 0 42px rgba(59, 130, 246, 0.08);
+  }
+  .glow-purple {
+    box-shadow: 0 0 0 1px rgba(168, 85, 247, 0.58), 0 0 25px rgba(168, 85, 247, 0.23), inset 0 0 42px rgba(168, 85, 247, 0.08);
+  }
+  .glow-pink {
+    box-shadow: 0 0 0 1px rgba(244, 114, 182, 0.58), 0 0 25px rgba(244, 114, 182, 0.24), inset 0 0 42px rgba(244, 114, 182, 0.08);
+  }
+  .glow-orange {
+    box-shadow: 0 0 0 1px rgba(249, 115, 22, 0.58), 0 0 25px rgba(249, 115, 22, 0.24), inset 0 0 42px rgba(249, 115, 22, 0.08);
+  }
+  .glow-cyan {
+    box-shadow: 0 0 0 1px rgba(34, 211, 238, 0.58), 0 0 25px rgba(34, 211, 238, 0.22), inset 0 0 42px rgba(34, 211, 238, 0.08);
+  }
+  .module-card {
+    border: 1px solid var(--border);
+    background:
+      linear-gradient(90deg, color-mix(in srgb, var(--module-color) 10%, transparent), transparent 34%),
+      var(--background);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+  }
+  .dark .module-card {
+    border: 1px solid color-mix(in srgb, var(--module-color) 58%, #1e293b);
+    background:
+      linear-gradient(90deg, color-mix(in srgb, var(--module-color) 10%, transparent), transparent 34%),
+      linear-gradient(145deg, rgba(15, 23, 42, 0.78), rgba(2, 6, 23, 0.82));
+  }
+  .module-icon {
+    background: linear-gradient(145deg, color-mix(in srgb, var(--module-color) 48%, #020617), color-mix(in srgb, var(--module-color) 22%, #020617));
+    color: #ffffff;
+    box-shadow: 0 0 24px color-mix(in srgb, var(--module-color) 34%, transparent), inset 0 0 18px rgba(255, 255, 255, 0.08);
+  }
+  .module-action {
+    border-color: color-mix(in srgb, var(--module-color) 52%, var(--border));
+    color: var(--module-color);
+    background: rgba(255,255,255,0.72);
+  }
+  .dark .module-action {
+    border-color: color-mix(in srgb, var(--module-color) 70%, #1e293b);
+    background: rgba(2, 6, 23, 0.38);
+  }
+  .module-action:hover {
+    background: color-mix(in srgb, var(--module-color) 12%, transparent);
+    box-shadow: 0 0 20px color-mix(in srgb, var(--module-color) 28%, transparent);
   }
 }

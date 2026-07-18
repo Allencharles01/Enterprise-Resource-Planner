@@ -142,27 +142,29 @@ export default function AdminDashboard() {
               No ongoing projects found.
             </div>
           ) : (
-            <div className="space-y-4">
-              {projects
-                .filter((p) => p.status === "Ongoing")
-                .map((project, idx) => (
-                  <motion.div
-                    key={project._id}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: idx * 0.1 }}
-                    whileHover={{ scale: 1.01 }}
-                    onClick={() => router.push(`/projects/${project._id}`)}
-                    className="glass-card rounded-xl p-5 border border-border/50 hover:border-primary/50 transition-all cursor-pointer flex flex-col sm:flex-row sm:items-center justify-between gap-4 group"
-                  >
-                    <div className="flex-1">
-                      <div className="flex items-center gap-3 mb-1">
-                        <h3 className="text-lg font-semibold text-foreground group-hover:text-primary transition-colors">
-                          {project.name}
-                        </h3>
-                        <span className="px-2.5 py-0.5 rounded-full bg-blue-500/10 text-blue-500 text-xs font-medium border border-blue-500/20">
-                          {project.status}
-                        </span>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {projects.filter(isOngoing).map((project, index) => (
+                <motion.div
+                  key={project._id}
+                  initial={{ opacity: 0, y: 20, scale: 0.96 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  transition={{ delay: index * 0.1 }}
+                  whileHover={{ y: -5, scale: 1.02 }}
+                  onClick={() => router.push(`/projects/${project._id}`)}
+                  className="module-card min-h-[180px] rounded-2xl p-5 border border-border/60 hover:border-primary/60 transition-all cursor-pointer flex flex-col justify-between group shadow-lg hover:shadow-xl relative overflow-hidden bg-gradient-to-b from-slate-900/40 to-slate-900/80"
+                >
+                  {/* Top Section */}
+                  <div>
+                    <div className="flex items-center justify-between gap-2 mb-4">
+                      <span className="px-3 py-1 rounded-full bg-blue-500/10 text-blue-400 text-xs font-bold border border-blue-500/20 tracking-wide uppercase">
+                        {project.status}
+                      </span>
+
+                      <div className="w-9 h-9 rounded-full bg-slate-800/80 group-hover:bg-primary group-hover:text-white transition-colors flex items-center justify-center text-muted-foreground shadow-sm">
+                        <ChevronRight
+                          size={18}
+                          className="group-hover:translate-x-0.5 transition-transform"
+                        />
                       </div>
                       <div className="flex flex-wrap items-center text-sm text-muted-foreground gap-x-4 gap-y-2 mt-2">
                         <span className="flex items-center gap-1.5">
