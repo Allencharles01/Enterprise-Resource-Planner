@@ -40,7 +40,7 @@
   --muted: #0f172a;
   --muted-foreground: #94a3b8;
 
-  --border: #1e293b;
+  --border: rgba(148, 163, 184, 0.12);
   --input: #1e293b;
   --ring: #6366f1;
 }
@@ -94,16 +94,16 @@
   }
 
   .dark .glass {
-    @apply bg-black/20 border-slate-700 shadow-lg;
-  }
+  @apply bg-black/20 border-white/10 shadow-lg;
+}
 
   .glass-card {
   @apply bg-[#FBF7FF] border border-violet-100 rounded-2xl shadow-[0_10px_30px_rgba(139,92,246,0.10)];
 }
 
   .dark .glass-card {
-    @apply bg-black/20 border-slate-700 shadow-2xl;
-  }
+  @apply bg-black/20 border-white/10 shadow-2xl;
+}
 
   .text-gradient {
     @apply bg-clip-text text-transparent bg-gradient-to-r from-primary via-secondary to-accent;
