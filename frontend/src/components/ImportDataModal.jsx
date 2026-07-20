@@ -1,6 +1,7 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
+import { api } from "@/lib/api";
 import {
   Upload,
   X,
@@ -17,7 +18,7 @@ import {
   Lock,
 } from "lucide-react";
 
-const employees = [
+const INITIAL_EMPLOYEES = [
   {
     id: 1,
     empId: "EMP-001",
@@ -60,7 +61,7 @@ const employees = [
   },
 ];
 
-const existingDatabaseRecords = [
+const INITIAL_DB_RECORDS = [
   {
     name: "Aarav Sharma",
     contact: "+91 98765 43210",
@@ -135,6 +136,32 @@ const getContact = (record) =>
 const getStatus = (record) =>
   getFieldValue(record, ["status", "employment status", "current status"]);
 
+const isSerialHeader = (header) => {
+  const norm = String(header || "").toLowerCase().trim().replace(/[^a-z0-9]/g, "");
+  return ["sno", "sno", "serial", "serialno", "serialnumber", "srno", "slno", "id", "index"].includes(norm);
+};
+
+const setFieldValue = (record, possibleKeys, newValue) => {
+  const keys = Object.keys(record || {});
+  const exactKey = keys.find((key) =>
+    possibleKeys.some((possibleKey) => normalize(key) === normalize(possibleKey))
+  );
+  if (exactKey) {
+    record[exactKey] = newValue;
+    return;
+  }
+  const partialKey = keys.find((key) =>
+    possibleKeys.some((possibleKey) =>
+      normalize(key).includes(normalize(possibleKey))
+    )
+  );
+  if (partialKey) {
+    record[partialKey] = newValue;
+    return;
+  }
+  record[possibleKeys[0]] = newValue;
+};
+
 const parseCsvLine = (line) => {
   const result = [];
   let currentValue = "";
@@ -198,13 +225,13 @@ const parseCsvText = (text) => {
   };
 };
 
-const getExactSyncResults = (records) => {
+const getExactSyncResults = (records, dbContacts = []) => {
   return records.map((record, index) => {
     const importedName = normalize(getName(record));
     const importedEmail = normalize(getEmail(record));
     const importedContact = cleanPhone(getContact(record));
 
-    const exactMatch = existingDatabaseRecords.find(
+    const exactMatch = dbContacts.find(
       (existing) =>
         importedName === normalize(existing.name) &&
         importedEmail === normalize(existing.email) &&
@@ -225,7 +252,7 @@ const getExactSyncResults = (records) => {
   });
 };
 
-const getCompareResults = (records) => {
+const getCompareResults = (records, dbContacts = []) => {
   const results = [];
 
   records.forEach((record, index) => {
@@ -233,7 +260,7 @@ const getCompareResults = (records) => {
     const importedEmail = normalize(getEmail(record));
     const importedContact = cleanPhone(getContact(record));
 
-    existingDatabaseRecords.forEach((existing) => {
+    dbContacts.forEach((existing) => {
       const sameEmail =
         importedEmail && importedEmail === normalize(existing.email);
 
@@ -267,36 +294,93 @@ const getCompareResults = (records) => {
   return results;
 };
 
-const getDuplicateResults = (records) => {
-  return records.flatMap((record, index) => {
-    const importedName = normalize(getName(record));
-    const importedEmail = normalize(getEmail(record));
-    const importedContact = cleanPhone(getContact(record));
+const getDuplicateResults = (records, dbContacts = []) => {
+  const results = [];
+  const seenNames = new Map();
+  const seenEmails = new Map();
+  const seenContacts = new Map();
 
-    const exactMatch = existingDatabaseRecords.find(
-      (existing) =>
-        importedName === normalize(existing.name) &&
-        importedEmail === normalize(existing.email) &&
-        importedContact === cleanPhone(existing.contact)
-    );
+  records.forEach((record, index) => {
+    const rowNum = index + 1;
+    const name = getName(record);
+    const email = getEmail(record);
+    const contact = getContact(record);
 
-    if (exactMatch) {
-      return [
-        {
-          id: index + 1,
-          importedName: getName(record) || "N/A",
-          existingName: exactMatch.name,
-          importedContact: getContact(record) || "N/A",
-          existingContact: exactMatch.contact,
-          importedEmail: getEmail(record) || "N/A",
-          existingEmail: exactMatch.email,
-          matchType: "Exact Duplicate",
-        },
-      ];
+    const normName = normalize(name);
+    const normEmail = normalize(email);
+    const cleanPhoneVal = cleanPhone(contact);
+
+    let isNameDup = false;
+    let isEmailDup = false;
+    let isPhoneDup = false;
+    const matchTypes = [];
+    let existingName = "—";
+    let existingEmail = "—";
+    let existingContact = "—";
+
+    // 1. Check for duplicates within the uploaded document
+    if (normName && seenNames.has(normName)) {
+      isNameDup = true;
+      matchTypes.push(`Name (Row ${seenNames.get(normName)})`);
+      existingName = name;
+    }
+    if (normEmail && seenEmails.has(normEmail)) {
+      isEmailDup = true;
+      matchTypes.push(`Email (Row ${seenEmails.get(normEmail)})`);
+      existingEmail = email;
+    }
+    if (cleanPhoneVal && seenContacts.has(cleanPhoneVal)) {
+      isPhoneDup = true;
+      matchTypes.push(`Phone (Row ${seenContacts.get(cleanPhoneVal)})`);
+      existingContact = contact;
     }
 
-    return [];
+    // 2. Check for duplicates in the existing database records
+    const dbNameMatch = dbContacts.find(db => normName && normalize(db.name) === normName);
+    if (dbNameMatch) {
+      isNameDup = true;
+      matchTypes.push("Name (Database)");
+      existingName = dbNameMatch.name || "—";
+    }
+
+    const dbEmailMatch = dbContacts.find(db => normEmail && normalize(db.email) === normEmail);
+    if (dbEmailMatch) {
+      isEmailDup = true;
+      matchTypes.push("Email (Database)");
+      existingEmail = dbEmailMatch.email || "—";
+    }
+
+    const dbPhoneMatch = dbContacts.find(db => cleanPhoneVal && cleanPhone(db.contact) === cleanPhoneVal);
+    if (dbPhoneMatch) {
+      isPhoneDup = true;
+      matchTypes.push("Phone (Database)");
+      existingContact = dbPhoneMatch.contact || "—";
+    }
+
+    // Track the first occurrence of each in the uploaded document
+    if (normName && !seenNames.has(normName)) seenNames.set(normName, rowNum);
+    if (normEmail && !seenEmails.has(normEmail)) seenEmails.set(normEmail, rowNum);
+    if (cleanPhoneVal && !seenContacts.has(cleanPhoneVal)) seenContacts.set(cleanPhoneVal, rowNum);
+
+    if (isNameDup || isEmailDup || isPhoneDup) {
+      results.push({
+        id: results.length + 1,
+        rowId: record.id,
+        importedName: name || "N/A",
+        existingName,
+        importedContact: contact || "N/A",
+        existingContact,
+        importedEmail: email || "N/A",
+        existingEmail,
+        matchType: matchTypes.join(", "),
+        isNameDup,
+        isEmailDup,
+        isPhoneDup,
+      });
+    }
   });
+
+  return results;
 };
 
 export default function ImportDataModal({ onClose }) {
@@ -324,23 +408,63 @@ export default function ImportDataModal({ onClose }) {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
 
+  const [employees, setEmployees] = useState(INITIAL_EMPLOYEES);
+  const [dbContacts, setDbContacts] = useState(INITIAL_DB_RECORDS);
+  const [uploadedDocId, setUploadedDocId] = useState(null);
+
+  const [editingRowId, setEditingRowId] = useState(null);
+  const [editForm, setEditForm] = useState({ name: "", contact: "", email: "", status: "" });
+
+  useEffect(() => {
+    const fetchEmployees = async () => {
+      try {
+        const response = await api.get("/api/employees");
+        const mapped = response.data.map((e, index) => ({
+          id: e.id,
+          empId: e.employeeCode || e.employeeNumber || `EMP-${index + 1}`,
+          name: `${e.personal?.firstName || ""} ${e.personal?.lastName || ""}`.trim(),
+          initials: `${e.personal?.firstName?.[0] || ""}${e.personal?.lastName?.[0] || ""}`.toUpperCase(),
+          designation: e.work?.designation || "Employee",
+          department: e.work?.department || "Unassigned",
+          email: e.personal?.contactEmail || e.work?.companyEmail || "",
+          contact: e.personal?.phone || "",
+        }));
+        setEmployees(mapped);
+      } catch (err) {
+        console.error("Failed to fetch employees:", err);
+      }
+    };
+
+    const fetchDbContacts = async () => {
+      try {
+        const response = await api.get("/api/contact-lists/contacts");
+        setDbContacts(response.data);
+      } catch (err) {
+        console.error("Failed to fetch DB contacts:", err);
+      }
+    };
+
+    fetchEmployees();
+    fetchDbContacts();
+  }, []);
+
   const syncResults = useMemo(() => {
     if (previewRows.length === 0) return [];
-    return getExactSyncResults(previewRows);
-  }, [previewRows]);
+    return getExactSyncResults(previewRows, dbContacts);
+  }, [previewRows, dbContacts]);
 
   const compareResults = useMemo(() => {
     if (previewRows.length === 0) return [];
-    return getCompareResults(previewRows);
-  }, [previewRows]);
+    return getCompareResults(previewRows, dbContacts);
+  }, [previewRows, dbContacts]);
 
   const duplicateResults = useMemo(() => {
     if (previewRows.length === 0) return [];
-    return getDuplicateResults(previewRows);
-  }, [previewRows]);
+    return getDuplicateResults(previewRows, dbContacts);
+  }, [previewRows, dbContacts]);
 
   const filteredEmployees = useMemo(() => {
-    return employees.filter((employee) => {
+    const list = employees.filter((employee) => {
       const matchesDepartment =
         departmentFilter === "All Employees" ||
         employee.department === departmentFilter;
@@ -356,7 +480,11 @@ export default function ImportDataModal({ onClose }) {
 
       return matchesDepartment && matchesSearch;
     });
-  }, [departmentFilter, searchQuery]);
+
+    return list.sort((a, b) =>
+      a.empId.localeCompare(b.empId, undefined, { numeric: true, sensitivity: "base" })
+    );
+  }, [employees, departmentFilter, searchQuery]);
 
   const detectFileType = (file) => {
     const name = file.name.toLowerCase();
@@ -485,9 +613,40 @@ export default function ImportDataModal({ onClose }) {
     setShowSync(false);
   };
 
-  const handleUpload = () => {
+  const handleUpload = async () => {
     if (!selectedFile || isUploaded) return;
-    setIsUploaded(true);
+    try {
+      let rows = previewRows;
+      let headers = previewHeaders;
+      if (rows.length === 0 && fileType === "csv") {
+        rows = await parseSelectedCsvFile();
+        headers = previewHeaders;
+      }
+
+      let fileData = "";
+      if (fileType !== "csv") {
+        fileData = await new Promise((resolve, reject) => {
+          const reader = new FileReader();
+          reader.readAsDataURL(selectedFile);
+          reader.onload = () => resolve(reader.result);
+          reader.onerror = (e) => reject(e);
+        });
+      }
+
+      const response = await api.post("/api/contact-lists/upload", {
+        fileName: selectedFile.name,
+        headers,
+        rows,
+        fileData,
+        fileType
+      });
+
+      setUploadedDocId(response.data.id);
+      setIsUploaded(true);
+    } catch (err) {
+      console.error("Upload failed:", err);
+      alert("Failed to upload the finalized document.");
+    }
   };
 
   const handleSync = async () => {
@@ -528,10 +687,64 @@ export default function ImportDataModal({ onClose }) {
     }
   };
 
-  const handleFinalAssign = () => {
-    setShowPasswordPopup(false);
-    setPassword("");
-    setShowSuccessPopup(true);
+  const handleFinalAssign = async () => {
+    if (!uploadedDocId) {
+      alert("Please upload the file first before assigning.");
+      return;
+    }
+    try {
+      await api.post("/api/contact-lists/assign", {
+        id: uploadedDocId,
+        employeeCodes: selectedEmployees.map((e) => e.empId),
+        password: password
+      });
+      setShowPasswordPopup(false);
+      setPassword("");
+      setShowSuccessPopup(true);
+    } catch (err) {
+      console.error("Assignment failed:", err);
+      alert(err.response?.data?.error || err.response?.data?.message || "Failed to assign the document. Please verify your admin password.");
+    }
+  };
+
+  const handleDeleteRow = (rowId) => {
+    setPreviewRows((prev) => prev.filter((row) => row.id !== rowId));
+    if (editingRowId === rowId) {
+      setEditingRowId(null);
+    }
+  };
+
+  const handleStartEdit = (record) => {
+    setEditingRowId(record.rowId);
+    setEditForm({
+      name: record.importedName === "N/A" ? "" : record.importedName,
+      contact: record.importedContact === "N/A" ? "" : record.importedContact,
+      email: record.importedEmail === "N/A" ? "" : record.importedEmail,
+      status: record.importedStatus || ""
+    });
+  };
+
+  const handleCancelEdit = () => {
+    setEditingRowId(null);
+  };
+
+  const handleSaveEdit = (rowId) => {
+    setPreviewRows((prev) =>
+      prev.map((row) => {
+        if (row.id === rowId) {
+          const newRow = { ...row };
+          setFieldValue(newRow, ["name", "full name", "client name", "candidate name", "student name"], editForm.name);
+          setFieldValue(newRow, ["email", "email id", "email address", "mail"], editForm.email);
+          setFieldValue(newRow, ["contact", "phone", "phone number", "mobile", "mobile number", "contact number"], editForm.contact);
+          if (editForm.status) {
+            setFieldValue(newRow, ["status", "employment status", "current status"], editForm.status);
+          }
+          return newRow;
+        }
+        return row;
+      })
+    );
+    setEditingRowId(null);
   };
 
   return (
@@ -677,6 +890,13 @@ export default function ImportDataModal({ onClose }) {
               results={duplicateResults}
               fileType={fileType}
               onClose={() => setShowDuplicate(false)}
+              editingRowId={editingRowId}
+              editForm={editForm}
+              setEditForm={setEditForm}
+              onStartEdit={handleStartEdit}
+              onSaveEdit={handleSaveEdit}
+              onCancelEdit={handleCancelEdit}
+              onDeleteRow={handleDeleteRow}
             />
           )}
 
@@ -884,6 +1104,10 @@ function PreviewSection({
   onSync,
   onCompare,
 }) {
+  const hasSerialHeader = useMemo(() => {
+    return headers.some(header => isSerialHeader(header));
+  }, [headers]);
+
   return (
     <div className="rounded-2xl border border-border bg-[#10142b] p-5">
       <SectionHeader
@@ -905,9 +1129,11 @@ function PreviewSection({
           <table className="min-w-[1100px] w-full border-separate border-spacing-0 text-left text-xs">
             <thead>
               <tr className="text-muted-foreground">
-                <th className="sticky top-0 z-20 w-[90px] whitespace-nowrap border-b border-border bg-[#090d1f] px-5 py-4 font-bold">
-                  S.No.
-                </th>
+                {!hasSerialHeader && (
+                  <th className="sticky top-0 z-20 w-[90px] whitespace-nowrap border-b border-border bg-[#090d1f] px-5 py-4 font-bold">
+                    S.No.
+                  </th>
+                )}
 
                 {headers.map((header) => (
                   <th
@@ -924,9 +1150,11 @@ function PreviewSection({
               {rows.length > 0 ? (
                 rows.map((record, index) => (
                   <tr key={record.id} className="hover:bg-muted/20">
-                    <td className="whitespace-nowrap border-b border-border/50 px-5 py-4 text-muted-foreground">
-                      {index + 1}
-                    </td>
+                    {!hasSerialHeader && (
+                      <td className="whitespace-nowrap border-b border-border/50 px-5 py-4 text-muted-foreground">
+                        {index + 1}
+                      </td>
+                    )}
 
                     {headers.map((header) => (
                       <td
@@ -997,7 +1225,18 @@ function PreviewSection({
   );
 }
 
-function DuplicateSection({ results, fileType, onClose }) {
+function DuplicateSection({
+  results,
+  fileType,
+  onClose,
+  editingRowId,
+  editForm,
+  setEditForm,
+  onStartEdit,
+  onSaveEdit,
+  onCancelEdit,
+  onDeleteRow,
+}) {
   return (
     <div className="rounded-2xl border border-border bg-[#10142b] p-5">
       <SectionHeader
@@ -1011,7 +1250,16 @@ function DuplicateSection({ results, fileType, onClose }) {
       {fileType !== "csv" ? (
         <WarningBox text="Duplicate checking needs structured CSV data. PDF/DOC duplicate checking should be handled after backend extraction." />
       ) : results.length > 0 ? (
-        <DuplicateTable results={results} />
+        <DuplicateTable
+          results={results}
+          editingRowId={editingRowId}
+          editForm={editForm}
+          setEditForm={setEditForm}
+          onStartEdit={onStartEdit}
+          onSaveEdit={onSaveEdit}
+          onCancelEdit={onCancelEdit}
+          onDeleteRow={onDeleteRow}
+        />
       ) : (
         <SuccessBox text="No exact duplicate records found." />
       )}
@@ -1264,7 +1512,16 @@ function SectionHeader({ icon: Icon, iconClass, title, subtitle, onClose }) {
   );
 }
 
-function DuplicateTable({ results }) {
+function DuplicateTable({
+  results,
+  editingRowId,
+  editForm,
+  setEditForm,
+  onStartEdit,
+  onSaveEdit,
+  onCancelEdit,
+  onDeleteRow,
+}) {
   return (
     <div className="overflow-auto rounded-xl border border-border">
       <table className="min-w-[1350px] w-full border-separate border-spacing-0 text-left text-xs">
@@ -1294,40 +1551,113 @@ function DuplicateTable({ results }) {
             <th className="sticky top-0 z-20 min-w-[170px] whitespace-nowrap border-b border-border bg-[#090d1f] px-5 py-4">
               Type
             </th>
+            <th className="sticky top-0 z-20 min-w-[150px] whitespace-nowrap border-b border-border bg-[#090d1f] px-5 py-4 text-center">
+              Actions
+            </th>
           </tr>
         </thead>
 
         <tbody>
-          {results.map((result) => (
-            <tr key={result.id} className="hover:bg-muted/20">
-              <td className="whitespace-nowrap border-b border-border/50 px-5 py-4 text-muted-foreground">
-                {result.id}
-              </td>
-              <td className="whitespace-nowrap border-b border-border/50 px-5 py-4 text-muted-foreground">
-                {result.importedName}
-              </td>
-              <td className="whitespace-nowrap border-b border-border/50 px-5 py-4 text-muted-foreground">
-                {result.existingName}
-              </td>
-              <td className="whitespace-nowrap border-b border-border/50 px-5 py-4 text-muted-foreground">
-                {result.importedContact}
-              </td>
-              <td className="whitespace-nowrap border-b border-border/50 px-5 py-4 text-muted-foreground">
-                {result.existingContact}
-              </td>
-              <td className="whitespace-nowrap border-b border-border/50 px-5 py-4 text-muted-foreground">
-                {result.importedEmail}
-              </td>
-              <td className="whitespace-nowrap border-b border-border/50 px-5 py-4 text-muted-foreground">
-                {result.existingEmail}
-              </td>
-              <td className="whitespace-nowrap border-b border-border/50 px-5 py-4">
-                <span className="inline-flex whitespace-nowrap rounded-full border border-rose-500/20 bg-rose-500/10 px-3 py-1 text-[11px] font-bold text-rose-400">
-                  {result.matchType}
-                </span>
-              </td>
-            </tr>
-          ))}
+          {results.map((result) => {
+            const isEditing = editingRowId === result.rowId;
+
+            return (
+              <tr key={result.id} className="hover:bg-muted/20">
+                <td className="whitespace-nowrap border-b border-border/50 px-5 py-4 text-muted-foreground">
+                  {result.id}
+                </td>
+                <td className="whitespace-nowrap border-b border-border/50 px-5 py-4 text-muted-foreground">
+                  {isEditing ? (
+                    <input
+                      type="text"
+                      className="bg-background border border-border rounded px-2 py-1 text-xs text-foreground w-full outline-none"
+                      value={editForm.name}
+                      onChange={(e) => setEditForm({ ...editForm, name: e.target.value })}
+                    />
+                  ) : (
+                    <span className={result.isNameDup ? "px-2 py-1 rounded bg-rose-500/10 text-rose-400 border border-rose-500/20 font-medium" : ""}>
+                      {result.importedName}
+                    </span>
+                  )}
+                </td>
+                <td className="whitespace-nowrap border-b border-border/50 px-5 py-4 text-muted-foreground">
+                  {result.existingName}
+                </td>
+                <td className="whitespace-nowrap border-b border-border/50 px-5 py-4 text-muted-foreground">
+                  {isEditing ? (
+                    <input
+                      type="text"
+                      className="bg-background border border-border rounded px-2 py-1 text-xs text-foreground w-full outline-none"
+                      value={editForm.contact}
+                      onChange={(e) => setEditForm({ ...editForm, contact: e.target.value })}
+                    />
+                  ) : (
+                    <span className={result.isPhoneDup ? "px-2 py-1 rounded bg-rose-500/10 text-rose-400 border border-rose-500/20 font-medium" : ""}>
+                      {result.importedContact}
+                    </span>
+                  )}
+                </td>
+                <td className="whitespace-nowrap border-b border-border/50 px-5 py-4 text-muted-foreground">
+                  {result.existingContact}
+                </td>
+                <td className="whitespace-nowrap border-b border-border/50 px-5 py-4 text-muted-foreground">
+                  {isEditing ? (
+                    <input
+                      type="text"
+                      className="bg-background border border-border rounded px-2 py-1 text-xs text-foreground w-full outline-none"
+                      value={editForm.email}
+                      onChange={(e) => setEditForm({ ...editForm, email: e.target.value })}
+                    />
+                  ) : (
+                    <span className={result.isEmailDup ? "px-2 py-1 rounded bg-rose-500/10 text-rose-400 border border-rose-500/20 font-medium" : ""}>
+                      {result.importedEmail}
+                    </span>
+                  )}
+                </td>
+                <td className="whitespace-nowrap border-b border-border/50 px-5 py-4 text-muted-foreground">
+                  {result.existingEmail}
+                </td>
+                <td className="whitespace-nowrap border-b border-border/50 px-5 py-4">
+                  <span className="inline-flex whitespace-nowrap rounded-full border border-rose-500/20 bg-rose-500/10 px-3 py-1 text-[11px] font-bold text-rose-400">
+                    {result.matchType}
+                  </span>
+                </td>
+                <td className="whitespace-nowrap border-b border-border/50 px-5 py-4 text-center">
+                  {isEditing ? (
+                    <div className="flex justify-center gap-2">
+                      <button
+                        onClick={() => onSaveEdit(result.rowId)}
+                        className="px-2 py-1 bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 rounded hover:bg-emerald-500/30 transition text-xs font-semibold"
+                      >
+                        Save
+                      </button>
+                      <button
+                        onClick={onCancelEdit}
+                        className="px-2 py-1 bg-slate-500/20 text-slate-300 border border-slate-500/30 rounded hover:bg-slate-500/30 transition text-xs font-semibold"
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="flex justify-center gap-2">
+                      <button
+                        onClick={() => onStartEdit(result)}
+                        className="px-2 py-1 bg-violet-500/20 text-violet-300 border border-violet-500/30 rounded hover:bg-violet-500/30 transition text-xs font-semibold"
+                      >
+                        Edit
+                      </button>
+                      <button
+                        onClick={() => onDeleteRow(result.rowId)}
+                        className="px-2 py-1 bg-rose-500/20 text-rose-400 border border-rose-500/30 rounded hover:bg-rose-500/30 transition text-xs font-semibold"
+                      >
+                        Delete
+                      </button>
+                    </div>
+                  )}
+                </td>
+              </tr>
+            );
+          })}
         </tbody>
       </table>
     </div>

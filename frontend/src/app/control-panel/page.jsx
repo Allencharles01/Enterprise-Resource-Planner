@@ -6,6 +6,7 @@ import { EditProjectsModal } from "@/components/EditProjectsModal";
 import { InternshipModals } from "@/components/InternshipModals";
 import { TrainingModals } from "@/components/TrainingModals";
 import { EmployeeDetailsModal } from "@/components/EmployeeDetailsModal";
+import CsvDocsExplorerModal from "@/components/CsvDocsExplorerModal";
 import { api } from "@/lib/api";
 import {
   FolderKanban,
@@ -36,6 +37,7 @@ export default function ControlPanelPage() {
   const [isProfileRequestsOpen, setIsProfileRequestsOpen] = useState(false);
   const [pendingCount, setPendingCount] = useState(0);
   const [adminRecord, setAdminRecord] = useState(null);
+  const [isCsvExplorerOpen, setIsCsvExplorerOpen] = useState(false);
 
   const fetchAdminData = () => {
     api
@@ -282,7 +284,7 @@ export default function ControlPanelPage() {
               </div>
             </div>
 
-            <div className="flex-1 grid grid-cols-2 gap-4 items-center justify-center my-auto pt-2">
+            <div className="flex-1 grid grid-cols-1 sm:grid-cols-3 gap-4 items-center justify-center my-auto pt-2">
               <button
                 onClick={() => setIsProfileModalOpen(true)}
                 className="w-full min-h-[120px] rounded-2xl bg-gradient-to-br from-purple-600 via-indigo-600 to-violet-700 text-white font-extrabold shadow-lg shadow-purple-500/20 hover:scale-105 active:scale-95 transition-all flex flex-col items-center justify-center gap-2 p-5 text-center cursor-pointer border border-purple-400/30 group"
@@ -306,6 +308,16 @@ export default function ControlPanelPage() {
                   <FileText size={24} />
                 </div>
                 <span className="text-xs sm:text-sm leading-tight">Edit Profile Requests</span>
+              </button>
+
+              <button
+                onClick={() => setIsCsvExplorerOpen(true)}
+                className="w-full min-h-[120px] rounded-2xl bg-gradient-to-br from-blue-600 via-cyan-600 to-teal-700 text-white font-extrabold shadow-lg shadow-cyan-500/20 hover:scale-105 active:scale-95 transition-all flex flex-col items-center justify-center gap-2 p-5 text-center cursor-pointer border border-cyan-400/30 group"
+              >
+                <div className="p-2.5 rounded-xl bg-white/10 group-hover:bg-white/20 transition-colors shadow-inner">
+                  <FolderKanban size={24} />
+                </div>
+                <span className="text-xs sm:text-sm leading-tight">CSV Docs Explorer</span>
               </button>
             </div>
           </motion.div>
@@ -342,6 +354,11 @@ export default function ControlPanelPage() {
         isOpen={isProfileRequestsOpen}
         onClose={() => setIsProfileRequestsOpen(false)}
         onUpdated={() => fetchAdminData()}
+      />
+
+      <CsvDocsExplorerModal
+        isOpen={isCsvExplorerOpen}
+        onClose={() => setIsCsvExplorerOpen(false)}
       />
 
       {/* Toast Notification */}

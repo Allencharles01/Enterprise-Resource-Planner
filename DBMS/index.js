@@ -10,3 +10,7 @@ export * from "./TrainingCandidate";
 export * from "./TrainingCourse";
 export * from "./CustomerInquiry";
 export * from "./EmailLog";
+export * from "./ContactList";
+export * from "./CSVDoc";
+
+
