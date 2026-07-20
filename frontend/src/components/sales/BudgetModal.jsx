@@ -25,27 +25,27 @@ export default function BudgetModal({ project, onClose }) {
   const financial = project;
 
   const handleDownloadInvoice = () => {
-  const today = new Date().toLocaleDateString("en-US", {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-  });
+    const today = new Date().toLocaleDateString("en-US", {
+      month: "short",
+      day: "numeric",
+      year: "numeric",
+    });
 
-  const fileName = `Invoice_${project.project.replaceAll(" ", "_")}.html`;
+    const fileName = `Invoice_${project.project.replaceAll(" ", "_")}.html`;
 
-  const paymentRows = financial.payments
-    .map(
-      (payment) => `
+    const paymentRows = financial.payments
+      .map(
+        (payment) => `
         <tr>
           <td>${payment.date}</td>
           <td>${formatAmount(payment.amount)}</td>
           <td>${payment.title}</td>
         </tr>
       `
-    )
-    .join("");
+      )
+      .join("");
 
-  const invoiceHTML = `
+    const invoiceHTML = `
     <!DOCTYPE html>
     <html>
       <head>
@@ -212,31 +212,33 @@ export default function BudgetModal({ project, onClose }) {
     </html>
   `;
 
-  const blob = new Blob([invoiceHTML], {
-    type: "text/html",
-  });
+    const blob = new Blob([invoiceHTML], {
+      type: "text/html",
+    });
 
-  const url = URL.createObjectURL(blob);
+    const url = URL.createObjectURL(blob);
 
-  const link = document.createElement("a");
-  link.href = url;
-  link.download = fileName;
-  link.click();
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = fileName;
+    link.click();
 
-  URL.revokeObjectURL(url);
-};
+    URL.revokeObjectURL(url);
+  };
 
+  const handleDownloadSummary = () => {
+    const today = new Date().toLocaleDateString("en-US", {
+      month: "numeric",
+      day: "numeric",
+      year: "numeric",
+    });
 
-const handleDownloadSummary = () => {
-  const today = new Date().toLocaleDateString("en-US", {
-    month: "numeric",
-    day: "numeric",
-    year: "numeric",
-  });
+    const fileName = `Summary_${project.project.replace(
+      /[^a-z0-9]/gi,
+      "_"
+    )}.html`;
 
-  const fileName = `Summary_${project.project.replace(/[^a-z0-9]/gi, "_")}.html`;
-
-  const summaryHTML = `
+    const summaryHTML = `
     <!DOCTYPE html>
     <html>
       <head>
@@ -388,40 +390,26 @@ const handleDownloadSummary = () => {
     </html>
   `;
 
-  const blob = new Blob([summaryHTML], {
-    type: "text/html",
-  });
+    const blob = new Blob([summaryHTML], {
+      type: "text/html",
+    });
 
-  const url = URL.createObjectURL(blob);
+    const url = URL.createObjectURL(blob);
 
-  const link = document.createElement("a");
-  link.href = url;
-  link.download = fileName;
-  link.click();
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = fileName;
+    link.click();
 
-  URL.revokeObjectURL(url);
-};
-
+    URL.revokeObjectURL(url);
+  };
 
   if (typeof document === "undefined") return null;
 
   return createPortal(
     <div className="fixed inset-0 z-[999999] flex items-center justify-center bg-black/60 backdrop-blur-md p-4">
-      <div
-       className="
-  w-full
-  max-w-[570px]
-  max-h-[82vh]
-  flex
-  flex-col
-  rounded-2xl
-  border
-  border-border
-  bg-background
-  shadow-2xl
-"
-      >
-        <div className="p-5 border-b border-border flex justify-between items-start shrink-0">
+      <div className="w-full max-w-[570px] max-h-[82vh] flex flex-col rounded-2xl border border-violet-100 bg-white text-foreground shadow-2xl dark:border-border dark:bg-background">
+        <div className="shrink-0 border-b border-violet-100 bg-white p-5 flex justify-between items-start dark:border-border dark:bg-background">
           <div>
             <h2 className="text-xl font-bold text-foreground">
               {project.project}
@@ -444,21 +432,27 @@ const handleDownloadSummary = () => {
           </button>
         </div>
 
-        <div className="overflow-y-auto flex-1 space-y-4 py-4">
+        <div className="overflow-y-auto flex-1 space-y-4 py-4 bg-white dark:bg-background">
           <div className="grid grid-cols-3 gap-3 px-5">
-            <div className="rounded-xl bg-muted/40 p-3 text-center">
-              <p className="text-xl font-bold">{formatAmount(financial.agreed)}</p>
-              <p className="text-xs text-muted-foreground mt-1">Total Agreed</p>
+            <div className="rounded-xl border border-violet-100 bg-[#F6EEFF] p-3 text-center shadow-[0_8px_24px_rgba(139,92,246,0.08)] dark:border-border dark:bg-muted/40 dark:shadow-none">
+              <p className="text-xl font-bold">
+                {formatAmount(financial.agreed)}
+              </p>
+              <p className="text-xs text-muted-foreground mt-1">
+                Total Agreed
+              </p>
             </div>
 
-            <div className="rounded-xl bg-muted/40 p-3 text-center">
+            <div className="rounded-xl border border-violet-100 bg-[#F6EEFF] p-3 text-center shadow-[0_8px_24px_rgba(139,92,246,0.08)] dark:border-border dark:bg-muted/40 dark:shadow-none">
               <p className="text-xl font-bold text-green-500">
                 {formatAmount(financial.received)}
               </p>
-              <p className="text-xs text-muted-foreground mt-1">Total Received</p>
+              <p className="text-xs text-muted-foreground mt-1">
+                Total Received
+              </p>
             </div>
 
-            <div className="rounded-xl bg-muted/40 p-3 text-center">
+            <div className="rounded-xl border border-violet-100 bg-[#F6EEFF] p-3 text-center shadow-[0_8px_24px_rgba(139,92,246,0.08)] dark:border-border dark:bg-muted/40 dark:shadow-none">
               <p className="text-xl font-bold text-red-500">
                 {formatAmount(financial.remaining)}
               </p>
@@ -472,7 +466,7 @@ const handleDownloadSummary = () => {
               <span className="font-semibold">{project.progress}%</span>
             </div>
 
-            <div className="h-2 rounded-full bg-muted overflow-hidden">
+            <div className="h-2 rounded-full bg-violet-100 overflow-hidden dark:bg-muted">
               <div
                 className="h-full bg-primary rounded-full"
                 style={{ width: `${project.progress}%` }}
@@ -481,7 +475,7 @@ const handleDownloadSummary = () => {
           </div>
 
           <div className="px-5">
-            <div className="rounded-xl border border-border p-4">
+            <div className="rounded-xl border border-violet-100 bg-[#F8F2FF] p-4 dark:border-border dark:bg-transparent">
               <div className="flex items-center gap-2 mb-3">
                 <Briefcase size={16} />
                 <h3 className="text-sm font-semibold">Services Provided</h3>
@@ -491,7 +485,7 @@ const handleDownloadSummary = () => {
                 {financial.services.map((service) => (
                   <span
                     key={service}
-                    className="px-3 py-1 rounded-full bg-muted text-xs"
+                    className="px-3 py-1 rounded-full bg-white text-xs shadow-sm dark:bg-muted dark:shadow-none"
                   >
                     {service}
                   </span>
@@ -501,8 +495,8 @@ const handleDownloadSummary = () => {
           </div>
 
           <div className="px-5">
-            <div className="rounded-xl border border-border overflow-hidden">
-              <div className="px-4 py-3 border-b border-border flex items-center gap-2">
+            <div className="rounded-xl border border-violet-100 bg-[#F8F2FF] overflow-hidden dark:border-border dark:bg-transparent">
+              <div className="px-4 py-3 border-b border-violet-100 flex items-center gap-2 dark:border-border">
                 <Clock size={16} />
                 <h3 className="text-sm font-semibold">Payment History</h3>
               </div>
@@ -510,7 +504,7 @@ const handleDownloadSummary = () => {
               {financial.payments.map((payment, index) => (
                 <div
                   key={index}
-                  className="px-4 py-3 border-b border-border flex justify-between gap-4"
+                  className="px-4 py-3 border-b border-violet-100 bg-white flex justify-between gap-4 dark:border-border dark:bg-transparent"
                 >
                   <div>
                     <p className="text-sm font-medium">{payment.title}</p>
@@ -527,9 +521,8 @@ const handleDownloadSummary = () => {
             </div>
           </div>
 
-          {/* Service Agreement */}
           <div className="px-5">
-            <div className="rounded-xl border border-border p-4">
+            <div className="rounded-xl border border-violet-100 bg-[#F8F2FF] p-4 dark:border-border dark:bg-transparent">
               <div className="flex items-start gap-2">
                 <Briefcase
                   size={16}
@@ -551,10 +544,10 @@ const handleDownloadSummary = () => {
           </div>
         </div>
 
-        <div className="p-5 border-t border-border flex gap-3 shrink-0">
+        <div className="shrink-0 border-t border-violet-100 bg-white p-5 flex gap-3 dark:border-border dark:bg-background">
           <button
             onClick={handleDownloadInvoice}
-            className="flex-1 border border-border rounded-lg py-2.5 text-sm font-medium flex items-center justify-center gap-2 hover:bg-muted transition"
+            className="flex-1 border border-violet-200 rounded-lg py-2.5 text-sm font-medium flex items-center justify-center gap-2 hover:bg-violet-50 transition dark:border-border dark:hover:bg-muted"
           >
             <Download size={16} />
             Download Invoice
