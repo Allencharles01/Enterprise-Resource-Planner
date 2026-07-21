@@ -537,7 +537,7 @@ export default function SalesEmployeeDashboard() {
   }, []);
 
   return (
-    <div className="flex min-h-screen w-full relative overflow-hidden">
+    <div className="sales-employee-light-page flex min-h-screen w-full relative overflow-hidden">
       <div className="flex flex-col w-full min-h-screen z-10">
         <SalesEmployeeNavbar />
 

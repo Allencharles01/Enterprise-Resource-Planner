@@ -1250,3 +1250,78 @@ html:not(.dark) .contact-mark-status:hover {
   border: 1px solid #334155 !important;
   color: #e2e8f0 !important;
 }
+
+/* ---------- Sales Employee Dashboard Light Theme Separation ---------- */
+
+/* Light body background */
+.sales-employee-light-page {
+  background: #faf5ff !important;
+}
+
+/* Light navbar background */
+.sales-employee-light-navbar {
+  background: #f3e8ff !important;
+  border-bottom: 1px solid #e4d4ff !important;
+  box-shadow: 0 8px 28px rgba(139, 92, 246, 0.12) !important;
+  backdrop-filter: blur(18px) !important;
+}
+
+/* Dark theme protected */
+.dark .sales-employee-light-page {
+  background: var(--background) !important;
+}
+
+.dark .sales-employee-light-navbar {
+  background: #020617 !important;
+  border-bottom: 1px solid #1e293b !important;
+  box-shadow: none !important;
+}
+
+/* ---------- Admin Dashboard Light Theme Separation ---------- */
+/* Same theme as Sales Employee Dashboard */
+
+/* Light body background */
+html:not(.dark) body:has(.admin-light-page) {
+  background: #faf5ff !important;
+}
+
+html:not(.dark) .admin-light-page {
+  --background: #faf5ff;
+  background: #faf5ff !important;
+}
+
+html:not(.dark) .admin-light-page > div {
+  background: #faf5ff !important;
+}
+
+html:not(.dark) .admin-light-page main {
+  background: #faf5ff !important;
+}
+
+/* Light navbar background */
+html:not(.dark) .admin-light-navbar {
+  background: #f3e8ff !important;
+  border-bottom: 1px solid #e4d4ff !important;
+  box-shadow: 0 8px 28px rgba(139, 92, 246, 0.12) !important;
+  backdrop-filter: blur(18px) !important;
+}
+
+/* Dark theme protected */
+.dark .admin-light-page {
+  --background: #020617;
+  background: var(--background) !important;
+}
+
+.dark .admin-light-page > div {
+  background: var(--background) !important;
+}
+
+.dark .admin-light-page main {
+  background: transparent !important;
+}
+
+.dark .admin-light-navbar {
+  background: #020617 !important;
+  border-bottom: 1px solid #1e293b !important;
+  box-shadow: none !important;
+}
