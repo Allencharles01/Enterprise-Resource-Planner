@@ -78,7 +78,7 @@
   }
 
   html:not(.dark) body {
-  background: #ffffff;
+  background: #e3d5f5;
   color: #260b45;
 }
 
@@ -90,8 +90,12 @@
 @layer utilities {
   /* ---------- Glass ---------- */
   .glass {
-    @apply bg-white/90 backdrop-blur-xl border border-violet-100 shadow-[0_8px_24px_rgba(139,92,246,0.10)];
-  }
+  @apply backdrop-blur-xl shadow-[0_8px_24px_rgba(139,92,246,0.10)];
+
+  background: #ede7fb;
+  border: 1px solid #eadcff;
+  border-bottom: 1px solid #e6d9ff;
+}
 
   .dark .glass {
   @apply bg-black/20 border-white/10 shadow-lg;
@@ -207,7 +211,7 @@
   /* ---------- Module Cards ---------- */
   .module-card {
     border: 1px solid #eadcfb;
-    background: linear-gradient(180deg, #ffffff 0%, #fbf8ff 100%);
+    background: linear-gradient(180deg, #f4dcfa 0%, #fbf8ff 100%);
     border-radius: 22px;
     box-shadow:
       0 12px 34px rgba(139, 92, 246, 0.1),
