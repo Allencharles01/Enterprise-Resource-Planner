@@ -1325,3 +1325,531 @@ html:not(.dark) .admin-light-navbar {
   border-bottom: 1px solid #1e293b !important;
   box-shadow: none !important;
 }
+
+/* ---------- Dialpad Light Theme Fix Only ---------- */
+
+html:not(.dark) .contact-dial-number-input {
+  background: #ffffff !important;
+  color: #260b45 !important;
+  border: 1px solid #eadcff !important;
+  box-shadow: 0 6px 18px rgba(139, 92, 246, 0.06) !important;
+}
+
+html:not(.dark) .contact-dial-number-input::placeholder {
+  color: #7a6692 !important;
+}
+
+html:not(.dark) .contact-dial-number-input:focus {
+  border-color: #9b3ff6 !important;
+  box-shadow: 0 0 0 3px rgba(155, 63, 246, 0.14) !important;
+}
+
+html:not(.dark) .contact-dial-delete-btn {
+  background: #f6efff !important;
+  color: #9b3ff6 !important;
+  border: 1px solid #dec7ff !important;
+  box-shadow: 0 6px 14px rgba(139, 92, 246, 0.08) !important;
+}
+
+html:not(.dark) .contact-dial-delete-btn:hover {
+  background: #eadcff !important;
+}
+
+/* ---------- Gmail Composer Light Theme Fix Only ---------- */
+
+html:not(.dark) .gmail-composer-light-root {
+  background: #ffffff !important;
+  border: 1px solid #eadcff !important;
+  box-shadow: 0 -10px 40px rgba(139, 92, 246, 0.18) !important;
+}
+
+/* Top title bar */
+html:not(.dark) .gmail-composer-light-root > div:first-child {
+  background: #f3e8ff !important;
+  border-bottom: 1px solid #eadcff !important;
+  color: #260b45 !important;
+}
+
+html:not(.dark) .gmail-composer-light-root > div:first-child span {
+  color: #260b45 !important;
+}
+
+html:not(.dark) .gmail-composer-light-root > div:first-child span span {
+  color: #7a6692 !important;
+}
+
+html:not(.dark) .gmail-composer-light-root > div:first-child button {
+  color: #7a6692 !important;
+}
+
+html:not(.dark) .gmail-composer-light-root > div:first-child button:hover {
+  background: #eadcff !important;
+  color: #260b45 !important;
+}
+
+/* Main composer body */
+html:not(.dark) .gmail-composer-light-root form {
+  background: #ffffff !important;
+  color: #260b45 !important;
+}
+
+html:not(.dark) .gmail-composer-light-root form > div {
+  border-color: #eadcff !important;
+}
+
+/* To / Cc / Subject labels */
+html:not(.dark) .gmail-composer-light-root form span {
+  color: #7a6692 !important;
+}
+
+/* Inputs and textarea */
+html:not(.dark) .gmail-composer-light-root input,
+html:not(.dark) .gmail-composer-light-root textarea {
+  background: transparent !important;
+  color: #260b45 !important;
+}
+
+html:not(.dark) .gmail-composer-light-root input::placeholder,
+html:not(.dark) .gmail-composer-light-root textarea::placeholder {
+  color: #7a6692 !important;
+}
+
+/* Optional CC row and bottom toolbar */
+html:not(.dark) .gmail-composer-light-root form > div:last-child {
+  background: #fbf7ff !important;
+  border-top: 1px solid #eadcff !important;
+}
+
+/* Toolbar icons */
+html:not(.dark) .gmail-composer-light-root form > div:last-child button,
+html:not(.dark) .gmail-composer-light-root form > div:last-child label {
+  color: #7a6692 !important;
+}
+
+html:not(.dark) .gmail-composer-light-root form > div:last-child button:hover,
+html:not(.dark) .gmail-composer-light-root form > div:last-child label:hover {
+  background: #eadcff !important;
+  color: #260b45 !important;
+}
+
+/* Keep send button proper */
+html:not(.dark) .gmail-composer-light-root button[type="submit"] {
+  background: #9b3ff6 !important;
+  color: #ffffff !important;
+}
+
+html:not(.dark) .gmail-composer-light-root button[type="submit"]:hover {
+  background: #7c3aed !important;
+}
+
+
+/* ---------- Gmail Composer Light Theme Strong Fix ---------- */
+/* Light mode only. Dark theme is untouched. */
+
+html:not(.dark) .gmail-composer-light-root {
+  background: #ffffff !important;
+  border: 1px solid #eadcff !important;
+  box-shadow: 0 -10px 40px rgba(139, 92, 246, 0.18) !important;
+}
+
+/* Header */
+html:not(.dark) .gmail-composer-light-root > div:first-child {
+  background: #f3e8ff !important;
+  color: #260b45 !important;
+  border-bottom: 1px solid #eadcff !important;
+}
+
+html:not(.dark) .gmail-composer-light-root > div:first-child * {
+  color: #260b45 !important;
+}
+
+/* Main content wrapper */
+html:not(.dark) .gmail-composer-light-root > div:nth-child(2) {
+  background: #ffffff !important;
+}
+
+/* Form */
+html:not(.dark) .gmail-composer-light-root form {
+  background: #ffffff !important;
+  color: #260b45 !important;
+}
+
+/* To / Cc / Subject rows */
+html:not(.dark) .gmail-composer-light-root form > div {
+  background: #ffffff !important;
+  border-color: #eadcff !important;
+  color: #260b45 !important;
+}
+
+/* Labels */
+html:not(.dark) .gmail-composer-light-root form span {
+  color: #7a6692 !important;
+}
+
+/* Inputs */
+html:not(.dark) .gmail-composer-light-root input {
+  background: #ffffff !important;
+  color: #260b45 !important;
+}
+
+html:not(.dark) .gmail-composer-light-root input::placeholder {
+  color: #7a6692 !important;
+}
+
+/* Email body area - this fixes the dark black box */
+html:not(.dark) .gmail-composer-light-root form > div:has(textarea) {
+  background: #ffffff !important;
+}
+
+html:not(.dark) .gmail-composer-light-root textarea {
+  background: #ffffff !important;
+  color: #260b45 !important;
+}
+
+html:not(.dark) .gmail-composer-light-root textarea::placeholder {
+  color: #7a6692 !important;
+}
+
+/* Bottom toolbar */
+html:not(.dark) .gmail-composer-light-root form > div:last-child {
+  background: #fbf7ff !important;
+  border-top: 1px solid #eadcff !important;
+}
+
+/* Toolbar icons */
+html:not(.dark) .gmail-composer-light-root form > div:last-child button,
+html:not(.dark) .gmail-composer-light-root form > div:last-child label {
+  color: #7a6692 !important;
+}
+
+html:not(.dark) .gmail-composer-light-root form > div:last-child button:hover,
+html:not(.dark) .gmail-composer-light-root form > div:last-child label:hover {
+  background: #eadcff !important;
+  color: #260b45 !important;
+}
+
+/* Send button and send dropdown button */
+html:not(.dark) .gmail-composer-light-root form > div:last-child > div:first-child > div:first-child button {
+  background: #9b3ff6 !important;
+  color: #ffffff !important;
+}
+
+html:not(.dark) .gmail-composer-light-root form > div:last-child > div:first-child > div:first-child button:hover {
+  background: #7c3aed !important;
+  color: #ffffff !important;
+}
+
+/* Divider between Send and dropdown */
+html:not(.dark) .gmail-composer-light-root form > div:last-child > div:first-child > div:first-child > div {
+  background: #c084fc !important;
+}
+
+/* ---------- Final Contact Calling Polish ---------- */
+/* Light mode only. Dark theme untouched. */
+
+/* Brighter green Call button */
+html:not(.dark) .contact-call-ready-btn:not(:disabled) {
+  background: linear-gradient(135deg, #18e98f, #00c875) !important;
+  color: #ffffff !important;
+  box-shadow:
+    0 12px 28px rgba(0, 200, 117, 0.42),
+    0 0 22px rgba(24, 233, 143, 0.35) !important;
+}
+
+html:not(.dark) .contact-call-ready-btn:not(:disabled):hover {
+  background: linear-gradient(135deg, #00d97f, #00b86b) !important;
+  box-shadow:
+    0 14px 32px rgba(0, 200, 117, 0.5),
+    0 0 28px rgba(24, 233, 143, 0.45) !important;
+}
+
+/* Make composer more clearly different from table */
+html:not(.dark) .gmail-composer-light-root {
+  background: #ffffff !important;
+  border: 1px solid #cfa7ff !important;
+  box-shadow:
+    0 -14px 48px rgba(88, 28, 135, 0.26),
+    0 0 0 1px rgba(168, 85, 247, 0.12) !important;
+}
+
+/* Darker lavender header for New Message */
+html:not(.dark) .gmail-composer-light-root > div:first-child {
+  background: #e8d7ff !important;
+  color: #260b45 !important;
+  border-bottom: 1px solid #cfa7ff !important;
+}
+
+html:not(.dark) .gmail-composer-light-root > div:first-child * {
+  color: #260b45 !important;
+}
+
+/* Slight tint for To and Subject rows */
+html:not(.dark) .gmail-composer-light-root form > div:nth-child(1),
+html:not(.dark) .gmail-composer-light-root form > div:nth-child(2),
+html:not(.dark) .gmail-composer-light-root form > div:nth-child(3) {
+  background: #fffaff !important;
+  border-color: #e2cfff !important;
+}
+
+/* Keep writing area clean */
+html:not(.dark) .gmail-composer-light-root form > div:has(textarea) {
+  background: #ffffff !important;
+  border-color: #e2cfff !important;
+}
+
+html:not(.dark) .gmail-composer-light-root textarea {
+  background: #ffffff !important;
+  color: #260b45 !important;
+}
+
+/* Bottom bar slightly darker lavender */
+html:not(.dark) .gmail-composer-light-root form > div:last-child {
+  background: #f3e8ff !important;
+  border-top: 1px solid #cfa7ff !important;
+}
+
+/* Send button stronger purple */
+html:not(.dark) .gmail-composer-light-root button[type="submit"],
+html:not(.dark) .gmail-composer-light-root form > div:last-child > div:first-child > div:first-child button {
+  background: #9b3ff6 !important;
+  color: #ffffff !important;
+}
+
+html:not(.dark) .gmail-composer-light-root button[type="submit"]:hover,
+html:not(.dark) .gmail-composer-light-root form > div:last-child > div:first-child > div:first-child button:hover {
+  background: #7c3aed !important;
+  color: #ffffff !important;
+}
+
+/* ---------- Contact List Window Light Theme ---------- */
+/* Light mode only. Dark theme untouched unless .dark rules below apply. */
+
+html:not(.dark) .contact-list-window {
+  background: #ffffff !important;
+  border: 1px solid #d8b4fe !important;
+  color: #260b45 !important;
+  box-shadow:
+    0 24px 70px rgba(88, 28, 135, 0.22),
+    0 0 0 1px rgba(168, 85, 247, 0.1) !important;
+}
+
+html:not(.dark) .contact-list-header {
+  background: #e8d7ff !important;
+  border-bottom: 1px solid #cfa7ff !important;
+  color: #260b45 !important;
+}
+
+html:not(.dark) .contact-list-header p {
+  color: #7a6692 !important;
+}
+
+html:not(.dark) .contact-list-icon-btn {
+  display: inline-flex;
+  height: 28px;
+  width: 28px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  color: #260b45 !important;
+  background: transparent !important;
+  transition: all 0.2s ease;
+}
+
+html:not(.dark) .contact-list-icon-btn:hover {
+  background: #d8b4fe !important;
+}
+
+html:not(.dark) .contact-list-filter-bar {
+  background: #fffaff !important;
+  border-bottom: 1px solid #eadcff !important;
+}
+
+html:not(.dark) .contact-list-filter {
+  background: #ffffff !important;
+  color: #7a6692 !important;
+  border: 1px solid #eadcff !important;
+}
+
+html:not(.dark) .contact-list-filter:hover {
+  background: #f3e8ff !important;
+  color: #7c3aed !important;
+}
+
+html:not(.dark) .contact-list-filter-active {
+  background: linear-gradient(135deg, #9b3ff6, #7c3aed) !important;
+  color: #ffffff !important;
+  border: 1px solid #9b3ff6 !important;
+  box-shadow: 0 10px 22px rgba(155, 63, 246, 0.25) !important;
+}
+
+html:not(.dark) .contact-list-table-wrap {
+  background: #ffffff !important;
+  border: 1px solid #eadcff !important;
+}
+
+html:not(.dark) .contact-list-table-head {
+  background: #fbf7ff !important;
+  color: #7a6692 !important;
+  border-bottom: 1px solid #eadcff !important;
+}
+
+html:not(.dark) .contact-list-table-row {
+  border-bottom: 1px solid #f0e3ff !important;
+  color: #260b45 !important;
+}
+
+html:not(.dark) .contact-list-table-row:hover {
+  background: #fbf7ff !important;
+}
+
+/* Dark theme protected */
+.dark .contact-list-window {
+  background: #111827 !important;
+  border: 1px solid #334155 !important;
+  color: #f8fafc !important;
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.6) !important;
+}
+
+.dark .contact-list-header {
+  background: #111827 !important;
+  border-bottom: 1px solid #334155 !important;
+}
+
+.dark .contact-list-header p {
+  color: #94a3b8 !important;
+}
+
+.dark .contact-list-icon-btn {
+  display: inline-flex;
+  height: 28px;
+  width: 28px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  color: #e2e8f0 !important;
+  background: transparent !important;
+  transition: all 0.2s ease;
+}
+
+.dark .contact-list-icon-btn:hover {
+  background: #1e293b !important;
+}
+
+.dark .contact-list-filter-bar {
+  background: #0f172a !important;
+  border-bottom: 1px solid #334155 !important;
+}
+
+.dark .contact-list-filter {
+  background: #111827 !important;
+  color: #94a3b8 !important;
+  border: 1px solid #334155 !important;
+}
+
+.dark .contact-list-filter:hover {
+  background: #1e293b !important;
+  color: #ffffff !important;
+}
+
+.dark .contact-list-filter-active {
+  background: #6366f1 !important;
+  color: #ffffff !important;
+  border: 1px solid #6366f1 !important;
+}
+
+.dark .contact-list-table-wrap {
+  background: #0f172a !important;
+  border: 1px solid #334155 !important;
+}
+
+.dark .contact-list-table-head {
+  background: #111827 !important;
+  color: #94a3b8 !important;
+  border-bottom: 1px solid #334155 !important;
+}
+
+.dark .contact-list-table-row {
+  border-bottom: 1px solid #1e293b !important;
+  color: #f8fafc !important;
+}
+
+.dark .contact-list-table-row:hover {
+  background: #1e293b !important;
+}
+
+/* ---------- Contact List Month Accordion Theme Fix ---------- */
+/* Fixes month accordion light theme without touching existing table styling */
+
+/* Light theme */
+.contact-list-month-card {
+  background: #ffffff !important;
+  border: 1px solid #eadcff !important;
+  color: #260b45 !important;
+}
+
+.contact-list-month-accordion {
+  color: #260b45 !important;
+}
+
+.contact-list-month-expanded {
+  background: #f3e8ff !important;
+}
+
+.contact-list-month-collapsed {
+  background: #ffffff !important;
+}
+
+.contact-list-month-collapsed:hover {
+  background: #fbf7ff !important;
+}
+
+.contact-list-month-accordion h3 {
+  color: #260b45 !important;
+}
+
+.contact-list-month-accordion p {
+  color: #7a6692 !important;
+}
+
+.contact-list-month-accordion span {
+  color: #9b3ff6 !important;
+}
+
+.contact-list-month-table-wrap {
+  background: #ffffff !important;
+}
+
+/* Dark theme protected */
+.dark .contact-list-month-card {
+  background: #111827 !important;
+  border: 1px solid #334155 !important;
+  color: #f8fafc !important;
+}
+
+.dark .contact-list-month-expanded {
+  background: rgba(99, 102, 241, 0.14) !important;
+}
+
+.dark .contact-list-month-collapsed {
+  background: #111827 !important;
+}
+
+.dark .contact-list-month-collapsed:hover {
+  background: #1e293b !important;
+}
+
+.dark .contact-list-month-accordion h3 {
+  color: #ffffff !important;
+}
+
+.dark .contact-list-month-accordion p {
+  color: #94a3b8 !important;
+}
+
+.dark .contact-list-month-accordion span {
+  color: #c4b5fd !important;
+}
+
+.dark .contact-list-month-table-wrap {
+  background: #0f172a !important;
+}

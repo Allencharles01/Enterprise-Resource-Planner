@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   X,
   Minus,
@@ -36,11 +36,12 @@ export function GmailComposerModal({
   const [sentSuccess, setSentSuccess] = useState(false);
   const [isMinimized, setIsMinimized] = useState(false);
 
-  // Update initial fields when modal opens or initialTo changes
-  useState(() => {
-    setTo(initialTo);
-    setSubject(initialSubject);
-  });
+  useEffect(() => {
+    if (isOpen) {
+      setTo(initialTo);
+      setSubject(initialSubject);
+    }
+  }, [isOpen, initialTo, initialSubject]);
 
   const handleFileChange = async (e) => {
     const files = Array.from(e.target.files || []);
@@ -83,6 +84,7 @@ export function GmailComposerModal({
         type: "email",
         relatedInquiryId,
       });
+
       setSentSuccess(true);
       setTimeout(() => {
         setSentSuccess(false);
@@ -114,39 +116,42 @@ export function GmailComposerModal({
           }}
           exit={{ opacity: 0, y: 50, scale: 0.95 }}
           transition={{ type: "spring", damping: 25, stiffness: 300 }}
-          className="w-[560px] max-w-[95vw] bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-t-2xl shadow-[0_-10px_40px_rgba(0,0,0,0.25)] overflow-hidden pointer-events-auto flex flex-col"
+          className="gmail-composer-light-root w-[560px] max-w-[95vw] bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-t-2xl shadow-[0_-10px_40px_rgba(0,0,0,0.25)] overflow-hidden pointer-events-auto flex flex-col"
         >
           {/* Gmail Title Bar */}
-          <div className="flex items-center justify-between px-4 py-3 bg-slate-100 dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700/80 cursor-pointer text-slate-800 dark:text-slate-100 select-none">
-            <span className="text-sm font-bold tracking-wide flex items-center gap-2">
+          <div className="flex items-center justify-between border-b border-violet-200 bg-[#f3e8ff] px-4 py-3 text-[#260b45] cursor-pointer select-none dark:border-slate-700/80 dark:bg-slate-800 dark:text-slate-100">
+            <span className="flex items-center gap-2 text-sm font-bold tracking-wide">
               New Message
               {initialTo && (
-                <span className="text-xs font-normal text-slate-500 truncate max-w-[220px]">
+                <span className="max-w-[220px] truncate text-xs font-normal text-[#7a6692] dark:text-slate-500">
                   ({initialTo})
                 </span>
               )}
             </span>
-            <div className="flex items-center gap-1.5 text-slate-600 dark:text-slate-300">
+
+            <div className="flex items-center gap-1.5 text-[#7a6692] dark:text-slate-300">
               <button
                 type="button"
                 onClick={() => setIsMinimized(!isMinimized)}
-                className="p-1 hover:bg-slate-200 dark:hover:bg-slate-700 rounded transition-colors"
+                className="rounded p-1 transition-colors hover:bg-violet-100 dark:hover:bg-slate-700"
                 title="Minimize"
               >
                 <Minus size={16} />
               </button>
+
               <button
                 type="button"
                 onClick={() => setIsMinimized(false)}
-                className="p-1 hover:bg-slate-200 dark:hover:bg-slate-700 rounded transition-colors"
+                className="rounded p-1 transition-colors hover:bg-violet-100 dark:hover:bg-slate-700"
                 title="Pop-out"
               >
                 <Maximize2 size={14} />
               </button>
+
               <button
                 type="button"
                 onClick={onClose}
-                className="p-1 hover:bg-red-500 hover:text-white rounded transition-colors"
+                className="rounded p-1 transition-colors hover:bg-red-500 hover:text-white"
                 title="Close & Discard"
               >
                 <X size={16} />
@@ -155,43 +160,49 @@ export function GmailComposerModal({
           </div>
 
           {!isMinimized && (
-            <div className="flex flex-col flex-1 max-h-[75vh] overflow-y-auto">
+            <div className="flex max-h-[75vh] flex-1 flex-col overflow-y-auto bg-white dark:bg-slate-900">
               {sentSuccess ? (
                 <motion.div
                   initial={{ opacity: 0, scale: 0.9 }}
                   animate={{ opacity: 1, scale: 1 }}
-                  className="py-16 px-6 text-center space-y-4 my-auto"
+                  className="my-auto space-y-4 px-6 py-16 text-center"
                 >
-                  <div className="w-16 h-16 bg-blue-500/10 text-blue-500 dark:text-blue-400 rounded-full flex items-center justify-center mx-auto ring-8 ring-blue-500/5">
+                  <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-violet-100 text-primary ring-8 ring-violet-100/60 dark:bg-blue-500/10 dark:text-blue-400 dark:ring-blue-500/5">
                     <CheckCircle2 size={36} />
                   </div>
-                  <h4 className="text-xl font-bold text-slate-900 dark:text-white">
+
+                  <h4 className="text-xl font-bold text-[#260b45] dark:text-white">
                     Message Sent!
                   </h4>
-                  <p className="text-sm text-slate-500 dark:text-slate-400">
+
+                  <p className="text-sm text-[#7a6692] dark:text-slate-400">
                     Your email has been dispatched to {to}.
                   </p>
                 </motion.div>
               ) : (
-                <form onSubmit={handleSend} className="flex flex-col flex-1">
+                <form onSubmit={handleSend} className="flex flex-1 flex-col">
                   {/* To Field */}
-                  <div className="flex items-center justify-between px-4 py-2.5 border-b border-slate-200 dark:border-slate-800 text-sm">
-                    <div className="flex items-center gap-2 flex-1">
-                      <span className="text-slate-500 font-medium w-12">To</span>
+                  <div className="flex items-center justify-between border-b border-violet-100 px-4 py-2.5 text-sm dark:border-slate-800">
+                    <div className="flex flex-1 items-center gap-2">
+                      <span className="w-12 font-semibold text-[#7a6692] dark:text-slate-500">
+                        To
+                      </span>
+
                       <input
                         type="email"
                         required
                         value={to}
                         onChange={(e) => setTo(e.target.value)}
                         placeholder="Recipient email address..."
-                        className="flex-1 bg-transparent border-none outline-none text-slate-800 dark:text-slate-100 placeholder:text-slate-400 font-medium"
+                        className="flex-1 border-none bg-transparent font-semibold text-[#260b45] outline-none placeholder:text-[#9b82b5] dark:text-slate-100 dark:placeholder:text-slate-400"
                       />
                     </div>
-                    <div className="flex items-center gap-3 text-xs text-slate-500 font-semibold">
+
+                    <div className="flex items-center gap-3 text-xs font-semibold text-[#7a6692] dark:text-slate-500">
                       <button
                         type="button"
                         onClick={() => setShowCc(!showCc)}
-                        className="hover:underline hover:text-blue-500"
+                        className="hover:text-primary hover:underline dark:hover:text-blue-500"
                       >
                         Cc Bcc
                       </button>
@@ -200,60 +211,69 @@ export function GmailComposerModal({
 
                   {/* Optional CC Field */}
                   {showCc && (
-                    <div className="flex items-center px-4 py-2 border-b border-slate-200 dark:border-slate-800 text-sm bg-slate-50/50 dark:bg-slate-800/30">
-                      <span className="text-slate-500 font-medium w-12">Cc</span>
+                    <div className="flex items-center border-b border-violet-100 bg-[#fbf7ff] px-4 py-2 text-sm dark:border-slate-800 dark:bg-slate-800/30">
+                      <span className="w-12 font-semibold text-[#7a6692] dark:text-slate-500">
+                        Cc
+                      </span>
+
                       <input
                         type="text"
                         value={cc}
                         onChange={(e) => setCc(e.target.value)}
                         placeholder="Additional recipients..."
-                        className="flex-1 bg-transparent border-none outline-none text-slate-800 dark:text-slate-100 placeholder:text-slate-400"
+                        className="flex-1 border-none bg-transparent text-[#260b45] outline-none placeholder:text-[#9b82b5] dark:text-slate-100 dark:placeholder:text-slate-400"
                       />
                     </div>
                   )}
 
                   {/* Subject Field */}
-                  <div className="flex items-center px-4 py-2.5 border-b border-slate-200 dark:border-slate-800 text-sm">
+                  <div className="flex items-center border-b border-violet-100 px-4 py-2.5 text-sm dark:border-slate-800">
                     <input
                       type="text"
                       required
                       value={subject}
                       onChange={(e) => setSubject(e.target.value)}
                       placeholder="Subject"
-                      className="w-full bg-transparent border-none outline-none text-slate-800 dark:text-slate-100 placeholder:text-slate-400 font-semibold"
+                      className="w-full border-none bg-transparent font-semibold text-[#260b45] outline-none placeholder:text-[#7a6692] dark:text-slate-100 dark:placeholder:text-slate-400"
                     />
                   </div>
 
                   {/* Body Textarea */}
-                  <div className="p-4 flex-1 min-h-[220px]">
+                  <div className="min-h-[220px] flex-1 bg-white p-4 dark:bg-slate-900">
                     <textarea
                       required
                       value={body}
                       onChange={(e) => setBody(e.target.value)}
                       placeholder="Write your email here..."
-                      className="w-full h-full min-h-[180px] bg-transparent border-none outline-none resize-none text-sm text-slate-800 dark:text-slate-100 placeholder:text-slate-400 leading-relaxed font-sans"
+                      className="h-full min-h-[180px] w-full resize-none border-none bg-transparent font-sans text-sm leading-relaxed text-[#260b45] outline-none placeholder:text-[#7a6692] dark:text-slate-100 dark:placeholder:text-slate-400"
                     />
                   </div>
 
                   {/* Attached Files List */}
                   {attachments.length > 0 && (
-                    <div className="px-4 py-2 border-t border-slate-100 dark:border-slate-800/80 bg-slate-50/80 dark:bg-slate-800/40 flex flex-wrap gap-2">
+                    <div className="flex flex-wrap gap-2 border-t border-violet-100 bg-[#fbf7ff] px-4 py-2 dark:border-slate-800/80 dark:bg-slate-800/40">
                       {attachments.map((att, idx) => (
                         <div
                           key={idx}
-                          className="flex items-center gap-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-3 py-1.5 rounded-lg shadow-sm text-xs text-slate-700 dark:text-slate-200"
+                          className="flex items-center gap-2 rounded-lg border border-violet-200 bg-white px-3 py-1.5 text-xs text-[#260b45] shadow-sm dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200"
                         >
-                          <FileText size={14} className="text-blue-500 shrink-0" />
-                          <span className="font-semibold truncate max-w-[160px]">
+                          <FileText
+                            size={14}
+                            className="shrink-0 text-primary dark:text-blue-500"
+                          />
+
+                          <span className="max-w-[160px] truncate font-semibold">
                             {att.name}
                           </span>
-                          <span className="text-slate-400 text-[10px]">
+
+                          <span className="text-[10px] text-[#7a6692] dark:text-slate-400">
                             ({att.size})
                           </span>
+
                           <button
                             type="button"
                             onClick={() => removeAttachment(idx)}
-                            className="text-slate-400 hover:text-red-500 ml-1 transition-colors"
+                            className="ml-1 text-[#7a6692] transition-colors hover:text-red-500 dark:text-slate-400"
                           >
                             <X size={14} />
                           </button>
@@ -263,14 +283,14 @@ export function GmailComposerModal({
                   )}
 
                   {/* Gmail Bottom Toolbar Bar */}
-                  <div className="flex items-center justify-between px-4 py-3 bg-slate-50 dark:bg-slate-800/60 border-t border-slate-200 dark:border-slate-800">
+                  <div className="flex items-center justify-between border-t border-violet-100 bg-[#fbf7ff] px-4 py-3 dark:border-slate-800 dark:bg-slate-800/60">
                     {/* Left: Send Button with Split Arrow + Icons */}
                     <div className="flex items-center gap-3">
-                      <div className="inline-flex rounded-full shadow-md shadow-blue-500/20 overflow-hidden">
+                      <div className="inline-flex overflow-hidden rounded-full shadow-md shadow-violet-500/20 dark:shadow-blue-500/20">
                         <button
                           type="submit"
                           disabled={isSending}
-                          className="bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white font-bold px-5 py-2 text-sm transition-colors flex items-center gap-2 disabled:opacity-60 cursor-pointer"
+                          className="flex cursor-pointer items-center gap-2 bg-primary px-5 py-2 text-sm font-bold text-white transition-colors hover:bg-violet-700 active:bg-violet-800 disabled:opacity-60 dark:bg-blue-600 dark:hover:bg-blue-700 dark:active:bg-blue-800"
                         >
                           {isSending ? (
                             <>
@@ -281,27 +301,30 @@ export function GmailComposerModal({
                             "Send"
                           )}
                         </button>
-                        <div className="w-px bg-blue-500"></div>
+
+                        <div className="w-px bg-violet-400 dark:bg-blue-500"></div>
+
                         <button
                           type="button"
-                          className="bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white px-2 py-2 flex items-center justify-center transition-colors cursor-pointer"
+                          className="flex cursor-pointer items-center justify-center bg-primary px-2 py-2 text-white transition-colors hover:bg-violet-700 active:bg-violet-800 dark:bg-blue-600 dark:hover:bg-blue-700 dark:active:bg-blue-800"
                           title="More send options"
                         >
-                          <span className="text-xs font-bold leading-none">▼</span>
+                          <span className="text-xs font-bold leading-none">
+                            ▼
+                          </span>
                         </button>
                       </div>
 
                       {/* Gmail Toolbar Icons */}
-                      <div className="flex items-center gap-1 text-slate-600 dark:text-slate-300 ml-2">
+                      <div className="ml-2 flex items-center gap-1 text-[#7a6692] dark:text-slate-300">
                         <button
                           type="button"
-                          className="p-1.5 hover:bg-slate-200 dark:hover:bg-slate-700 rounded transition-colors"
+                          className="rounded p-1.5 transition-colors hover:bg-violet-100 dark:hover:bg-slate-700"
                           title="Formatting options"
                         >
                           <Type size={18} />
                         </button>
 
-                        {/* Attach file input (Paperclip) */}
                         <div className="relative">
                           <input
                             type="file"
@@ -310,9 +333,10 @@ export function GmailComposerModal({
                             onChange={handleFileChange}
                             className="hidden"
                           />
+
                           <label
                             htmlFor="gmail-attachment-upload"
-                            className="p-1.5 hover:bg-slate-200 dark:hover:bg-slate-700 rounded transition-colors cursor-pointer inline-flex items-center text-slate-600 dark:text-slate-300"
+                            className="inline-flex cursor-pointer items-center rounded p-1.5 text-[#7a6692] transition-colors hover:bg-violet-100 dark:text-slate-300 dark:hover:bg-slate-700"
                             title="Attach files"
                           >
                             <Paperclip size={18} />
@@ -321,28 +345,31 @@ export function GmailComposerModal({
 
                         <button
                           type="button"
-                          className="p-1.5 hover:bg-slate-200 dark:hover:bg-slate-700 rounded transition-colors"
+                          className="rounded p-1.5 transition-colors hover:bg-violet-100 dark:hover:bg-slate-700"
                           title="Insert link"
                         >
                           <Link2 size={18} />
                         </button>
+
                         <button
                           type="button"
-                          className="p-1.5 hover:bg-slate-200 dark:hover:bg-slate-700 rounded transition-colors"
+                          className="rounded p-1.5 transition-colors hover:bg-violet-100 dark:hover:bg-slate-700"
                           title="Insert emoji"
                         >
                           <Smile size={18} />
                         </button>
+
                         <button
                           type="button"
-                          className="p-1.5 hover:bg-slate-200 dark:hover:bg-slate-700 rounded transition-colors"
+                          className="rounded p-1.5 transition-colors hover:bg-violet-100 dark:hover:bg-slate-700"
                           title="Insert photo"
                         >
                           <ImageIcon size={18} />
                         </button>
+
                         <button
                           type="button"
-                          className="p-1.5 hover:bg-slate-200 dark:hover:bg-slate-700 rounded transition-colors"
+                          className="rounded p-1.5 transition-colors hover:bg-violet-100 dark:hover:bg-slate-700"
                           title="Toggle confidential mode"
                         >
                           <Lock size={18} />
@@ -351,18 +378,19 @@ export function GmailComposerModal({
                     </div>
 
                     {/* Right: Discard / Delete Draft */}
-                    <div className="flex items-center gap-2 text-slate-500">
+                    <div className="flex items-center gap-2 text-[#7a6692] dark:text-slate-500">
                       <button
                         type="button"
-                        className="p-1.5 hover:bg-slate-200 dark:hover:bg-slate-700 rounded transition-colors"
+                        className="rounded p-1.5 transition-colors hover:bg-violet-100 dark:hover:bg-slate-700"
                         title="More options"
                       >
                         <MoreVertical size={18} />
                       </button>
+
                       <button
                         type="button"
                         onClick={onClose}
-                        className="p-1.5 hover:bg-red-500/10 hover:text-red-500 rounded transition-colors"
+                        className="rounded p-1.5 transition-colors hover:bg-red-500/10 hover:text-red-500"
                         title="Discard draft"
                       >
                         <Trash2 size={18} />
