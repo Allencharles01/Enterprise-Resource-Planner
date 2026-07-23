@@ -19,7 +19,7 @@ import {
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { useTheme } from "./context/ThemeContext";
+import { useTheme } from "next-themes";
 import { motion, AnimatePresence } from "framer-motion";
 import { MessagesModal } from "@/components/MessagesModal";
 import EmployeeRemindersModal from "@/components/employee/sales/EmployeeRemindersModal";
@@ -28,7 +28,10 @@ import { api } from "@/lib/api";
 
 export default function Navbar() {
   const router = useRouter();
-  const { theme, toggleTheme } = useTheme();
+  const { theme, setTheme } = useTheme();
+
+const toggleTheme = () =>
+  setTheme(theme === "dark" ? "light" : "dark");
 
   const [isMessagesOpen, setIsMessagesOpen] = useState(false);
   const [isRemindersOpen, setIsRemindersOpen] = useState(false);
