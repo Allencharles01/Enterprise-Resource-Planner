@@ -76,7 +76,7 @@ export default function ProjectDetailsPage() {
     const fetchProjectData = async () => {
       try {
         const apiUrl =
-          process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:4000";
+          process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:4001";
         const [projectRes, tasksRes] = await Promise.all([
           axios.get(`${apiUrl}/api/projects/${projectId}`),
           axios.get(`${apiUrl}/api/projects/${projectId}/tasks`),

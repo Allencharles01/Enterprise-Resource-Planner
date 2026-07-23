@@ -288,7 +288,7 @@ export default function LoginPage() {
     setError("");
     try {
       const apiUrl =
-        process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:4000";
+        process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:4001";
       const payload =
         loginType === "admin"
           ? { adminId, password, isAdmin: true }
@@ -356,7 +356,7 @@ export default function LoginPage() {
     setCustomerSubmitting(true);
     try {
       const apiUrl =
-        process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:4000";
+        process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:4001";
       let fileData = "";
       let fileName = "";
       if (customerForm.file) {

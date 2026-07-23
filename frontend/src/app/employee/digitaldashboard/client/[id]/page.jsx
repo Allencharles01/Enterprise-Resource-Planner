@@ -15,7 +15,7 @@ export default function ClientDashboardRoute() {
     const fetchProject = async () => {
       try {
         const token = localStorage.getItem("token");
-        const apiUrl = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:4000";
+        const apiUrl = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:4001";
         const res = await fetch(`${apiUrl}/api/projects/${id}`, {
           headers: token ? { Authorization: `Bearer ${token}` } : {},
         });

@@ -6,5 +6,5 @@ import { fileURLToPath } from "url";
 export function loadApiEnv() {
   const here = dirname(fileURLToPath(import.meta.url));
   const apiRoot = resolve(here, "../../");
-  dotenv.config({ path: resolve(apiRoot, ".env") });
+  dotenv.config({ path: resolve(apiRoot, ".env"), override: true });
 }

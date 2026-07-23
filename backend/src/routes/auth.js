@@ -74,14 +74,20 @@ authRouter.post("/login", async (req, res) => {
   let org;
 
   if (isAdmin && adminId) {
-    // Admin login via adminId (using 'novanectar' org slug and matching email field to adminId)
+    // Admin login via adminId (using 'novanectar' org slug and matching email/name/employeeCode)
     org = await OrganizationModel.findOne({ slug: "novanectar" });
     if (!org) return res.status(401).json({ error: "invalid_credentials" });
+
+    const loginIdentifier = adminId.toLowerCase().trim();
+    const escapedIdentifier = loginIdentifier.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
     // Check if an employee is attempting to log into the Admin tab
     const empAttempt = await UserModel.findOne({
       orgId: org._id,
-      email: adminId.toLowerCase(),
+      $or: [
+        { email: loginIdentifier },
+        { name: { $regex: new RegExp(`^${escapedIdentifier}$`, "i") } }
+      ],
       role: "employee",
       isActive: true,
     });
@@ -94,10 +100,30 @@ authRouter.post("/login", async (req, res) => {
 
     user = await UserModel.findOne({
       orgId: org._id,
-      email: adminId.toLowerCase(),
+      $or: [
+        { email: loginIdentifier },
+        { name: { $regex: new RegExp(`^${escapedIdentifier}$`, "i") } }
+      ],
       role: { $in: ["org_admin", "super_admin", "admin"] },
       isActive: true,
     });
+
+    if (!user) {
+      const empRecord = await EmployeeModel.findOne({
+        orgId: org._id,
+        $or: [
+          { employeeCode: { $regex: new RegExp(`^${escapedIdentifier}$`, "i") } },
+          { employeeNumber: loginIdentifier }
+        ]
+      });
+      if (empRecord?.userId) {
+        user = await UserModel.findOne({
+          _id: empRecord.userId,
+          role: { $in: ["org_admin", "super_admin", "admin"] },
+          isActive: true
+        });
+      }
+    }
   } else if (username || email || orgSlug) {
     // Employee login via username or email
     const targetSlug = orgSlug || "novanectar";

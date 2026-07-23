@@ -79,7 +79,7 @@ export default function DigitalDashboardPage({ clientProject = null }) {
       }
 
       try {
-        const apiUrl = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:4000";
+        const apiUrl = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:4001";
         // Verify token/me
         if (token) {
           const res = await fetch(`${apiUrl}/api/auth/me`, {

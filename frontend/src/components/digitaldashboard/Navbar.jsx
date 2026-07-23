@@ -92,7 +92,7 @@ export default function Navbar() {
       const token = localStorage.getItem("token");
       if (!token) return;
       try {
-        const apiUrl = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:4000";
+        const apiUrl = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:4001";
         const res = await fetch(`${apiUrl}/api/auth/me`, {
           headers: { Authorization: `Bearer ${token}` },
         });
@@ -129,7 +129,7 @@ export default function Navbar() {
 
     const fetchChatCount = async () => {
       try {
-        const apiUrl = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:4000";
+        const apiUrl = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:4001";
         const empCode = localStorage.getItem("userEmployeeCode") || "EMP002";
         const res = await fetch(`${apiUrl}/api/internalChat/unread?code=${empCode}`);
         if (res.ok) {

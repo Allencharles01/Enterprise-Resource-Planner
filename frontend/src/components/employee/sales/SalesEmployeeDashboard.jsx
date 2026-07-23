@@ -373,7 +373,7 @@ export default function SalesEmployeeDashboard() {
         return;
       }
       try {
-        const apiUrl = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:4000";
+        const apiUrl = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:4001";
         const res = await fetch(`${apiUrl}/api/auth/me`, {
           headers: { Authorization: `Bearer ${token}` },
         });
