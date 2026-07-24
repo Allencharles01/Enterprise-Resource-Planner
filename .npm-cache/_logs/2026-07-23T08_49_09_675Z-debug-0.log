@@ -1,0 +1,33 @@
+0 verbose cli C:\Program Files\nodejs\node.exe C:\Users\lenovo\AppData\Roaming\npm\node_modules\npm\bin\npm-cli.js
+1 info using npm@12.0.1
+2 info using node@v24.17.0
+3 silly config load:file:C:\Users\lenovo\AppData\Roaming\npm\node_modules\npm\npmrc
+4 silly config load:file:C:\Users\lenovo\OneDrive\Desktop\Enterprise-Resource-Planner\.npmrc
+5 silly config load:file:C:\Users\lenovo\.npmrc
+6 silly config load:file:C:\Users\lenovo\AppData\Roaming\npm\etc\npmrc
+7 verbose title npm install
+8 verbose argv "install"
+9 verbose logfile logs-max:10 dir:C:\Users\lenovo\OneDrive\Desktop\Enterprise-Resource-Planner\.npm-cache\_logs\2026-07-23T08_49_09_675Z-
+10 verbose logfile C:\Users\lenovo\OneDrive\Desktop\Enterprise-Resource-Planner\.npm-cache\_logs\2026-07-23T08_49_09_675Z-debug-0.log
+11 silly logfile done cleaning log files
+12 silly install-scripts no package.json at prefix Invalid package.json: JSONParseError: Expected property name or '}' in JSON at position 3 (line 2 column 1) while parsing near "{\r\n<<<<<<< HEAD\r\n  \"nam..."
+13 verbose stack JSONParseError: Invalid package.json: JSONParseError: Expected property name or '}' in JSON at position 3 (line 2 column 1) while parsing near "{\r\n<<<<<<< HEAD\r\n  \"nam..."
+13 verbose stack     at parse (C:\Users\lenovo\AppData\Roaming\npm\node_modules\npm\node_modules\@npmcli\package-json\lib\read-package.js:19:21)
+13 verbose stack     at PackageJson.fromJSON (C:\Users\lenovo\AppData\Roaming\npm\node_modules\npm\node_modules\@npmcli\package-json\lib\index.js:163:22)
+13 verbose stack     at PackageJson.load (C:\Users\lenovo\AppData\Roaming\npm\node_modules\npm\node_modules\@npmcli\package-json\lib\index.js:158:17)
+13 verbose stack     at async PackageJson.normalize (C:\Users\lenovo\AppData\Roaming\npm\node_modules\npm\node_modules\@npmcli\package-json\lib\index.js:118:5)
+13 verbose stack     at async runScript (C:\Users\lenovo\AppData\Roaming\npm\node_modules\npm\node_modules\@npmcli\run-script\lib\run-script.js:10:28)
+13 verbose stack     at async Install.exec (C:\Users\lenovo\AppData\Roaming\npm\node_modules\npm\lib\commands\install.js:171:7)
+13 verbose stack     at async Npm.exec (C:\Users\lenovo\AppData\Roaming\npm\node_modules\npm\lib\npm.js:194:9)
+13 verbose stack     at async module.exports (C:\Users\lenovo\AppData\Roaming\npm\node_modules\npm\lib\cli\entry.js:67:5)
+14 error code EJSONPARSE
+15 error JSON.parse Invalid package.json: JSONParseError: Expected property name or '}' in JSON at position 3 (line 2 column 1) while parsing near "{\r\n<<<<<<< HEAD\r\n  \"nam..."
+16 error JSON.parse Failed to parse JSON data.
+16 error JSON.parse Note: package.json must be actual JSON, not just JavaScript.
+17 verbose cwd C:\Users\lenovo\OneDrive\Desktop\Enterprise-Resource-Planner
+18 verbose os Windows_NT 10.0.26200
+19 verbose node v24.17.0
+20 verbose npm  v12.0.1
+21 verbose exit 1
+22 verbose code 1
+23 error A complete log of this run can be found in: C:\Users\lenovo\OneDrive\Desktop\Enterprise-Resource-Planner\.npm-cache\_logs\2026-07-23T08_49_09_675Z-debug-0.log
