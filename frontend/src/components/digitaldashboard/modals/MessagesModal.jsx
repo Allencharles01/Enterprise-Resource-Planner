@@ -13,9 +13,9 @@ import {
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { api } from "@/lib/api";
-import { GmailComposerModal } from "./GmailComposerModal";
-import { StartChatModal } from "./StartChatModal";
-import { ChatWindowModal } from "./ChatWindowModal";
+import { GmailComposerModal } from "../../GmailComposerModal";
+import { StartChatModal } from "../../StartChatModal";
+import { ChatWindowModal } from "../../ChatWindowModal";
 
 export function MessagesModal({ isOpen, onClose }) {
   const [activeTab, setActiveTab] = useState("email"); // "email" | "message"
