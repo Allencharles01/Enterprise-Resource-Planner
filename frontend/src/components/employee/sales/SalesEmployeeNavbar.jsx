@@ -16,6 +16,15 @@ import {
   Settings,
   User,
   MessageSquare,
+  Check,
+  CheckCheck,
+  Trash2,
+  ExternalLink,
+  Loader2,
+  AlertCircle,
+  Briefcase,
+  UserPlus,
+  ShieldAlert,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
@@ -202,12 +211,6 @@ export default function SalesEmployeeNavbar() {
         setIsCalendarOpen(false);
       }
 
-      if (
-        notificationRef.current &&
-        !notificationRef.current.contains(event.target)
-      ) {
-        setIsNotificationsOpen(false);
-      }
     };
 
     document.addEventListener("mousedown", handleClickOutside);
@@ -242,7 +245,7 @@ export default function SalesEmployeeNavbar() {
     (message) => message.isRead !== true
   ).length;
 
-  const unreadNotificationCount = unreadReminderCount + apiUnreadCount;
+  const unreadNotificationCount = unreadReminderCount + unreadMessageCount + apiUnreadCount;
 
   const handleNotificationClick = () => {
     loadReminders();
@@ -346,8 +349,9 @@ export default function SalesEmployeeNavbar() {
             {/* Left side */}
             <div className="flex items-center gap-4">
               <Link
-                href="/employee/sales"
-                className="flex items-center justify-center w-10 h-10 bg-primary rounded-lg text-white shadow-md shadow-primary/30 overflow-hidden"
+                href="/"
+                title="Go to Home"
+                className="flex items-center justify-center w-10 h-10 bg-primary rounded-lg text-white shadow-md shadow-primary/30 overflow-hidden cursor-pointer"
               >
                 <img
                   src="/NovaLogo.jpeg"
@@ -507,176 +511,6 @@ export default function SalesEmployeeNavbar() {
                     </span>
                   )}
                 </button>
-
-                {isNotificationsOpen && (
-  <div className="notification-modal-card absolute right-0 top-full z-[120] mt-4 w-[390px] overflow-hidden rounded-2xl">
-    <div className="notification-modal-header flex items-start justify-between px-5 py-4">
-      <div>
-        <h2 className="notification-title text-lg font-bold">
-          Notifications
-        </h2>
-
-        <p className="notification-subtitle text-xs">
-          Unread reminders and lead messages
-        </p>
-      </div>
-
-      <button
-        onClick={() => {
-          setIsNotificationsOpen(false);
-          setSelectedNotification(null);
-        }}
-        className="flex h-10 w-10 items-center justify-center rounded-full bg-red-500 text-white shadow-lg shadow-red-500/30 transition hover:scale-105 hover:bg-red-400 active:scale-95"
-      >
-        <X size={20} />
-      </button>
-    </div>
-
-    <div className="notification-modal-body max-h-[360px] space-y-3 overflow-y-auto p-4">
-      {reminders.length === 0 &&
-        leadMessages.length === 0 &&
-        apiNotifications.length === 0 && (
-          <p className="notification-subtitle text-sm">
-            No notifications yet.
-          </p>
-        )}
-
-      {reminders.map((reminder) => (
-        <button
-          key={reminder.id}
-          onClick={() => openNotificationDetails(reminder)}
-          className={`notification-card w-full rounded-xl px-4 py-3 text-left transition ${
-            reminder.isRead ? "opacity-70" : ""
-          }`}
-        >
-          <div className="flex items-start gap-3">
-            <AlarmClock size={18} className="notification-icon-box mt-1" />
-
-            <div className="min-w-0 flex-1">
-              <div className="flex items-center gap-2">
-                <h3 className="notification-card-title text-sm font-bold">
-                  {reminder.title}
-                </h3>
-
-                {!reminder.isRead && (
-                  <span className="h-2 w-2 rounded-full bg-rose-500" />
-                )}
-              </div>
-
-              <p className="notification-card-description mt-1 line-clamp-2 text-sm">
-                {reminder.description}
-              </p>
-
-              <p className="notification-card-date mt-2 text-xs font-semibold">
-                {reminder.dateTime}
-              </p>
-            </div>
-          </div>
-        </button>
-      ))}
-
-      {leadMessages.map((message) => (
-        <button
-          key={message.id}
-          onClick={() => openNotificationDetails(message)}
-          className={`notification-card w-full rounded-xl px-4 py-3 text-left transition ${
-            message.isRead ? "opacity-70" : ""
-          }`}
-        >
-          <div className="flex items-start gap-3">
-            <Mail size={18} className="notification-icon-box mt-1" />
-
-            <div className="min-w-0 flex-1">
-              <div className="flex items-center gap-2">
-                <h3 className="notification-card-title text-sm font-bold">
-                  {message.title}
-                </h3>
-
-                {!message.isRead && (
-                  <span className="h-2 w-2 rounded-full bg-rose-500" />
-                )}
-              </div>
-
-              <p className="notification-card-description mt-1 line-clamp-2 text-sm">
-                {message.message}
-              </p>
-
-              <p className="notification-card-date mt-2 text-xs font-semibold">
-                {message.time}
-              </p>
-            </div>
-          </div>
-        </button>
-      ))}
-
-      {apiNotifications.map((notif) => (
-        <button
-          key={notif._id}
-          onClick={() => openNotificationDetails(notif)}
-          className={`notification-card w-full rounded-xl px-4 py-3 text-left transition ${
-            notif.isRead ? "opacity-70" : ""
-          }`}
-        >
-          <div className="flex items-start gap-3">
-            <Bell size={18} className="notification-icon-box mt-1" />
-
-            <div className="min-w-0 flex-1">
-              <div className="flex items-center gap-2">
-                <h3 className="notification-card-title text-sm font-bold">
-                  {notif.title}
-                </h3>
-
-                {!notif.isRead && (
-                  <span className="h-2 w-2 animate-pulse rounded-full bg-rose-500" />
-                )}
-              </div>
-
-              <p className="notification-card-description mt-1 line-clamp-2 text-sm">
-                {notif.message}
-              </p>
-
-              <p className="notification-card-date mt-2 text-xs font-semibold">
-                {new Date(notif.createdAt).toLocaleDateString()}{" "}
-                {new Date(notif.createdAt).toLocaleTimeString([], {
-                  hour: "2-digit",
-                  minute: "2-digit",
-                })}
-              </p>
-            </div>
-          </div>
-        </button>
-      ))}
-
-      {selectedNotification && (
-        <div className="notification-card mt-4 rounded-xl p-4">
-          <div className="flex items-start justify-between gap-4">
-            <div>
-              <h3 className="notification-card-title text-sm font-bold">
-                {selectedNotification.title}
-              </h3>
-
-              <p className="notification-card-description mt-2 text-sm leading-6">
-                {selectedNotification.message ||
-                  selectedNotification.description}
-              </p>
-
-              <p className="notification-card-date mt-3 text-xs font-semibold">
-                {selectedNotification.time || selectedNotification.dateTime}
-              </p>
-            </div>
-
-            <button
-              onClick={() => setSelectedNotification(null)}
-              className="notification-subtitle transition hover:text-[#260b45] dark:hover:text-white"
-            >
-              <X size={16} />
-            </button>
-          </div>
-        </div>
-      )}
-    </div>
-  </div>
-)}
               </div>
 
               {/* Theme */}
@@ -746,6 +580,26 @@ export default function SalesEmployeeNavbar() {
         </div>
       </nav>
 
+      <AnimatePresence>
+        {isNotificationsOpen && (
+          <EmployeeNotificationsCenterModal
+            onClose={() => {
+              setIsNotificationsOpen(false);
+              setSelectedNotification(null);
+            }}
+            reminders={reminders}
+            setReminders={setReminders}
+            leadMessages={leadMessages}
+            setLeadMessages={setLeadMessages}
+            apiNotifications={apiNotifications}
+            setApiNotifications={setApiNotifications}
+            setApiUnreadCount={setApiUnreadCount}
+            fetchNotifications={fetchNotifications}
+            router={router}
+          />
+        )}
+      </AnimatePresence>
+
       <MessagesModal
         isOpen={isMessagesOpen}
         onClose={() => setIsMessagesOpen(false)}
@@ -768,3 +622,500 @@ export default function SalesEmployeeNavbar() {
     </>
   );
 }
+
+function EmployeeNotificationsCenterModal({
+  onClose,
+  reminders,
+  setReminders,
+  leadMessages,
+  setLeadMessages,
+  apiNotifications,
+  setApiNotifications,
+  setApiUnreadCount,
+  fetchNotifications,
+  router,
+}) {
+  const [loading, setLoading] = useState(false);
+  const [selectedFilter, setSelectedFilter] = useState("all");
+
+  useEffect(() => {
+    let isMounted = true;
+
+    const loadNotifications = async () => {
+      setLoading(true);
+
+      try {
+        await fetchNotifications();
+      } finally {
+        if (isMounted) {
+          setLoading(false);
+        }
+      }
+    };
+
+    loadNotifications();
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  const normalizeDate = (value) => {
+    if (!value) return new Date().toISOString();
+
+    const parsed = new Date(value);
+
+    if (Number.isNaN(parsed.getTime())) {
+      return new Date().toISOString();
+    }
+
+    return parsed.toISOString();
+  };
+
+  const getCategoryIcon = (category) => {
+    switch (category) {
+      case "inquiry":
+        return <Briefcase className="text-emerald-500" size={16} />;
+      case "message":
+        return <Mail className="text-violet-500" size={16} />;
+      case "account":
+        return <UserPlus className="text-blue-500" size={16} />;
+      case "alert":
+        return <ShieldAlert className="text-rose-500" size={16} />;
+      case "reminder":
+        return <AlarmClock className="text-amber-500" size={16} />;
+      default:
+        return <AlertCircle className="text-amber-500" size={16} />;
+    }
+  };
+
+  const normalizedNotifications = [
+    ...apiNotifications.map((notification) => ({
+      ...notification,
+      id: notification._id,
+      source: "api",
+      category: notification.category || "alert",
+      title: notification.title || "Notification",
+      message: notification.message || "",
+      createdAt: normalizeDate(notification.createdAt),
+      isRead: notification.isRead === true,
+    })),
+
+    ...reminders.map((reminder) => ({
+      id: reminder.id,
+      source: "reminder",
+      category: "reminder",
+      title: reminder.title || "Reminder",
+      message: reminder.description || reminder.message || "",
+      createdAt: normalizeDate(reminder.dateTime),
+      isRead: reminder.isRead === true,
+      raw: reminder,
+    })),
+
+    ...leadMessages.map((message) => ({
+      id: message.id,
+      source: "message",
+      category: "message",
+      title: message.title || "Lead Message",
+      message: message.message || message.description || "",
+      createdAt: normalizeDate(message.createdAt || message.time),
+      isRead: message.isRead === true,
+      raw: message,
+    })),
+  ].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
+  const unreadCount = normalizedNotifications.filter(
+    (notification) => !notification.isRead
+  ).length;
+
+  const filteredNotifications = normalizedNotifications.filter(
+    (notification) => {
+      if (selectedFilter === "unread") return !notification.isRead;
+      return true;
+    }
+  );
+
+  const markNotificationAsRead = async (notification, e) => {
+    if (e) e.stopPropagation();
+    if (notification.isRead) return;
+
+    if (notification.source === "api") {
+      try {
+        await api.patch(`/api/notifications/${notification.id}/read`);
+
+        setApiNotifications((prev) =>
+          prev.map((item) =>
+            item._id === notification.id ? { ...item, isRead: true } : item
+          )
+        );
+
+        setApiUnreadCount((prev) => Math.max(0, prev - 1));
+
+        if (typeof window !== "undefined") {
+          window.dispatchEvent(new Event("notificationsRead"));
+        }
+      } catch (err) {
+        console.error("Failed to mark notification as read:", err);
+      }
+
+      return;
+    }
+
+    if (notification.source === "reminder") {
+      const updatedReminders = reminders.map((reminder) =>
+        reminder.id === notification.id ? { ...reminder, isRead: true } : reminder
+      );
+
+      setReminders(updatedReminders);
+      localStorage.setItem("employeeReminders", JSON.stringify(updatedReminders));
+      return;
+    }
+
+    if (notification.source === "message") {
+      setLeadMessages((prev) =>
+        prev.map((message) =>
+          message.id === notification.id ? { ...message, isRead: true } : message
+        )
+      );
+    }
+  };
+
+  const handleNotificationClick = async (notification) => {
+    await markNotificationAsRead(notification);
+
+    if (notification.link && router) {
+      const targetPath = notification.link.startsWith("/")
+        ? notification.link
+        : `/${notification.link}`;
+
+      router.push(targetPath);
+      onClose();
+    }
+  };
+
+  const handleMarkAllAsRead = async () => {
+    const updatedReminders = reminders.map((reminder) => ({
+      ...reminder,
+      isRead: true,
+    }));
+
+    setReminders(updatedReminders);
+    localStorage.setItem("employeeReminders", JSON.stringify(updatedReminders));
+
+    setLeadMessages((prev) =>
+      prev.map((message) => ({
+        ...message,
+        isRead: true,
+      }))
+    );
+
+    try {
+      await api.patch("/api/notifications/read-all");
+    } catch (err) {
+      console.error("Failed to mark all API notifications as read:", err);
+    }
+
+    setApiNotifications((prev) =>
+      prev.map((notification) => ({
+        ...notification,
+        isRead: true,
+      }))
+    );
+
+    setApiUnreadCount(0);
+
+    if (typeof window !== "undefined") {
+      window.dispatchEvent(new Event("notificationsRead"));
+    }
+  };
+
+  const handleDeleteNotification = async (notification, e) => {
+    if (e) e.stopPropagation();
+
+    if (notification.source === "api") {
+      try {
+        await api.delete(`/api/notifications/${notification.id}`);
+      } catch (err) {
+        console.error("Failed to delete notification:", err);
+      }
+
+      setApiNotifications((prev) =>
+        prev.filter((item) => item._id !== notification.id)
+      );
+
+      if (!notification.isRead) {
+        setApiUnreadCount((prev) => Math.max(0, prev - 1));
+      }
+
+      if (typeof window !== "undefined") {
+        window.dispatchEvent(new Event("notificationsRead"));
+      }
+
+      return;
+    }
+
+    if (notification.source === "reminder") {
+      const updatedReminders = reminders.filter(
+        (reminder) => reminder.id !== notification.id
+      );
+
+      setReminders(updatedReminders);
+      localStorage.setItem("employeeReminders", JSON.stringify(updatedReminders));
+      return;
+    }
+
+    if (notification.source === "message") {
+      setLeadMessages((prev) =>
+        prev.filter((message) => message.id !== notification.id)
+      );
+    }
+  };
+
+  const handleClearAll = async () => {
+    if (!window.confirm("Are you sure you want to clear all notifications?")) {
+      return;
+    }
+
+    setReminders([]);
+    localStorage.setItem("employeeReminders", JSON.stringify([]));
+    setLeadMessages([]);
+
+    try {
+      await api.delete("/api/notifications");
+    } catch (err) {
+      console.error("Failed to clear API notifications:", err);
+    }
+
+    setApiNotifications([]);
+    setApiUnreadCount(0);
+
+    if (typeof window !== "undefined") {
+      window.dispatchEvent(new Event("notificationsRead"));
+    }
+  };
+
+  const formatNotificationTime = (createdAt) => {
+    const date = new Date(createdAt);
+
+    return `${date.toLocaleTimeString([], {
+      hour: "2-digit",
+      minute: "2-digit",
+    })} • ${date.toLocaleDateString([], {
+      month: "short",
+      day: "numeric",
+    })}`;
+  };
+
+  return (
+    <div
+      onClick={onClose}
+      className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/60 backdrop-blur-md p-4"
+    >
+      <motion.div
+        onClick={(e) => e.stopPropagation()}
+        initial={{ opacity: 0, scale: 0.95, y: 10 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        exit={{ opacity: 0, scale: 0.95, y: 10 }}
+        className="bg-background border border-border/80 w-full max-w-2xl rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-[85vh]"
+      >
+        {/* Header */}
+        <div className="p-6 border-b border-border/60 bg-muted/20 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-2xl bg-pink-500/10 border border-pink-500/20 flex items-center justify-center text-pink-500 shadow-inner">
+              <Bell size={20} className="animate-bounce" />
+            </div>
+
+            <div>
+              <div className="flex items-center gap-2">
+                <h3 className="text-lg font-bold text-foreground">
+                  Notifications Center
+                </h3>
+
+                {unreadCount > 0 && (
+                  <span className="px-2 py-0.5 rounded-full bg-pink-500 text-white text-xs font-extrabold shadow-sm">
+                    {unreadCount} New
+                  </span>
+                )}
+              </div>
+
+              <p className="text-xs text-muted-foreground mt-0.5">
+                Real-time updates, messages, customer inquiries, and employee activity
+              </p>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2">
+            {normalizedNotifications.length > 0 && (
+              <>
+                {unreadCount > 0 && (
+                  <button
+                    onClick={handleMarkAllAsRead}
+                    title="Mark all as read"
+                    className="px-3 py-1.5 rounded-xl bg-pink-500/10 text-pink-500 hover:bg-pink-500/20 text-xs font-semibold flex items-center gap-1.5 transition-all"
+                  >
+                    <CheckCheck size={14} /> Mark All Read
+                  </button>
+                )}
+
+                <button
+                  onClick={handleClearAll}
+                  title="Clear all notifications"
+                  className="p-2 rounded-xl bg-muted text-muted-foreground hover:bg-rose-500/10 hover:text-rose-500 transition-all"
+                >
+                  <Trash2 size={16} />
+                </button>
+              </>
+            )}
+
+            <button
+              onClick={onClose}
+              className="p-2 rounded-xl bg-muted hover:bg-muted/80 text-foreground transition-all ml-1"
+            >
+              <X size={18} />
+            </button>
+          </div>
+        </div>
+
+        {/* Filter Bar */}
+        <div className="px-6 py-3 border-b border-border/60 bg-background flex items-center gap-2">
+          <button
+            onClick={() => setSelectedFilter("all")}
+            className={`px-3 py-1 rounded-lg text-xs font-bold transition-all ${
+              selectedFilter === "all"
+                ? "bg-pink-500 text-white shadow-sm"
+                : "bg-muted text-muted-foreground hover:text-foreground"
+            }`}
+          >
+            All Notifications ({normalizedNotifications.length})
+          </button>
+
+          <button
+            onClick={() => setSelectedFilter("unread")}
+            className={`px-3 py-1 rounded-lg text-xs font-bold transition-all ${
+              selectedFilter === "unread"
+                ? "bg-pink-500 text-white shadow-sm"
+                : "bg-muted text-muted-foreground hover:text-foreground"
+            }`}
+          >
+            Unread ({unreadCount})
+          </button>
+        </div>
+
+        {/* List Content */}
+        <div className="flex-1 overflow-y-auto p-4 space-y-2.5">
+          {loading ? (
+            <div className="flex flex-col items-center justify-center py-16 text-muted-foreground gap-3">
+              <Loader2 className="animate-spin text-pink-500" size={32} />
+
+              <p className="text-sm font-medium">Loading notifications...</p>
+            </div>
+          ) : filteredNotifications.length === 0 ? (
+            <div className="flex flex-col items-center justify-center py-16 text-muted-foreground gap-3 text-center">
+              <div className="w-14 h-14 rounded-full bg-muted flex items-center justify-center text-muted-foreground/60">
+                <Bell size={28} />
+              </div>
+
+              <div>
+                <p className="text-sm font-bold text-foreground">
+                  No notifications found
+                </p>
+
+                <p className="text-xs text-muted-foreground mt-1">
+                  {selectedFilter === "unread"
+                    ? "You have read all your notifications!"
+                    : "You are all caught up on alerts and updates."}
+                </p>
+              </div>
+            </div>
+          ) : (
+            <AnimatePresence>
+              {filteredNotifications.map((notification) => (
+                <motion.div
+                  key={`${notification.source}-${notification.id}`}
+                  initial={{ opacity: 0, y: 5 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, scale: 0.95 }}
+                  onClick={() => handleNotificationClick(notification)}
+                  className={`p-4 rounded-2xl border transition-all cursor-pointer flex items-start gap-3.5 relative group ${
+                    notification.isRead
+                      ? "bg-background border-border/50 opacity-80 hover:opacity-100 hover:border-border"
+                      : "bg-pink-500/5 dark:bg-pink-500/10 border-pink-500/30 shadow-sm"
+                  }`}
+                >
+                  {/* Status indicator dot */}
+                  {!notification.isRead && (
+                    <span className="absolute top-4 right-4 w-2 h-2 rounded-full bg-pink-500 animate-ping" />
+                  )}
+
+                  {!notification.isRead && (
+                    <span className="absolute top-4 right-4 w-2 h-2 rounded-full bg-pink-500" />
+                  )}
+
+                  <div className="p-2.5 rounded-xl bg-muted/60 border border-border/40 shrink-0 mt-0.5">
+                    {getCategoryIcon(notification.category)}
+                  </div>
+
+                  <div className="flex-1 min-w-0 pr-6">
+                    <div className="flex items-center justify-between gap-2">
+                      <h4 className="text-sm font-bold text-foreground truncate">
+                        {notification.title}
+                      </h4>
+
+                      <span className="text-[10px] text-muted-foreground whitespace-nowrap">
+                        {formatNotificationTime(notification.createdAt)}
+                      </span>
+                    </div>
+
+                    <p className="text-xs text-muted-foreground mt-1 line-clamp-2 leading-relaxed">
+                      {notification.message}
+                    </p>
+
+                    <div className="flex items-center gap-3 mt-2.5">
+                      {notification.link && (
+                        <span className="text-[11px] font-bold text-pink-500 flex items-center gap-1 group-hover:underline">
+                          Open{" "}
+                          {notification.link === "inquiries"
+                            ? "Customer Inquiries"
+                            : notification.link === "messages"
+                            ? "Correspondence Box"
+                            : notification.link === "accounts"
+                            ? "Account Requests"
+                            : "Details"}
+                          <ExternalLink size={12} />
+                        </span>
+                      )}
+
+                      {!notification.isRead && (
+                        <button
+                          onClick={(e) => markNotificationAsRead(notification, e)}
+                          className="text-[11px] font-semibold text-muted-foreground hover:text-foreground flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                        >
+                          <Check size={12} /> Mark read
+                        </button>
+                      )}
+                    </div>
+                  </div>
+
+                  <button
+                    onClick={(e) => handleDeleteNotification(notification, e)}
+                    title="Delete notification"
+                    className="opacity-0 group-hover:opacity-100 transition-opacity p-1.5 rounded-lg hover:bg-rose-500/10 hover:text-rose-500 text-muted-foreground absolute bottom-3 right-3"
+                  >
+                    <Trash2 size={14} />
+                  </button>
+                </motion.div>
+              ))}
+            </AnimatePresence>
+          )}
+        </div>
+
+        {/* Footer */}
+        <div className="p-4 border-t border-border/60 bg-muted/20 flex items-center justify-between text-xs text-muted-foreground">
+          <span>Total Notifications: {normalizedNotifications.length}</span>
+          <span>Click any item to open or mark read</span>
+        </div>
+      </motion.div>
+    </div>
+  );
+}
+
