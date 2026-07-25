@@ -536,7 +536,7 @@ export default function ImportDataModal({ onClose }) {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 dark:bg-black/70 backdrop-blur-md px-4">
-      <div className="w-full max-w-6xl max-h-[90vh] overflow-y-auto rounded-2xl border border-violet-200 dark:border-primary/30 bg-white dark:bg-background shadow-2xl shadow-violet-200/60 dark:shadow-primary/20">
+      <div className="import-data-modal-light w-full max-w-6xl max-h-[90vh] overflow-y-auto rounded-2xl border border-violet-200 dark:border-primary/30 bg-white dark:bg-background shadow-2xl shadow-violet-200/60 dark:shadow-primary/20">
         <div className="sticky top-0 z-20 flex items-start justify-between border-b border-violet-100 dark:border-border bg-white/95 dark:bg-background/95 px-7 py-5 backdrop-blur-xl">
           <div className="flex items-center gap-4">
             <div className="flex h-11 w-11 items-center justify-center rounded-xl border border-violet-200 dark:border-violet-500/30 bg-violet-50 dark:bg-violet-500/15 text-violet-500 dark:text-violet-400">
@@ -847,18 +847,18 @@ function ActionButton({
 }) {
   const colors = {
     indigo:
-      "border-indigo-200 dark:border-indigo-500/30 bg-indigo-50 dark:bg-indigo-500/10 text-indigo-500 dark:text-indigo-400 hover:bg-indigo-100 dark:hover:bg-indigo-500/20",
+      "preview-card border-indigo-200 dark:border-indigo-500/30 bg-indigo-50 dark:bg-indigo-500/10 text-indigo-500 dark:text-indigo-400 hover:bg-indigo-100 dark:hover:bg-indigo-500/20",
     rose:
-      "border-rose-200 dark:border-rose-500/30 bg-rose-50 dark:bg-rose-500/10 text-rose-500 dark:text-rose-400 hover:bg-rose-100 dark:hover:bg-rose-500/20",
+      "duplicate-card border-rose-200 dark:border-rose-500/30 bg-rose-50 dark:bg-rose-500/10 text-rose-500 dark:text-rose-400 hover:bg-rose-100 dark:hover:bg-rose-500/20",
     emerald:
-      "border-emerald-200 dark:border-emerald-500/30 bg-emerald-50 dark:bg-emerald-500/10 text-emerald-500 dark:text-emerald-400 hover:bg-emerald-100 dark:hover:bg-emerald-500/20",
+      "upload-card border-emerald-200 dark:border-emerald-500/30 bg-emerald-50 dark:bg-emerald-500/10 text-emerald-500 dark:text-emerald-400 hover:bg-emerald-100 dark:hover:bg-emerald-500/20",
   };
 
   return (
     <button
       disabled={disabled}
       onClick={onClick}
-      className={`rounded-2xl border p-5 text-left transition disabled:cursor-not-allowed disabled:opacity-40 ${
+      className={`import-step-card-light rounded-2xl border p-5 text-left transition disabled:cursor-not-allowed ${
         uploaded
           ? "border-slate-200 dark:border-slate-600 bg-slate-100 dark:bg-slate-700/40 text-slate-500 dark:text-slate-300"
           : colors[color]
@@ -866,9 +866,9 @@ function ActionButton({
     >
       <div className="flex items-center gap-3">
         <Icon size={18} />
-        <h3 className="text-sm font-bold">{title}</h3>
+        <h3 className="step-title text-sm font-bold">{title}</h3>
       </div>
-      <p className="mt-3 text-xs text-slate-500 dark:text-muted-foreground">{subtitle}</p>
+      <p className="step-subtitle mt-3 text-xs text-slate-500 dark:text-muted-foreground">{subtitle}</p>
     </button>
   );
 }
@@ -1092,7 +1092,7 @@ function AssignSection({
   onAssign,
 }) {
   return (
-    <div className="overflow-hidden rounded-2xl border border-violet-100 dark:border-border bg-card shadow-sm dark:shadow-none">
+    <div className="import-assign-section-light overflow-hidden rounded-2xl border border-violet-100 dark:border-border bg-card shadow-sm dark:shadow-none">
       <div className="flex items-center gap-3 border-b border-violet-100 dark:border-border px-6 py-4">
         <Users size={18} className="text-violet-500 dark:text-violet-400" />
 
@@ -1109,7 +1109,7 @@ function AssignSection({
 
       <div className="space-y-4 p-5">
         <div className="flex flex-col gap-3 lg:flex-row">
-          <div className="flex flex-1 items-center gap-3 rounded-2xl border border-violet-100 dark:border-border bg-violet-50/40 dark:bg-background/60 px-4 py-3">
+          <div className="import-assign-search-light flex flex-1 items-center gap-3 rounded-2xl border border-violet-100 dark:border-border bg-violet-50/40 dark:bg-background/60 px-4 py-3">
             <Search size={16} className="text-slate-400 dark:text-muted-foreground" />
             <input
               value={searchQuery}
@@ -1119,14 +1119,14 @@ function AssignSection({
             />
           </div>
 
-          <div className="flex overflow-hidden rounded-2xl border border-violet-100 dark:border-border bg-violet-50/40 dark:bg-background/60">
+          <div className="import-employee-filter-group flex overflow-hidden rounded-2xl border border-violet-100 dark:border-border bg-violet-50/40 dark:bg-background/60">
             {["Sales", "Digital Marketing", "All Employees"].map((filter) => (
               <button
                 key={filter}
                 onClick={() => setDepartmentFilter(filter)}
-                className={`whitespace-nowrap px-5 py-3 text-xs font-semibold transition ${
+                className={`import-employee-filter-btn whitespace-nowrap px-5 py-3 text-xs font-semibold transition ${
                   departmentFilter === filter
-                    ? "bg-violet-200/70 dark:bg-violet-500/30 text-violet-700 dark:text-violet-200"
+                    ? "active bg-violet-200/70 dark:bg-violet-500/30 text-violet-700 dark:text-violet-200"
                     : "text-slate-500 dark:text-muted-foreground hover:text-slate-900 dark:hover:text-foreground"
                 }`}
               >
@@ -1207,10 +1207,10 @@ function AssignSection({
 
                     <td className="whitespace-nowrap border-b border-violet-50 dark:border-border/50 px-5 py-4">
                       <span
-                        className={`inline-flex whitespace-nowrap rounded-full border px-3 py-1 text-[11px] font-semibold ${
+                        className={`import-department-pill inline-flex whitespace-nowrap rounded-full border px-3 py-1 text-[11px] font-semibold ${
                           employee.department === "Sales"
-                            ? "border-cyan-200 dark:border-cyan-500/30 bg-cyan-50 dark:bg-cyan-500/10 text-cyan-600 dark:text-cyan-400"
-                            : "border-violet-200 dark:border-violet-500/30 bg-violet-50 dark:bg-violet-500/10 text-violet-600 dark:text-violet-300"
+                            ? "sales-pill border-cyan-200 dark:border-cyan-500/30 bg-cyan-50 dark:bg-cyan-500/10 text-cyan-600 dark:text-cyan-400"
+                            : "digital-pill border-violet-200 dark:border-violet-500/30 bg-violet-50 dark:bg-violet-500/10 text-violet-600 dark:text-violet-300"
                         }`}
                       >
                         {employee.department}

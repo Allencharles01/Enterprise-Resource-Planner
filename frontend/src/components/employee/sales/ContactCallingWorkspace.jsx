@@ -792,7 +792,7 @@ export default function ContactCallingWorkspace({ onBack }) {
 
           <div className="contact-table-wrap overflow-hidden rounded-xl border border-violet-100 dark:border-slate-700">
             <table className="w-full table-fixed text-left">
-              <thead className="contact-table-head border-b border-violet-100 bg-violet-50/70 text-[11px] uppercase tracking-wider text-muted-foreground dark:border-slate-700 dark:bg-slate-900/70">
+              <thead className="contact-table-head border-b border-violet-100 bg-violet-50/70 text-[11px] uppercase tracking-wider text-black dark:border-slate-700 dark:bg-slate-900/70 dark:text-muted-foreground">
                 <tr>
                   <th className="w-[64px] px-3 py-3">S.No.</th>
                   <th className="w-[20%] px-3 py-3">Name</th>

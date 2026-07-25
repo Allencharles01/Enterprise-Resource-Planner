@@ -20,6 +20,26 @@ import {
   Circle,
 } from "lucide-react";
 
+const formatProjectAmount = (value) => {
+  if (value === null || value === undefined || value === "") return "₹0";
+
+  const textValue = String(value).trim();
+  const numberMatch = textValue.match(/-?\d[\d,]*(?:\.\d+)?/);
+
+  if (!numberMatch) return textValue;
+
+  const numericValue = Number(numberMatch[0].replace(/,/g, ""));
+
+  if (Number.isNaN(numericValue)) return textValue;
+
+  return `₹${Math.abs(numericValue).toLocaleString("en-IN")}`;
+};
+
+const getProjectBudgetValue = (project) => {
+  return project?.budget || project?.agreed || 0;
+};
+
+
 const staticTaskGroups = [
   {
     name: "Frontend",
@@ -600,7 +620,7 @@ export default function ProjectDetailDashboard({ project, onBack }) {
       </div>
 
       <h2 className="text-3xl font-bold text-foreground mt-10">
-        {project.budget || project.agreed}
+        {formatProjectAmount(project.budget || project.agreed)}
       </h2>
 
       <p className="text-sm text-muted-foreground mt-2">
@@ -631,7 +651,7 @@ export default function ProjectDetailDashboard({ project, onBack }) {
       </div>
 
       <h2 className="text-3xl font-bold text-foreground mt-10">
-        {project.received || "—"}
+        {project.received ? formatProjectAmount(project.received) : "—"}
       </h2>
 
       <p className="text-sm text-muted-foreground mt-2">

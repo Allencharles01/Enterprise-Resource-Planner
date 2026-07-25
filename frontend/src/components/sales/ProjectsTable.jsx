@@ -13,6 +13,26 @@ import {
   MoreVertical,
 } from "lucide-react";
 
+const formatProjectAmount = (value) => {
+  if (value === null || value === undefined || value === "") return "₹0";
+
+  const textValue = String(value).trim();
+  const numberMatch = textValue.match(/-?\d[\d,]*(?:\.\d+)?/);
+
+  if (!numberMatch) return textValue;
+
+  const numericValue = Number(numberMatch[0].replace(/,/g, ""));
+
+  if (Number.isNaN(numericValue)) return textValue;
+
+  return `₹${Math.abs(numericValue).toLocaleString("en-IN")}`;
+};
+
+const getProjectBudgetValue = (project) => {
+  return project?.budget || project?.agreed || 0;
+};
+
+
 export default function ProjectsTable({ onViewProject }) {
   const [dbProjects, setDbProjects] = useState([]);
   const [selectedProject, setSelectedProject] = useState(null);
@@ -36,9 +56,9 @@ export default function ProjectsTable({ onViewProject }) {
         <tr>
           <td>${project.project}</td>
           <td>${project.client}</td>
-          <td>${project.agreed}</td>
-          <td>${project.received}</td>
-          <td>${project.remaining}</td>
+          <td>${formatProjectAmount(getProjectBudgetValue(project))}</td>
+          <td>${formatProjectAmount(project.received)}</td>
+          <td>${formatProjectAmount(project.remaining)}</td>
           <td>${project.deadline}</td>
           <td>${project.manager}</td>
           <td>${project.status}</td>
@@ -200,7 +220,7 @@ const handleDownloadInvoice = (project) => {
       (payment) => `
         <tr>
           <td>${payment.date}</td>
-          <td>${payment.amount}</td>
+          <td>${formatProjectAmount(payment.amount)}</td>
           <td>${payment.title}</td>
         </tr>
       `
@@ -338,17 +358,17 @@ const handleDownloadInvoice = (project) => {
 
             <tr>
               <td class="bold">Total Agreed Amount</td>
-              <td class="bold">${project.agreed}</td>
+              <td class="bold">${formatProjectAmount(project.agreed)}</td>
             </tr>
 
             <tr>
               <td class="bold">Total Received</td>
-              <td class="green">${project.received}</td>
+              <td class="green">${formatProjectAmount(project.received)}</td>
             </tr>
 
             <tr>
               <td class="bold">Remaining Balance</td>
-              <td class="red">${project.remaining}</td>
+              <td class="red">${formatProjectAmount(project.remaining)}</td>
             </tr>
           </table>
 
@@ -446,7 +466,7 @@ const handleDownloadInvoice = (project) => {
                     }}
                     className="font-bold underline text-emerald-400 hover:text-emerald-300 transition"
                   >
-                    {project.budget}
+                    {formatProjectAmount(getProjectBudgetValue(project))}
                   </button>
                 </td>
 

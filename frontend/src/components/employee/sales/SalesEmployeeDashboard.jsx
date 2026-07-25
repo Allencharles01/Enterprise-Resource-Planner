@@ -9,6 +9,7 @@ import ContactCallingWorkspace from "./ContactCallingWorkspace";
 
 import NewLeadModal from "./NewLeadModal";
 import { api } from "@/lib/api";
+import { formatAmount } from "@/lib/formatAmount";
 import { Target, IndianRupee, TrendingUp, PhoneCall } from "lucide-react";
 
 import { employeeInfo, tabs } from "./salesEmployeeData";
@@ -157,7 +158,7 @@ export default function SalesEmployeeDashboard() {
       };
 
       const formatCurrency = (amount) => {
-        return "₹" + amount.toLocaleString("en-IN");
+        return formatAmount(amount);
       };
 
       const totalProjects = projects.length;
@@ -258,7 +259,9 @@ export default function SalesEmployeeDashboard() {
             value: formatCurrency(activeInternsFee),
             change: activeInternsFee > 0 ? "+100%" : "0%",
             subtitle:
-              activeInternsFee > 0 ? "Fee from active interns" : "No fees collected",
+              activeInternsFee > 0
+                ? "Fee from active interns"
+                : "No fees collected",
             icon: IndianRupee,
             color: "blue",
           },
@@ -328,6 +331,11 @@ export default function SalesEmployeeDashboard() {
 
           const adapted = {
             ...rec,
+            budget: formatAmount(rec.budget || rec.agreed || 0),
+            agreed: formatAmount(rec.agreed || rec.budget || 0),
+            received: formatAmount(rec.received || 0),
+            remaining: formatAmount(rec.remaining || 0),
+            cost: formatAmount(rec.cost || 0),
             approvalStatus: rec.approvalStatus || "Approved",
             approval: rec.approval || "Approved",
           };
@@ -335,12 +343,14 @@ export default function SalesEmployeeDashboard() {
           if (type === "Internships") {
             adapted.candidateName = rec.name;
             adapted.program = rec.courseName;
-            adapted.courseCost = rec.cost;
+            adapted.courseCost = formatAmount(rec.cost || rec.courseCost || 0);
             adapted.internStatus = rec.status || "Active";
           } else if (type === "Training") {
             adapted.trainingProgram = rec.courseName;
             adapted.candidateName = rec.name;
-            adapted.trainingFee = rec.cost;
+            adapted.trainingFee = formatAmount(
+              rec.cost || rec.trainingFee || 0
+            );
             adapted.totalEnrolled = 1;
             adapted.instructor = "Enterprise Mentor";
             adapted.startDate = rec.startDate
@@ -481,7 +491,8 @@ export default function SalesEmployeeDashboard() {
 
             if (data.user.role === "employee") {
               const isSales =
-                uDept.includes("sales") || uName.toLowerCase().includes("sales");
+                uDept.includes("sales") ||
+                uName.toLowerCase().includes("sales");
 
               if (!isSales) {
                 if (

@@ -1,6 +1,7 @@
 "use client";
 import { useEffect } from "react";
 import { createPortal } from "react-dom";
+import { formatAmount } from "@/lib/formatAmount";
 
 import {
   X,
@@ -40,6 +41,8 @@ export default function InternProfileModal({ intern, onClose }) {
     .map((word) => word[0])
     .join("")
     .slice(0, 2);
+
+  const courseCostDisplay = formatAmount(intern.courseCost || "$4,500");
 
   const handleDownloadProfile = () => {
     const htmlContent = `
@@ -286,7 +289,7 @@ export default function InternProfileModal({ intern, onClose }) {
               </div>
               <div class="row">
                 <div class="label">Course Cost</div>
-                <div class="value">${intern.courseCost || "N/A"}</div>
+                <div class="value">${courseCostDisplay}</div>
               </div>
             </div>
 
@@ -378,7 +381,7 @@ export default function InternProfileModal({ intern, onClose }) {
       subtitle: "Training course fee and payment details",
       body: `
         This invoice is generated for ${intern.name} for the purchased course: ${intern.program}.
-        The total course cost is ${intern.courseCost || "N/A"}.
+        The total course cost is ${courseCostDisplay}.
         The program duration is ${intern.duration}.
         Candidate department: ${intern.department}.
         Payment status is considered recorded for internship and training documentation purposes.
@@ -657,7 +660,7 @@ export default function InternProfileModal({ intern, onClose }) {
               </div>
 
               <p className="text-2xl font-bold text-emerald-500">
-                {intern.courseCost || "$4,500"}
+                {courseCostDisplay}
               </p>
             </div>
           </div>

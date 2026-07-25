@@ -1689,8 +1689,13 @@ html:not(.dark) .contact-list-table-wrap {
 
 html:not(.dark) .contact-list-table-head {
   background: #fbf7ff !important;
-  color: #7a6692 !important;
+  color: #000000 !important;
   border-bottom: 1px solid #eadcff !important;
+}
+
+html:not(.dark) .contact-list-table-head th {
+  color: #000000 !important;
+  font-weight: 800 !important;
 }
 
 html:not(.dark) .contact-list-table-row {
@@ -1852,4 +1857,245 @@ html:not(.dark) .contact-list-table-row:hover {
 
 .dark .contact-list-month-table-wrap {
   background: #0f172a !important;
+}
+
+/* ---------- Import Data Modal Light Theme Polish ---------- */
+/* Light theme only. Dark theme remains controlled by existing dark: classes. */
+
+html:not(.dark) .import-data-modal-light {
+  background: #fcf9ff !important;
+  border: 1px solid #eadcff !important;
+}
+
+/* Preview / Duplicate / Upload cards */
+html:not(.dark) .import-step-card-light {
+  opacity: 1 !important;
+  border-radius: 20px !important;
+  transition: all 0.2s ease !important;
+}
+
+html:not(.dark) .import-step-card-light:disabled {
+  opacity: 0.86 !important;
+}
+
+html:not(.dark) .import-step-card-light.preview-card {
+  background: #f0e9ff !important;
+  border-color: #d6c2ff !important;
+  color: #6d57ff !important;
+  box-shadow: 0 10px 24px rgba(109, 87, 255, 0.1) !important;
+}
+
+html:not(.dark) .import-step-card-light.duplicate-card {
+  background: #ffeaf0 !important;
+  border-color: #f6b8c8 !important;
+  color: #ff6b86 !important;
+  box-shadow: 0 10px 24px rgba(255, 107, 134, 0.1) !important;
+}
+
+html:not(.dark) .import-step-card-light.upload-card {
+  background: #e8fbf4 !important;
+  border-color: #aeead9 !important;
+  color: #20b894 !important;
+  box-shadow: 0 10px 24px rgba(32, 184, 148, 0.1) !important;
+}
+
+html:not(.dark) .import-step-card-light .step-title {
+  color: #260b45 !important;
+  font-weight: 800 !important;
+}
+
+html:not(.dark) .import-step-card-light .step-subtitle {
+  color: #7a6692 !important;
+  font-weight: 600 !important;
+}
+
+/* Assign to Employees section */
+html:not(.dark) .import-assign-section-light {
+  background: #fffaff !important;
+  border: 1px solid #eadcff !important;
+}
+
+html:not(.dark) .import-assign-search-light {
+  background: #ffffff !important;
+  border: 1px solid #dcc8ff !important;
+  color: #260b45 !important;
+  box-shadow: 0 6px 18px rgba(139, 92, 246, 0.06) !important;
+}
+
+html:not(.dark) .import-assign-search-light input {
+  color: #260b45 !important;
+}
+
+html:not(.dark) .import-assign-search-light input::placeholder {
+  color: #7a6692 !important;
+}
+
+/* Department filter buttons: Sales / Digital Marketing / All Employees */
+html:not(.dark) .import-employee-filter-group {
+  background: #f3e8ff !important;
+  border: 1px solid #d8b4fe !important;
+}
+
+html:not(.dark) .import-employee-filter-btn {
+  color: #5c3d7c !important;
+  background: transparent !important;
+  font-weight: 800 !important;
+  opacity: 1 !important;
+}
+
+html:not(.dark) .import-employee-filter-btn:hover {
+  background: #eadcff !important;
+  color: #260b45 !important;
+}
+
+html:not(.dark) .import-employee-filter-btn.active {
+  background: linear-gradient(135deg, #c084fc, #a855f7) !important;
+  color: #ffffff !important;
+  box-shadow: 0 8px 20px rgba(168, 85, 247, 0.2) !important;
+}
+
+/* Department pills inside employee table */
+html:not(.dark) .import-department-pill.sales-pill {
+  background: #dff6ff !important;
+  border-color: #8edfff !important;
+  color: #0284c7 !important;
+  font-weight: 800 !important;
+}
+
+html:not(.dark) .import-department-pill.digital-pill {
+  background: #efe1ff !important;
+  border-color: #d1a9ff !important;
+  color: #8b3ff6 !important;
+  font-weight: 800 !important;
+}
+
+/* ---------- FINAL FIX: Contact Calling Table Header Text ---------- */
+/* Light mode only */
+
+html:not(.dark) .contact-workspace-card .contact-table-wrap thead,
+html:not(.dark) .contact-workspace-card .contact-table-wrap thead tr,
+html:not(.dark) .contact-workspace-card .contact-table-wrap thead th,
+html:not(.dark) .contact-table-head,
+html:not(.dark) .contact-table-head tr,
+html:not(.dark) .contact-table-head th,
+html:not(.dark) thead.contact-table-head th {
+  color: #000000 !important;
+  opacity: 1 !important;
+  font-weight: 800 !important;
+}
+
+/* Dark theme untouched */
+.dark .contact-table-head,
+.dark .contact-table-head th,
+.dark thead.contact-table-head th {
+  color: #94a3b8 !important;
+}
+
+/* ---------- Contact List Dark Theme Match With Contact Calling Workspace ---------- */
+/* Dark mode only. Light theme untouched. */
+
+.dark .contact-list-window {
+  background: rgba(0, 0, 0, 0.2) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  color: #f8fafc !important;
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.45) !important;
+}
+
+.dark .contact-list-header {
+  background: transparent !important;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.12) !important;
+  color: #f8fafc !important;
+}
+
+.dark .contact-list-header h2,
+.dark .contact-list-header p {
+  color: #f8fafc !important;
+}
+
+.dark .contact-list-header p {
+  opacity: 0.75 !important;
+}
+
+.dark .contact-list-filter-bar {
+  background: rgba(15, 23, 42, 0.35) !important;
+  border: 1px solid rgba(148, 163, 184, 0.16) !important;
+}
+
+.dark .contact-list-filter {
+  background: transparent !important;
+  color: #cbd5e1 !important;
+  border: 1px solid rgba(148, 163, 184, 0.2) !important;
+}
+
+.dark .contact-list-filter:hover {
+  background: rgba(99, 102, 241, 0.1) !important;
+  color: #ffffff !important;
+}
+
+.dark .contact-list-filter-active {
+  background: #6366f1 !important;
+  color: #ffffff !important;
+  border: 1px solid #6366f1 !important;
+  box-shadow: 0 8px 18px rgba(99, 102, 241, 0.22) !important;
+}
+
+.dark .contact-list-month-card {
+  background: rgba(0, 0, 0, 0.2) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  color: #f8fafc !important;
+}
+
+.dark .contact-list-month-expanded {
+  background: rgba(99, 102, 241, 0.1) !important;
+}
+
+.dark .contact-list-month-collapsed {
+  background: rgba(0, 0, 0, 0.14) !important;
+}
+
+.dark .contact-list-month-collapsed:hover {
+  background: rgba(99, 102, 241, 0.08) !important;
+}
+
+.dark .contact-list-month-accordion h3 {
+  color: #ffffff !important;
+}
+
+.dark .contact-list-month-accordion p {
+  color: #94a3b8 !important;
+}
+
+.dark .contact-list-month-accordion span {
+  color: #c4b5fd !important;
+}
+
+.dark .contact-list-month-table-wrap {
+  background: transparent !important;
+  border-color: rgba(148, 163, 184, 0.12) !important;
+}
+
+.dark .contact-list-table-wrap {
+  background: transparent !important;
+  border: 1px solid rgba(148, 163, 184, 0.18) !important;
+}
+
+.dark .contact-list-table-head {
+  background: rgba(15, 23, 42, 0.55) !important;
+  color: #94a3b8 !important;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.16) !important;
+}
+
+.dark .contact-list-table-head th {
+  color: #94a3b8 !important;
+  font-weight: 800 !important;
+}
+
+.dark .contact-list-table-row {
+  background: transparent !important;
+  color: #f8fafc !important;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.12) !important;
+}
+
+.dark .contact-list-table-row:hover {
+  background: rgba(99, 102, 241, 0.06) !important;
 }

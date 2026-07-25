@@ -1,22 +1,25 @@
 /**
- * Formats numeric values and currency strings using comma separator (e.g. 1,25,000).
- * Handles raw numbers, strings, and currency strings like "$125000" or "₹ 1250000".
+ * Formats any amount into a clean rupee format.
+ * Examples:
+ * "USD Below ₹50,000" -> "₹50,000"
+ * "USD 25,000" -> "₹25,000"
+ * "INR INR 25,000" -> "₹25,000"
+ * "USD 0" -> "₹0"
  */
 export function formatAmount(val) {
-  if (val === null || val === undefined || val === "") return "";
-  let str = String(val);
+  if (val === null || val === undefined || val === "") return "₹0";
 
-  // First, normalize any existing digit grouping commas if any, while keeping decimal dots
-  str = str.replace(/(\d),(?=\d)/g, "$1");
+  const str = String(val).trim();
 
-  // Format integer sequences of 4 or more digits
-  return str.replace(/\b(\d+)(\.\d+)?\b/g, (match, integerPart, decimalPart = "") => {
-    if (integerPart.length <= 3) return match;
-    const lastThree = integerPart.slice(-3);
-    const otherDigits = integerPart.slice(0, -3);
-    const formattedOther = otherDigits.replace(/\B(?=(\d{2})+(?!\d))/g, ",");
-    return `${formattedOther},${lastThree}${decimalPart}`;
-  });
+  const numberMatch = str.match(/-?\d[\d,]*(?:\.\d+)?/);
+
+  if (!numberMatch) return "₹0";
+
+  const numericValue = Number(numberMatch[0].replace(/,/g, ""));
+
+  if (Number.isNaN(numericValue)) return "₹0";
+
+  return `₹${Math.abs(numericValue).toLocaleString("en-IN")}`;
 }
 
 export default formatAmount;
