@@ -23,12 +23,12 @@ export default function ReviewSheetModal({
     }
 
     onSubmit?.({
-      customerId: customer.id,
-      summary,
-      followUpDate,
-      followUpTime,
-      priority,
-    });
+  customerId: contact?.id,
+  summary,
+  followUpDate,
+  followUpTime,
+  priority,
+});
 
     setSummary("");
     setFollowUpDate("");
@@ -69,16 +69,16 @@ export default function ReviewSheetModal({
         <div className="p-5 border-b border-violet-100 dark:border-white/10">
 
           <h3 className="font-semibold text-lg">
-            {customer.name || "Customer"}
-          </h3>
+  {contact?.name || "Customer"}
+</h3>
 
-          <p className="text-sm text-gray-500">
-            {customer.phone}
-          </p>
+<p className="text-sm text-gray-500">
+  {contact?.phoneNumber}
+</p>
 
-          <p className="text-sm text-gray-500">
-            {customer.company}
-          </p>
+<p className="text-sm text-gray-500">
+  {contact?.company}
+</p>
 
         </div>
 

@@ -4,13 +4,12 @@ import { useState } from "react";
 import { X } from "lucide-react";
 
 const CALL_STATUSES = [
-  "Interested",
-  "Not Interested",
+  "Answered",
+  "Unanswered",
+  "Rejected",
   "Call Later",
   "Busy",
-  "No Answer",
   "Wrong Number",
-  "Follow Up Required",
 ];
 
 export default function CallStatusModal({
@@ -90,7 +89,8 @@ export default function CallStatusModal({
   </p>
 
   <p className="text-sm text-gray-500">
-    Duration: {durationSeconds}s
+    Duration: {Math.floor(durationSeconds / 60)}:
+{String(durationSeconds % 60).padStart(2, "0")}
   </p>
 </div>
           <div>
@@ -119,8 +119,10 @@ export default function CallStatusModal({
               <option value="">Choose Status</option>
 
               {CALL_STATUSES.map((item) => (
-                <option key={item}>{item}</option>
-              ))}
+  <option key={item} value={item}>
+    {item}
+  </option>
+))}
             </select>
           </div>
 

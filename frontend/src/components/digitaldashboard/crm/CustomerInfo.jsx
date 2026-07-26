@@ -235,7 +235,7 @@ export default function CustomerInfo({
                 <div>
 
                   <p className="dark:text-white">
-                    Outgoing Call
+                    {call.status}
                   </p>
 
                   <p className="text-xs text-gray-400">

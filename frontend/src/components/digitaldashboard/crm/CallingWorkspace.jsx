@@ -498,15 +498,38 @@ dark:hover:bg-violet-500/10
 
           {/* Call Status */}
           <CallStatusModal
-            open={showCallStatus}
-            onClose={() => {
-              setShowCallStatus(false);
-              setShowReviewSheet(true);
-            }}
-            callState={callState}
-            durationSeconds={durationSeconds}
-            contact={selectedContact}
-          />
+    open={showCallStatus}
+    onClose={() => setShowCallStatus(false)}
+    contact={selectedContact}
+    durationSeconds={durationSeconds}
+    onSave={(data) => {
+
+        setRecentCalls((prev) => [
+
+            {
+                id: Date.now(),
+
+                type: "Outgoing Call",
+
+                callStartTime: new Date(),
+
+                callDurationSeconds: durationSeconds,
+
+                status: data.status,
+
+                remarks: data.remarks,
+            },
+
+            ...prev,
+
+        ]);
+
+        setShowCallStatus(false);
+
+        setShowReviewSheet(true);
+
+    }}
+/>
 
           {/* Review Sheet */}
           <ReviewSheetModal

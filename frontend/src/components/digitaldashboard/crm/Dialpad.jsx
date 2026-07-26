@@ -46,27 +46,26 @@ export default function Dialpad({
       className="
         rounded-2xl
         border
-        p-5
-        flex
-        flex-col
-        gap-4
-        bg-white
         border-violet-100
+        bg-white
         dark:bg-[#12121b]
-        dark:border-white/5
-        transition-colors
+        dark:border-white/10
+        p-4
+        transition-all
         duration-300
       "
     >
-      <div className="flex items-center justify-between">
-        <h3 className="font-semibold text-[#24123B] dark:text-white">
-          Dialpad
+      {/* Header */}
+
+      <div className="flex items-center justify-between mb-4">
+        <h3 className="text-xl font-bold text-[#24123B] dark:text-white">
+          Dial Pad
         </h3>
 
         <span
-          className={`text-xs font-medium px-2 py-1 rounded-full ${
+          className={`px-3 py-1 rounded-full text-xs font-semibold ${
             online
-              ? "bg-emerald-100 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400"
+              ? "bg-green-100 text-green-600 dark:bg-green-500/10 dark:text-green-400"
               : "bg-gray-100 text-gray-500 dark:bg-white/5 dark:text-gray-400"
           }`}
         >
@@ -74,27 +73,32 @@ export default function Dialpad({
         </span>
       </div>
 
-      <div className="relative">
+      {/* Number Input */}
+
+      <div className="relative mb-5">
         <input
           type="tel"
           value={phoneNumber}
           onChange={(e) => onChange(e.target.value)}
-          placeholder="Enter phone number"
           disabled={isActive}
+          placeholder="Enter phone number"
           className="
             w-full
             rounded-xl
             border
+            border-violet-200
+            bg-[#F7F2FF]
+            dark:bg-[#1B1B2D]
+            dark:border-white/10
+
             px-4
             py-3
-            text-sm
 
-            bg-[#F7F2FF]
-            border-[#DDD6FE]
+            text-lg
+            font-semibold
+            tracking-wide
+
             text-[#24123B]
-
-            dark:bg-white/5
-            dark:border-white/10
             dark:text-white
 
             focus:outline-none
@@ -105,16 +109,25 @@ export default function Dialpad({
 
         {phoneNumber && !isActive && (
           <button
-            type="button"
             onClick={() => onChange("")}
-            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-white"
+            className="
+              absolute
+              right-3
+              top-1/2
+              -translate-y-1/2
+
+              text-gray-400
+              hover:text-red-500
+            "
           >
             ✕
           </button>
         )}
       </div>
 
-      <div className="grid grid-cols-3 gap-3">
+      {/* Dial Pad */}
+
+      <div className="grid grid-cols-3 gap-2 mb-5">
         {KEYS.map((key) => (
           <button
             key={key.digit}
@@ -122,80 +135,79 @@ export default function Dialpad({
             disabled={isActive}
             onClick={() => onDial(key.digit)}
             className="
-              aspect-square
+              h-16
+              w-16
+              mx-auto
+
               rounded-full
+
+              border
+              border-violet-200
+
+              bg-[#F7F2FF]
+              hover:bg-[#EDE9FE]
+
+              dark:bg-[#1B1B2D]
+              dark:border-white/10
+              dark:hover:bg-white/10
+
               flex
               flex-col
               items-center
               justify-center
 
-              text-lg
-              font-semibold
-
-              bg-[#F7F2FF]
-              text-[#24123B]
-
-              hover:bg-[#EDE9FE]
-
-              dark:bg-white/5
-              dark:text-white
-              dark:hover:bg-white/10
+              transition-all
+              duration-200
+              hover:scale-105
 
               disabled:opacity-40
             "
           >
-            {key.digit}
+            <span className="text-2xl font-bold text-[#24123B] dark:text-white">
+              {key.digit}
+            </span>
 
             {key.sub && (
-              <span className="text-[9px] tracking-wider text-gray-400">
+              <span className="text-[9px] uppercase tracking-widest text-gray-400">
                 {key.sub}
               </span>
             )}
           </button>
         ))}
       </div>
+            {/* Action Buttons */}
 
-      <div className="flex items-center gap-3">
+      <div className="space-y-3">
 
         <button
           type="button"
           onClick={onCall}
           disabled={!phoneNumber || isActive}
           className="
-            flex-1
+            w-full
             h-12
-            rounded-full
+            rounded-xl
 
             bg-emerald-500
             hover:bg-emerald-600
 
             text-white
+            font-semibold
+
+            flex
+            items-center
+            justify-center
+            gap-2
+
+            transition-all
+            duration-200
 
             disabled:opacity-40
+            disabled:cursor-not-allowed
           "
         >
-          <Phone className="h-5 w-5 mx-auto" />
-        </button>
-
-        <button
-          type="button"
-          onClick={onBackspace}
-          disabled={isActive || !phoneNumber}
-          className="
-            h-12
-            w-12
-            rounded-full
-
-            bg-gray-100
-            hover:bg-gray-200
-
-            dark:bg-white/5
-            dark:hover:bg-white/10
-
-            disabled:opacity-40
-          "
-        >
-          <Delete className="h-5 w-5 mx-auto" />
+          <Phone size={18} />
+          Call
         </button>
 
         {isActive && (
@@ -203,22 +215,74 @@ export default function Dialpad({
             type="button"
             onClick={onEndCall}
             className="
+              w-full
               h-12
-              w-12
-              rounded-full
+              rounded-xl
 
               bg-red-500
               hover:bg-red-600
 
               text-white
+              font-semibold
+
+              flex
+              items-center
+              justify-center
+              gap-2
+
+              transition-all
+              duration-200
             "
           >
-            <PhoneOff className="h-5 w-5 mx-auto" />
+            <PhoneOff size={18} />
+            End Call
           </button>
         )}
+
+        <button
+          type="button"
+          onClick={onBackspace}
+          disabled={!phoneNumber || isActive}
+          className="
+            w-full
+            h-11
+
+            rounded-xl
+
+            border
+            border-violet-200
+
+            bg-[#F7F2FF]
+            hover:bg-[#EDE9FE]
+
+            dark:bg-[#1B1B2D]
+            dark:border-white/10
+            dark:hover:bg-white/10
+
+            flex
+            items-center
+            justify-center
+            gap-2
+
+            text-[#24123B]
+            dark:text-white
+
+            transition-all
+            duration-200
+
+            disabled:opacity-40
+            disabled:cursor-not-allowed
+          "
+        >
+          <Delete size={18} />
+          Delete
+        </button>
+
       </div>
 
-      <div className="text-center">
+      {/* Status */}
+
+      <div className="mt-5 text-center">
 
         <p
           className={`text-sm font-medium ${
@@ -234,11 +298,13 @@ export default function Dialpad({
 
         {(callState === "calling" ||
           callState === "connected") && (
-          <p className="text-2xl font-bold mt-1 text-[#24123B] dark:text-white">
+          <p className="mt-2 text-3xl font-bold text-[#24123B] dark:text-white">
             {formatCallDuration(durationSeconds)}
           </p>
         )}
+
       </div>
+
     </div>
   );
 }

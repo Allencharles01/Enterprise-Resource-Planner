@@ -25,6 +25,7 @@ import { MessagesModal } from "@/components/MessagesModal";
 import EmployeeRemindersModal from "@/components/employee/sales/EmployeeRemindersModal";
 import { EmployeeSelfProfileModal } from "@/components/EmployeeSelfProfileModal";
 import { api } from "@/lib/api";
+import CSVPreviewModal from "@/components/digitaldashboard/modals/CSVPreviewModal";
 
 export default function Navbar() {
   const router = useRouter();
@@ -44,6 +45,7 @@ const toggleTheme = () =>
   const [currentDate, setCurrentDate] = useState(new Date());
   const [reminders, setReminders] = useState([]);
   const [selectedNotification, setSelectedNotification] = useState(null);
+  const [isCSVPreviewOpen, setIsCSVPreviewOpen] = useState(false);
 
   const [leadMessages, setLeadMessages] = useState([]);
   const [apiNotifications, setApiNotifications] = useState([]);
@@ -249,23 +251,36 @@ const toggleTheme = () =>
   };
 
   const openNotificationDetails = async (notification) => {
-    setSelectedNotification(notification);
+  // 👇 This will print the complete notification object in the browser console
+  console.log("Notification Clicked:", notification);
 
-    if (notification.type === "reminder") {
-      markReminderAsRead(notification.id);
-    } else if (notification.type === "message") {
-      markMessageAsRead(notification.id);
-    } else {
-      // It is an API notification from the database
-      try {
-        await api.patch(`/api/notifications/${notification._id}/read`);
-        fetchNotifications();
-      } catch (err) {
-        console.error("Failed to mark API notification as read:", err);
-      }
+  setSelectedNotification(notification);
+
+  // Open CSV Preview if admin sends a sheet
+  if (
+    notification.title?.toLowerCase().includes("sheet") ||
+    notification.message?.toLowerCase().includes("sheet") ||
+    notification.message?.toLowerCase().includes("csv")
+  ) {
+    setIsNotificationsOpen(false);
+    setIsCSVPreviewOpen(true);
+    return;
+  }
+
+  // Existing functionality
+  if (notification.type === "reminder") {
+    markReminderAsRead(notification.id);
+  } else if (notification.type === "message") {
+    markMessageAsRead(notification.id);
+  } else {
+    try {
+      await api.patch(`/api/notifications/${notification._id}/read`);
+      fetchNotifications();
+    } catch (err) {
+      console.error("Failed to mark API notification as read:", err);
     }
-  };
-
+  }
+};
   const getInitials = (name) => {
     if (!name) return "DM";
 
@@ -737,6 +752,13 @@ const toggleTheme = () =>
         userInfo={userInfo}
         onUpdate={(newInfo) => setUserInfo({ ...userInfo, ...newInfo })}
       />
+      <CSVPreviewModal
+  open={isCSVPreviewOpen}
+  onClose={() => setIsCSVPreviewOpen(false)}
+  fileName={selectedNotification?.fileName || "Employee_Leads_July_2026.csv"}
+  uploadedBy={selectedNotification?.uploadedBy || "Admin"}
+  rows={selectedNotification?.rows}
+/>
     </>
   );
 }
