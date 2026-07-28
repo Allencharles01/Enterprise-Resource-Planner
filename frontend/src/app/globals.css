@@ -2221,3 +2221,83 @@ html:not(.dark) .contact-qr-help {
 .dark .contact-qr-number {
   color: #c084fc !important;
 }
+
+/* ---------- Employee Start Chat + Chat Window Light Theme ---------- */
+/* Light mode only. Dark theme untouched. */
+
+html:not(.dark) .employee-start-chat-modal,
+html:not(.dark) .employee-chat-window-modal {
+  background: #ffffff !important;
+  border: 1px solid #eadcff !important;
+  color: #260b45 !important;
+  box-shadow: 0 24px 70px rgba(139, 92, 246, 0.22) !important;
+}
+
+html:not(.dark) .employee-start-chat-modal h1,
+html:not(.dark) .employee-start-chat-modal h2,
+html:not(.dark) .employee-start-chat-modal h3,
+html:not(.dark) .employee-chat-window-modal h1,
+html:not(.dark) .employee-chat-window-modal h2,
+html:not(.dark) .employee-chat-window-modal h3 {
+  color: #260b45 !important;
+}
+
+html:not(.dark) .employee-start-chat-modal p,
+html:not(.dark) .employee-start-chat-modal span,
+html:not(.dark) .employee-chat-window-modal p,
+html:not(.dark) .employee-chat-window-modal span {
+  color: #7a6692 !important;
+}
+
+html:not(.dark) .employee-start-chat-search,
+html:not(.dark) .employee-start-chat-search input,
+html:not(.dark) .employee-chat-window-input {
+  background: #fbf7ff !important;
+  border-color: #d8b4fe !important;
+  color: #260b45 !important;
+}
+
+html:not(.dark) .employee-start-chat-search input::placeholder,
+html:not(.dark) .employee-chat-window-input::placeholder {
+  color: #9b7ab7 !important;
+}
+
+html:not(.dark) .employee-start-chat-user-card {
+  background: #fbf7ff !important;
+  border: 1px solid #eadcff !important;
+  color: #260b45 !important;
+}
+
+html:not(.dark) .employee-start-chat-user-card:hover {
+  background: #f3e8ff !important;
+  border-color: #c084fc !important;
+}
+
+html:not(.dark) .employee-chat-window-header {
+  background: #f3e8ff !important;
+  border-bottom: 1px solid #eadcff !important;
+}
+
+html:not(.dark) .employee-chat-window-body {
+  background: #ffffff !important;
+}
+
+html:not(.dark) .employee-chat-window-footer {
+  background: #f8f2ff !important;
+  border-top: 1px solid #eadcff !important;
+}
+
+/* Keep icons and close buttons readable in light mode */
+html:not(.dark) .employee-start-chat-modal svg,
+html:not(.dark) .employee-chat-window-modal svg {
+  color: #7c3aed !important;
+}
+
+/* Dark theme protected */
+.dark .employee-start-chat-modal,
+.dark .employee-chat-window-modal,
+.dark .employee-chat-window-header,
+.dark .employee-chat-window-body,
+.dark .employee-chat-window-footer {
+  background: unset;
+}
