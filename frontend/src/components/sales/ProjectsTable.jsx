@@ -6,11 +6,14 @@ import { useState, useEffect } from "react";
 import { api } from "@/lib/api";
 import BudgetModal from "./BudgetModal";
 import StatusBadge from "./StatusBadge";
-
+import { ProjectEditorModal } from "../ProjectEditorModal";
 import {
   Eye,
   Download,
   MoreVertical,
+  Edit3,
+  Trash2,
+  Loader2,
 } from "lucide-react";
 
 const formatProjectAmount = (value) => {
@@ -32,27 +35,75 @@ const getProjectBudgetValue = (project) => {
   return project?.budget || project?.agreed || 0;
 };
 
-
 export default function ProjectsTable({ onViewProject }) {
   const [dbProjects, setDbProjects] = useState([]);
   const [selectedProject, setSelectedProject] = useState(null);
   const [open, setOpen] = useState(false);
 
-  useEffect(() => {
+  const [openActionMenuId, setOpenActionMenuId] = useState(null);
+  const [selectedProjectForEdit, setSelectedProjectForEdit] = useState(null);
+  const [deletingId, setDeletingId] = useState(null);
+
+  const fetchProjects = () => {
     api
       .get("/api/projects")
       .then((res) => setDbProjects(res.data || []))
       .catch((err) => console.error("Failed DB projects fetch:", err));
+  };
+
+  useEffect(() => {
+    fetchProjects();
   }, []);
 
   const combinedProjects = dbProjects;
+
+  const getProjectId = (project) => {
+    return project.id || project._id;
+  };
+
+  const getProjectName = (project) => {
+    return project.project || project.name || "Project";
+  };
+
+  const handleDeleteProject = async (project) => {
+    const projectId = getProjectId(project);
+    const projectName = getProjectName(project);
+
+    if (!projectId) {
+      alert("Project ID not found.");
+      return;
+    }
+
+    const confirmDelete = window.confirm(
+      `Are you sure you want to delete "${projectName}"?`
+    );
+
+    if (!confirmDelete) return;
+
+    setDeletingId(projectId);
+
+    try {
+      await api.delete(`/api/projects/${projectId}`);
+
+      setDbProjects((prev) =>
+        prev.filter((item) => getProjectId(item) !== projectId)
+      );
+
+      setOpenActionMenuId(null);
+    } catch (err) {
+      console.error("Delete failed:", err);
+      alert("Failed to delete project.");
+    } finally {
+      setDeletingId(null);
+    }
+  };
 
   const handleDownloadReport = () => {
     const reportWindow = window.open("", "_blank", "width=1600,height=900");
 
     const rows = combinedProjects
-    .map(
-      (project) => `
+      .map(
+        (project) => `
         <tr>
           <td>${project.project}</td>
           <td>${project.client}</td>
@@ -64,10 +115,10 @@ export default function ProjectsTable({ onViewProject }) {
           <td>${project.status}</td>
         </tr>
       `
-    )
-    .join("");
+      )
+      .join("");
 
-  reportWindow.document.write(`
+    reportWindow.document.write(`
     <html>
       <head>
         <title>Client Projects Financial Report</title>
@@ -202,32 +253,34 @@ export default function ProjectsTable({ onViewProject }) {
     </html>
   `);
 
-  reportWindow.document.close();
-};
+    reportWindow.document.close();
+  };
 
+  const handleDownloadInvoice = (project) => {
+    const today = new Date().toLocaleDateString("en-US", {
+      month: "short",
+      day: "numeric",
+      year: "numeric",
+    });
 
-const handleDownloadInvoice = (project) => {
-  const today = new Date().toLocaleDateString("en-US", {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-  });
+    const fileName = `Invoice_${project.project.replace(
+      /[^a-z0-9]/gi,
+      "_"
+    )}.html`;
 
-  const fileName = `Invoice_${project.project.replace(/[^a-z0-9]/gi, "_")}.html`;
-
-  const paymentRows = project.payments
-    .map(
-      (payment) => `
+    const paymentRows = project.payments
+      .map(
+        (payment) => `
         <tr>
           <td>${payment.date}</td>
           <td>${formatProjectAmount(payment.amount)}</td>
           <td>${payment.title}</td>
         </tr>
       `
-    )
-    .join("");
+      )
+      .join("");
 
-  const invoiceHTML = `
+    const invoiceHTML = `
     <!DOCTYPE html>
     <html>
       <head>
@@ -394,19 +447,19 @@ const handleDownloadInvoice = (project) => {
     </html>
   `;
 
-  const blob = new Blob([invoiceHTML], {
-    type: "text/html",
-  });
+    const blob = new Blob([invoiceHTML], {
+      type: "text/html",
+    });
 
-  const url = URL.createObjectURL(blob);
+    const url = URL.createObjectURL(blob);
 
-  const link = document.createElement("a");
-  link.href = url;
-  link.download = fileName;
-  link.click();
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = fileName;
+    link.click();
 
-  URL.revokeObjectURL(url);
-};
+    URL.revokeObjectURL(url);
+  };
 
   return (
     <div className="glass-card rounded-2xl p-6 border border-border">
@@ -415,131 +468,205 @@ const handleDownloadInvoice = (project) => {
           <h2 className="text-xl font-bold text-foreground">
             Client Projects Detailed View
           </h2>
+
           <p className="text-sm text-muted-foreground mt-1">
-            Manage and track all client projects. Click Budget for Financial Overview
+            Manage and track all client projects. Click Budget for Financial
+            Overview
           </p>
         </div>
 
         <button
-  onClick={handleDownloadReport}
-  className="px-4 py-2 rounded-lg bg-primary text-primary-foreground text-sm font-medium hover:opacity-90 transition"
->
-  View Reports
-</button>
+          onClick={handleDownloadReport}
+          className="px-4 py-2 rounded-lg bg-primary text-primary-foreground text-sm font-medium hover:opacity-90 transition"
+        >
+          View Reports
+        </button>
       </div>
 
       <div className="overflow-x-auto">
         <table className="w-full min-w-[1300px] text-left border-collapse">
           <thead>
             <tr className="border-b border-border text-xs uppercase text-muted-foreground tracking-wider">
-              <th className="py-4 px-4 whitespace-nowrap font-bold">Project Name</th>
-              <th className="py-4 px-4 whitespace-nowrap font-bold">Client Name</th>
+              <th className="py-4 px-4 whitespace-nowrap font-bold">
+                Project Name
+              </th>
+
+              <th className="py-4 px-4 whitespace-nowrap font-bold">
+                Client Name
+              </th>
+
               <th className="py-4 px-4 whitespace-nowrap font-bold">Budget</th>
-              <th className="py-4 px-4 whitespace-nowrap font-bold">Lead Manager</th>
-              <th className="py-4 px-4 whitespace-nowrap font-bold">Deadline</th>
-              <th className="py-4 px-4 whitespace-nowrap font-bold">Progress</th>
+
+              <th className="py-4 px-4 whitespace-nowrap font-bold">
+                Lead Manager
+              </th>
+
+              <th className="py-4 px-4 whitespace-nowrap font-bold">
+                Deadline
+              </th>
+
+              <th className="py-4 px-4 whitespace-nowrap font-bold">
+                Progress
+              </th>
+
               <th className="py-4 px-4 whitespace-nowrap font-bold">Status</th>
+
               <th className="py-4 px-4 whitespace-nowrap font-bold">Report</th>
+
               <th className="py-4 px-4 whitespace-nowrap font-bold">Actions</th>
             </tr>
           </thead>
 
           <tbody className="divide-y divide-border/40 text-sm">
-            {combinedProjects.map((project) => (
-              <tr
-                key={project.id || project._id}
-                className="hover:bg-muted/30 transition-colors"
-              >
-                <td className="py-4 px-4 font-bold text-foreground whitespace-nowrap">
-                  {project.project}
-                </td>
+            {combinedProjects.map((project) => {
+              const projectId = getProjectId(project);
+              const isMenuOpen = openActionMenuId === projectId;
+              const isDeleting = deletingId === projectId;
 
-                <td className="py-4 px-4 text-muted-foreground whitespace-nowrap">
-                  {project.client}
-                </td>
+              return (
+                <tr
+                  key={projectId}
+                  className="hover:bg-muted/30 transition-colors"
+                >
+                  <td className="py-4 px-4 font-bold text-foreground whitespace-nowrap">
+                    {project.project}
+                  </td>
 
-                <td className="py-4 px-4 whitespace-nowrap">
-                  <button
-                    onClick={() => {
-                      setSelectedProject(project);
-                      setOpen(true);
-                    }}
-                    className="font-bold underline text-emerald-400 hover:text-emerald-300 transition"
-                  >
-                    {formatProjectAmount(getProjectBudgetValue(project))}
-                  </button>
-                </td>
+                  <td className="py-4 px-4 text-muted-foreground whitespace-nowrap">
+                    {project.client}
+                  </td>
 
-                <td className="py-4 px-4 font-medium text-foreground whitespace-nowrap">
-                  {project.manager}
-                </td>
-
-                <td className="py-4 px-4 text-muted-foreground whitespace-nowrap">
-                  {project.deadline}
-                </td>
-
-                <td className="py-4 px-4 w-[220px] min-w-[180px]">
-                  <div className="flex items-center gap-3">
-                    <div className="w-32 h-2.5 bg-zinc-800 rounded-full overflow-hidden border border-border/50">
-                      <div
-                        className="h-full bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-500 rounded-full transition-all duration-500 shadow-sm shadow-indigo-500/30"
-                        style={{
-                          width: `${project.progress}%`,
-                        }}
-                      />
-                    </div>
-
-                    <span className="text-sm font-bold text-indigo-400">
-                      {project.progress}%
-                    </span>
-                  </div>
-                </td>
-
-                <td className="py-4 px-4 whitespace-nowrap">
-                  <StatusBadge status={project.status} />
-                </td>
-
-                <td className="py-4 px-4 whitespace-nowrap">
-                  <button
-                    onClick={() => onViewProject(project)}
-                    className="flex items-center gap-2 px-3.5 py-2 rounded-xl border border-border/80 hover:bg-indigo-500/10 hover:border-indigo-500/40 text-xs font-bold transition shadow-sm"
-                  >
-                    <Eye size={15} className="text-indigo-400" />
-                    View Project
-                  </button>
-                </td>
-
-                <td className="py-4 px-4 whitespace-nowrap">
-                  <div className="flex items-center gap-2">
+                  <td className="py-4 px-4 whitespace-nowrap">
                     <button
-                      onClick={() => handleDownloadInvoice(project)}
-                      className="p-2 rounded-xl border border-border/80 hover:bg-muted text-muted-foreground hover:text-foreground transition shadow-sm"
-                      title="Download Invoice"
+                      onClick={() => {
+                        setSelectedProject(project);
+                        setOpen(true);
+                      }}
+                      className="font-bold underline text-emerald-400 hover:text-emerald-300 transition"
                     >
-                      <Download size={16} />
+                      {formatProjectAmount(getProjectBudgetValue(project))}
                     </button>
+                  </td>
 
-                    <button className="p-2 rounded-xl border border-border/80 hover:bg-muted text-muted-foreground hover:text-foreground transition shadow-sm">
-                      <MoreVertical size={16} />
+                  <td className="py-4 px-4 font-medium text-foreground whitespace-nowrap">
+                    {project.manager}
+                  </td>
+
+                  <td className="py-4 px-4 text-muted-foreground whitespace-nowrap">
+                    {project.deadline}
+                  </td>
+
+                  <td className="py-4 px-4 w-[220px] min-w-[180px]">
+                    <div className="flex items-center gap-3">
+                      <div className="w-32 h-2.5 bg-zinc-800 rounded-full overflow-hidden border border-border/50">
+                        <div
+                          className="h-full bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-500 rounded-full transition-all duration-500 shadow-sm shadow-indigo-500/30"
+                          style={{
+                            width: `${project.progress}%`,
+                          }}
+                        />
+                      </div>
+
+                      <span className="text-sm font-bold text-indigo-400">
+                        {project.progress}%
+                      </span>
+                    </div>
+                  </td>
+
+                  <td className="py-4 px-4 whitespace-nowrap">
+                    <StatusBadge status={project.status} />
+                  </td>
+
+                  <td className="py-4 px-4 whitespace-nowrap">
+                    <button
+                      onClick={() => onViewProject(project)}
+                      className="flex items-center gap-2 px-3.5 py-2 rounded-xl border border-border/80 hover:bg-indigo-500/10 hover:border-indigo-500/40 text-xs font-bold transition shadow-sm"
+                    >
+                      <Eye size={15} className="text-indigo-400" />
+                      View Project
                     </button>
-                  </div>
-                </td>
-              </tr>
-            ))}
+                  </td>
+
+                  <td className="py-4 px-4 whitespace-nowrap">
+                    <div className="flex items-center gap-2">
+                      <button
+                        onClick={() => handleDownloadInvoice(project)}
+                        className="p-2 rounded-xl border border-border/80 hover:bg-muted text-muted-foreground hover:text-foreground transition shadow-sm"
+                        title="Download Invoice"
+                      >
+                        <Download size={16} />
+                      </button>
+
+                      <div className="relative">
+                        <button
+                          onClick={() =>
+                            setOpenActionMenuId(isMenuOpen ? null : projectId)
+                          }
+                          className="p-2 rounded-xl border border-border/80 hover:bg-muted text-muted-foreground hover:text-foreground transition shadow-sm"
+                          title="More Actions"
+                        >
+                          <MoreVertical size={16} />
+                        </button>
+
+                        {isMenuOpen && (
+                          <div className="absolute right-0 top-full z-50 mt-2 w-44 overflow-hidden rounded-xl border border-border bg-background shadow-xl">
+                            <button
+                              onClick={() => {
+                                setSelectedProjectForEdit(project);
+                                setOpenActionMenuId(null);
+                              }}
+                              className="flex w-full items-center gap-2 px-4 py-3 text-left text-xs font-bold text-foreground transition hover:bg-muted"
+                            >
+                              <Edit3 size={15} className="text-indigo-400" />
+                              Edit Project
+                            </button>
+
+                            <button
+                              onClick={() => handleDeleteProject(project)}
+                              disabled={isDeleting}
+                              className="flex w-full items-center gap-2 px-4 py-3 text-left text-xs font-bold text-red-500 transition hover:bg-red-500/10 disabled:opacity-60"
+                            >
+                              {isDeleting ? (
+                                <Loader2
+                                  size={15}
+                                  className="animate-spin text-red-500"
+                                />
+                              ) : (
+                                <Trash2 size={15} className="text-red-500" />
+                              )}
+                              Delete Project
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       </div>
 
       {selectedProject && (
-  <BudgetModal
-    project={selectedProject}
-    onClose={() => {
-      setSelectedProject(null);
-      setOpen(false);
-    }}
-  />
-)}
+        <BudgetModal
+          project={selectedProject}
+          onClose={() => {
+            setSelectedProject(null);
+            setOpen(false);
+          }}
+        />
+      )}
 
+      <ProjectEditorModal
+        isOpen={!!selectedProjectForEdit}
+        project={selectedProjectForEdit}
+        onClose={() => setSelectedProjectForEdit(null)}
+        onUpdated={() => {
+          fetchProjects();
+          setSelectedProjectForEdit(null);
+        }}
+      />
     </div>
   );
 }
