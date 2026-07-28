@@ -11,10 +11,12 @@ import {
   X,
   CheckCircle2,
   ChevronDown,
+  QrCode,
 } from "lucide-react";
 import { useTheme } from "next-themes";
 import NewLeadModal from "./NewLeadModal";
 import { GmailComposerModal } from "@/components/GmailComposerModal";
+import QRCode from "qrcode";
 
 const initialContacts = [
   {
@@ -186,6 +188,11 @@ export default function ContactCallingWorkspace({ onBack }) {
   const [composerTo, setComposerTo] = useState("");
   const [composerSubject, setComposerSubject] = useState("");
 
+  const [isQrModalOpen, setIsQrModalOpen] = useState(false);
+  const [qrImage, setQrImage] = useState("");
+  const [qrError, setQrError] = useState("");
+  const [isQrLoading, setIsQrLoading] = useState(false);
+
   const { resolvedTheme } = useTheme();
   const isDarkMode = resolvedTheme === "dark";
 
@@ -291,6 +298,34 @@ export default function ContactCallingWorkspace({ onBack }) {
     setComposerTo(contact.email);
     setComposerSubject("");
     setIsComposerOpen(true);
+  };
+
+  const handleGenerateQrCode = async () => {
+    setIsQrModalOpen(true);
+    setQrImage("");
+    setQrError("");
+    setIsQrLoading(true);
+
+    try {
+      const localDigits = getLocalDigits(dialNumber);
+
+      if (!dialNumber || dialNumberError || localDigits.length !== 10) {
+        throw new Error("Invalid number");
+      }
+
+      const dialableNumber = `+91${localDigits}`;
+      const qrDataUrl = await QRCode.toDataURL(`tel:${dialableNumber}`, {
+        width: 260,
+        margin: 2,
+        errorCorrectionLevel: "M",
+      });
+
+      setQrImage(qrDataUrl);
+    } catch (error) {
+      setQrError("Oops something went wrong!");
+    } finally {
+      setIsQrLoading(false);
+    }
   };
 
   const openStatusModal = (contact) => {
@@ -663,17 +698,29 @@ export default function ContactCallingWorkspace({ onBack }) {
       <div className="grid grid-cols-1 gap-5 xl:grid-cols-[320px_minmax(0,1fr)]">
         {/* Dialpad */}
         <div className="contact-workspace-card glass-card rounded-2xl border border-border p-4">
-          <div className="mb-4 flex items-center gap-3">
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-violet-100 text-primary dark:bg-primary/10">
-              <PhoneCall size={18} />
+          <div className="mb-4 flex items-start justify-between gap-3">
+            <div className="flex items-center gap-3">
+              <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-violet-100 text-primary dark:bg-primary/10">
+                <PhoneCall size={18} />
+              </div>
+
+              <div>
+                <h2 className="text-lg font-bold text-foreground">Dialpad</h2>
+                <p className="text-xs text-muted-foreground">
+                  Make calls directly
+                </p>
+              </div>
             </div>
 
-            <div>
-              <h2 className="text-lg font-bold text-foreground">Dialpad</h2>
-              <p className="text-xs text-muted-foreground">
-                Make calls directly
-              </p>
-            </div>
+            <button
+              type="button"
+              onClick={handleGenerateQrCode}
+              className="flex items-center gap-1.5 rounded-xl border border-violet-200 bg-white px-3 py-2 text-xs font-bold text-primary shadow-sm transition hover:bg-violet-50 dark:border-primary/30 dark:bg-primary/10 dark:text-primary dark:hover:bg-primary/20"
+              title="Generate QR Code"
+            >
+              <QrCode size={15} />
+              QR Code
+            </button>
           </div>
 
           <div className="contact-workspace-soft mb-4 rounded-xl border border-violet-100 bg-white p-3 text-center shadow-sm dark:border-slate-700 dark:bg-slate-900/50">
@@ -1012,6 +1059,64 @@ export default function ContactCallingWorkspace({ onBack }) {
           </div>
         </div>
       )}
+
+      {isQrModalOpen && (
+  <div className="contact-qr-overlay fixed inset-0 z-[140] flex items-center justify-center p-4">
+    <div className="contact-qr-card w-full max-w-sm overflow-hidden rounded-2xl border shadow-2xl">
+      <div className="contact-qr-header flex items-start justify-between border-b px-5 py-4">
+        <div>
+          <h2 className="contact-qr-title text-lg font-bold">
+            Dial QR Code
+          </h2>
+
+          <p className="contact-qr-subtitle mt-1 text-xs">
+            Scan this QR code from your phone to open the dialer.
+          </p>
+        </div>
+
+        <button
+          onClick={() => setIsQrModalOpen(false)}
+          className="contact-qr-close rounded-full p-2 transition"
+          title="Close QR Code"
+        >
+          <X size={18} />
+        </button>
+      </div>
+
+      <div className="contact-qr-body px-5 py-5">
+        <div className="contact-qr-box flex min-h-[280px] items-center justify-center rounded-2xl border border-dashed p-4 text-center">
+          {isQrLoading ? (
+            <p className="contact-qr-subtitle text-sm font-semibold">
+              Generating QR Code...
+            </p>
+          ) : qrError ? (
+            <div className="contact-qr-error-card flex h-[240px] w-[240px] items-center justify-center rounded-xl px-5 text-center text-sm font-bold">
+              {qrError}
+            </div>
+          ) : qrImage ? (
+            <img
+              src={qrImage}
+              alt="Dial phone number QR Code"
+              className="contact-qr-code-card h-[240px] w-[240px] rounded-xl p-3 shadow-sm"
+            />
+          ) : (
+            <div className="contact-qr-error-card flex h-[240px] w-[240px] items-center justify-center rounded-xl px-5 text-center text-sm font-bold">
+              Oops something went wrong!
+            </div>
+          )}
+        </div>
+
+        <p className="contact-qr-number mt-4 text-center text-sm font-bold">
+          {dialNumber || "No number selected"}
+        </p>
+
+        <p className="contact-qr-help mt-1 text-center text-xs">
+          Scanning will open this number in the mobile dialer.
+        </p>
+      </div>
+    </div>
+  </div>
+)}
 
       {leadModalTab && (
         <NewLeadModal

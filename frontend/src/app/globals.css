@@ -2099,3 +2099,125 @@ html:not(.dark) thead.contact-table-head th {
 .dark .contact-list-table-row:hover {
   background: rgba(99, 102, 241, 0.06) !important;
 }
+
+/* ---------- QR Code Modal Theme Fix ---------- */
+/* Light theme */
+
+html:not(.dark) .contact-qr-overlay {
+  background: rgba(38, 11, 69, 0.35) !important;
+  backdrop-filter: blur(8px) !important;
+}
+
+html:not(.dark) .contact-qr-card {
+  background: #ffffff !important;
+  border-color: #eadcff !important;
+  box-shadow: 0 24px 60px rgba(139, 92, 246, 0.22) !important;
+}
+
+html:not(.dark) .contact-qr-header {
+  background: #f3e8ff !important;
+  border-color: #eadcff !important;
+}
+
+html:not(.dark) .contact-qr-title {
+  color: #260b45 !important;
+}
+
+html:not(.dark) .contact-qr-subtitle {
+  color: #7a6692 !important;
+}
+
+html:not(.dark) .contact-qr-close {
+  color: #7a6692 !important;
+}
+
+html:not(.dark) .contact-qr-close:hover {
+  background: #eadcff !important;
+  color: #260b45 !important;
+}
+
+html:not(.dark) .contact-qr-body {
+  background: #ffffff !important;
+}
+
+html:not(.dark) .contact-qr-box {
+  background: #faf5ff !important;
+  border-color: #d8b4fe !important;
+}
+
+html:not(.dark) .contact-qr-code-card {
+  background: #ffffff !important;
+  border: 1px solid #eadcff !important;
+}
+
+html:not(.dark) .contact-qr-error-card {
+  background: #ffffff !important;
+  color: #ef4444 !important;
+  border: 1px solid #fecaca !important;
+}
+
+html:not(.dark) .contact-qr-number {
+  color: #9333ea !important;
+}
+
+html:not(.dark) .contact-qr-help {
+  color: #7a6692 !important;
+}
+
+/* Dark theme protected */
+
+.dark .contact-qr-overlay {
+  background: rgba(0, 0, 0, 0.6) !important;
+  backdrop-filter: blur(8px) !important;
+}
+
+.dark .contact-qr-card {
+  background: #0f172a !important;
+  border-color: #334155 !important;
+}
+
+.dark .contact-qr-header {
+  background: #0f172a !important;
+  border-color: #334155 !important;
+}
+
+.dark .contact-qr-title {
+  color: #f8fafc !important;
+}
+
+.dark .contact-qr-subtitle,
+.dark .contact-qr-help {
+  color: #94a3b8 !important;
+}
+
+.dark .contact-qr-close {
+  color: #94a3b8 !important;
+}
+
+.dark .contact-qr-close:hover {
+  background: #1e293b !important;
+  color: #ffffff !important;
+}
+
+.dark .contact-qr-body {
+  background: #0f172a !important;
+}
+
+.dark .contact-qr-box {
+  background: rgba(30, 41, 59, 0.45) !important;
+  border-color: #334155 !important;
+}
+
+.dark .contact-qr-code-card {
+  background: #ffffff !important;
+}
+
+.dark .contact-qr-error-card {
+  background: #020617 !important;
+  color: #f87171 !important;
+  border: 1px solid #7f1d1d !important;
+}
+
+.dark .contact-qr-number {
+  color: #c084fc !important;
+}
