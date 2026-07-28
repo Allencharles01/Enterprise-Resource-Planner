@@ -1,6 +1,15 @@
 "use client";
 
-import { Delete, Phone, PhoneOff } from "lucide-react";
+import {
+  Delete,
+  Phone,
+  PhoneOff,
+  QrCode,
+  X,
+} from "lucide-react";
+
+import { QRCodeCanvas } from "qrcode.react";
+import { useState } from "react";
 import { formatCallDuration } from "@/utils/phoneFormatter";
 
 const KEYS = [
@@ -41,6 +50,8 @@ export default function Dialpad({
   const isActive =
     callState === "calling" || callState === "connected";
 
+  const [showQR, setShowQR] = useState(false);
+
   return (
     <div
       className="
@@ -62,15 +73,48 @@ export default function Dialpad({
           Dial Pad
         </h3>
 
-        <span
-          className={`px-3 py-1 rounded-full text-xs font-semibold ${
-            online
-              ? "bg-green-100 text-green-600 dark:bg-green-500/10 dark:text-green-400"
-              : "bg-gray-100 text-gray-500 dark:bg-white/5 dark:text-gray-400"
-          }`}
-        >
-          {online ? "Online" : "Offline"}
-        </span>
+        <div className="flex items-center gap-2">
+
+  <span
+    className={`px-3 py-1 rounded-full text-xs font-semibold ${
+      online
+        ? "bg-green-100 text-green-600 dark:bg-green-500/10 dark:text-green-400"
+        : "bg-gray-100 text-gray-500 dark:bg-white/5 dark:text-gray-400"
+    }`}
+  >
+    {online ? "Online" : "Offline"}
+  </span>
+
+  <button
+    onClick={() => setShowQR(true)}
+    className="
+      h-10
+      w-10
+      rounded-xl
+      border
+      border-violet-200
+      bg-[#F7F2FF]
+      hover:bg-violet-500
+      hover:text-white
+
+      dark:bg-[#1B1B2D]
+      dark:border-white/10
+      dark:hover:bg-violet-500
+
+      flex
+      items-center
+      justify-center
+
+      transition-all
+      duration-300
+      hover:scale-105
+    "
+    title="Generate QR Code"
+  >
+    <QrCode size={18} />
+  </button>
+
+</div>
       </div>
 
       {/* Number Input */}
@@ -304,6 +348,79 @@ export default function Dialpad({
         )}
 
       </div>
+      {showQR && (
+  <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm">
+
+    <div
+      className="
+        relative
+        w-[360px]
+        rounded-2xl
+        bg-white
+        dark:bg-[#12121b]
+        border
+        border-violet-200
+        dark:border-white/10
+        p-6
+        shadow-2xl
+      "
+    >
+      <button
+        onClick={() => setShowQR(false)}
+        className="absolute right-4 top-4 text-gray-400 hover:text-red-500"
+      >
+        <X size={18} />
+      </button>
+
+      <h2 className="text-xl font-bold text-center text-[#24123B] dark:text-white">
+        Scan to Call
+      </h2>
+
+      <p className="text-center text-sm text-gray-500 mt-2 mb-5">
+        Scan this QR using your phone
+      </p>
+
+      {phoneNumber ? (
+
+        <div className="flex flex-col items-center gap-4">
+
+          <div className="bg-white p-4 rounded-xl">
+            <QRCodeCanvas
+              value={`tel:${phoneNumber}`}
+              size={220}
+            />
+          </div>
+
+          <p className="font-semibold text-[#24123B] dark:text-white">
+            {phoneNumber}
+          </p>
+
+        </div>
+
+      ) : (
+
+        <div className="py-10 text-center">
+
+          <div className="text-2xl mb-3">
+            😕
+          </div>
+
+          <h3 className="font-bold text-red-500">
+            Oops! Something went wrong.
+          </h3>
+
+          <p className="text-gray-500 mt-2">
+            Please enter or select a phone number first.
+          </p>
+
+        </div>
+
+      )}
+
+    </div>
+
+  </div>
+)}
 
     </div>
   );
