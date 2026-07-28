@@ -11,14 +11,18 @@ export function ThemeProvider({ children }) {
   });
 
   useEffect(() => {
-    const root = document.documentElement;
-    if (theme === "dark") {
-      root.classList.add("dark");
-    } else {
-      root.classList.remove("dark");
-    }
-    window.localStorage.setItem("nn-theme", theme);
-  }, [theme]);
+  const root = document.documentElement;
+
+  root.classList.remove("dark", "light");
+
+  if (theme === "dark") {
+    root.classList.add("dark");
+  } else {
+    root.classList.add("light");
+  }
+
+  window.localStorage.setItem("nn-theme", theme);
+}, [theme]);
 
   const toggleTheme = () => setTheme((t) => (t === "dark" ? "light" : "dark"));
 
