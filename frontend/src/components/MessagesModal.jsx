@@ -1,3 +1,5 @@
+"use client";
+
 import { useState, useEffect } from "react";
 import {
   X,
@@ -8,7 +10,8 @@ import {
   Reply,
   Plus,
   Inbox,
-  FileText,
+  Send,
+  Eye,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { api } from "@/lib/api";
@@ -18,9 +21,11 @@ import { ChatWindowModal } from "./ChatWindowModal";
 
 export function MessagesModal({ isOpen, onClose }) {
   const [activeTab, setActiveTab] = useState("email");
+  const [viewMode, setViewMode] = useState("inbox");
   const [items, setItems] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [selectedItem, setSelectedItem] = useState(null);
+  const [quickMessage, setQuickMessage] = useState("");
 
   const [isComposerOpen, setIsComposerOpen] = useState(false);
   const [composerTo, setComposerTo] = useState("");
@@ -58,7 +63,7 @@ export function MessagesModal({ isOpen, onClose }) {
           }));
 
           const combined = [...chats, ...emails].sort(
-            (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+            (a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0)
           );
 
           setItems(combined);
@@ -75,6 +80,14 @@ export function MessagesModal({ isOpen, onClose }) {
   };
 
   useEffect(() => {
+    if (!isOpen) return;
+
+    setSelectedItem(null);
+    setQuickMessage("");
+    setViewMode("inbox");
+  }, [isOpen]);
+
+  useEffect(() => {
     if (isOpen) {
       fetchItems();
 
@@ -89,6 +102,7 @@ export function MessagesModal({ isOpen, onClose }) {
               name: u.name || "System Admin",
               code: u.employeeCode || (u.role === "admin" ? "ADMIN" : "EMP"),
               role: u.role || "admin",
+              email: u.email || u.workEmail || "",
             };
 
             setCurrentUser(uObj);
@@ -111,8 +125,10 @@ export function MessagesModal({ isOpen, onClose }) {
                 code:
                   parsed.employeeCode ||
                   parsed.employeeId ||
+                  parsed.code ||
                   (parsed.role === "admin" ? "ADMIN" : "EMP"),
                 role: parsed.role || "admin",
+                email: parsed.email || parsed.workEmail || "",
               });
             } else {
               const name = localStorage.getItem("userName") || "System Admin";
@@ -126,6 +142,7 @@ export function MessagesModal({ isOpen, onClose }) {
                 name,
                 code,
                 role,
+                email: localStorage.getItem("userEmail") || "",
               });
             }
           } catch (err) {
@@ -136,6 +153,7 @@ export function MessagesModal({ isOpen, onClose }) {
               name: "System Admin",
               code: "ADMIN",
               role: "admin",
+              email: "",
             });
           }
         });
@@ -145,32 +163,40 @@ export function MessagesModal({ isOpen, onClose }) {
   useEffect(() => {
     if (!isOpen) return;
 
-    if ((activeTab === "email" || activeTab === "message") && items.length > 0) {
+    if (items.length === 0) {
+      setSelectedItem(null);
+      setViewMode("inbox");
+      return;
+    }
+
+    if (selectedItem) {
       const selectedStillExists = items.some((item) =>
         isSameItem(item, selectedItem)
       );
 
-      if (!selectedItem || !selectedStillExists) {
-        setSelectedItem(items[0]);
+      if (!selectedStillExists) {
+        setSelectedItem(null);
+        setViewMode("inbox");
       }
     }
-
-    if (items.length === 0) {
-      setSelectedItem(null);
-    }
-  }, [items, activeTab, isOpen, selectedItem]);
+  }, [items, isOpen, selectedItem]);
 
   useEffect(() => {
     const handleKeyDown = (e) => {
       if (
         e.key === "Escape" &&
         isOpen &&
-        !selectedItem &&
         !isComposerOpen &&
         !isStartChatOpen &&
         !selectedChatRecipient
       ) {
-        onClose();
+        if (viewMode === "conversation") {
+          setViewMode("inbox");
+          setSelectedItem(null);
+          setQuickMessage("");
+        } else {
+          onClose();
+        }
       }
     };
 
@@ -180,7 +206,7 @@ export function MessagesModal({ isOpen, onClose }) {
   }, [
     isOpen,
     onClose,
-    Boolean(selectedItem),
+    viewMode,
     isComposerOpen,
     isStartChatOpen,
     Boolean(selectedChatRecipient),
@@ -269,6 +295,140 @@ export function MessagesModal({ isOpen, onClose }) {
     });
   };
 
+  const normalizeSubject = (value = "") => {
+    return String(value)
+      .replace(/^re:\s*/i, "")
+      .replace(/^fw:\s*/i, "")
+      .trim()
+      .toLowerCase();
+  };
+
+  const isSentByCurrentUser = (item) => {
+    if (!item) return false;
+
+    if (item.direction === "outbound" || item.type === "sent") return true;
+    if (item.direction === "inbound") return false;
+
+    if (item.isChatConversation) {
+      return (
+        item.senderId === currentUser?.id ||
+        item.senderCode === currentUser?.code ||
+        (currentUser?.role === "admin" && item.senderRole === "admin")
+      );
+    }
+
+    if (currentUser?.email && item.from) {
+      return String(item.from)
+        .toLowerCase()
+        .includes(String(currentUser.email).toLowerCase());
+    }
+
+    return false;
+  };
+
+  const buildChatRecipient = (item) => {
+    if (!item) return null;
+
+    const raw = item.rawPartner || item.partner || item.recipientUser || {};
+    const sentByMe = isSentByCurrentUser(item);
+
+    const partnerId =
+      item.partnerId ||
+      raw.id ||
+      raw._id ||
+      raw.employeeId ||
+      raw.empCode ||
+      raw.employeeCode ||
+      raw.code ||
+      (sentByMe ? item.recipientId : item.senderId) ||
+      item.userId ||
+      item.id ||
+      item._id;
+
+    const partnerCode =
+      item.partnerCode ||
+      raw.empCode ||
+      raw.employeeCode ||
+      raw.code ||
+      raw.loginId ||
+      (sentByMe ? item.recipientCode : item.senderCode) ||
+      item.empCode ||
+      item.employeeCode ||
+      item.code ||
+      partnerId;
+
+    const partnerName =
+      item.partnerName ||
+      raw.name ||
+      raw.fullName ||
+      (sentByMe ? item.recipientName : item.senderName) ||
+      item.name ||
+      item.from ||
+      item.to ||
+      "Unknown User";
+
+    return {
+      ...raw,
+      id: partnerId,
+      _id: raw._id || partnerId,
+      employeeId: raw.employeeId || partnerId,
+      empCode: partnerCode,
+      employeeCode: raw.employeeCode || partnerCode,
+      code: raw.code || partnerCode,
+      loginId: raw.loginId || partnerCode,
+      name: partnerName,
+      designation:
+        raw.designation ||
+        item.partnerDesignation ||
+        item.designation ||
+        item.department ||
+        "",
+      department: raw.department || item.department || "",
+    };
+  };
+
+  const getSortedInboxItems = () => {
+    return [...items].sort((a, b) => {
+      const first = new Date(a.createdAt || 0).getTime();
+      const second = new Date(b.createdAt || 0).getTime();
+
+      return second - first;
+    });
+  };
+
+  const getConversationItemsForSelected = () => {
+    if (!selectedItem) return [];
+
+    const selectedPerson = getDisplayPerson(selectedItem).toLowerCase();
+    const selectedSubject = normalizeSubject(getMessageTitle(selectedItem));
+
+    const relatedEmails = items.filter((item) => {
+      if (isSameItem(item, selectedItem)) return true;
+
+      const itemPerson = getDisplayPerson(item).toLowerCase();
+      const itemSubject = normalizeSubject(getMessageTitle(item));
+
+      const samePerson = selectedPerson && itemPerson === selectedPerson;
+      const sameSubject = selectedSubject && itemSubject === selectedSubject;
+
+      return samePerson || sameSubject;
+    });
+
+    const finalItems = relatedEmails.length > 0 ? relatedEmails : [selectedItem];
+
+    return finalItems
+      .filter((item, index, arr) => {
+        const key = getItemKey(item, index);
+        return arr.findIndex((i, idx) => getItemKey(i, idx) === key) === index;
+      })
+      .sort((a, b) => {
+        const first = new Date(a.createdAt || 0).getTime();
+        const second = new Date(b.createdAt || 0).getTime();
+
+        return first - second;
+      });
+  };
+
   const handleDelete = async (item) => {
     if (!item) return;
 
@@ -282,6 +442,7 @@ export function MessagesModal({ isOpen, onClose }) {
 
         if (isSameItem(selectedItem, item)) {
           setSelectedItem(null);
+          setViewMode("inbox");
         }
 
         fetchItems();
@@ -319,25 +480,27 @@ export function MessagesModal({ isOpen, onClose }) {
 
     if (item.isChatConversation) {
       try {
-        if (currentUser && item.rawPartner) {
-          const senderCode =
-            item.rawPartner.code ||
-            item.rawPartner.empCode ||
-            item.rawPartner.employeeCode ||
-            item.rawPartner.id;
+        const recipient = buildChatRecipient(item);
 
-          const recipientCode =
-            currentUser.code ||
-            currentUser.employeeCode ||
-            (currentUser.role === "admin" ? "ADMIN" : "EMP001");
+        const senderCode =
+          recipient?.code ||
+          recipient?.empCode ||
+          recipient?.employeeCode ||
+          recipient?.id;
 
-          const senderId = item.rawPartner.id || item.rawPartner._id;
+        const recipientCode =
+          currentUser?.code ||
+          currentUser?.employeeCode ||
+          (currentUser?.role === "admin" ? "ADMIN" : "EMP001");
 
-          const recipientId =
-            currentUser.id ||
-            currentUser._id ||
-            (currentUser.role === "admin" ? "ADMIN_ID" : "");
+        const senderId = recipient?.id || recipient?._id;
 
+        const recipientId =
+          currentUser?.id ||
+          currentUser?._id ||
+          (currentUser?.role === "admin" ? "ADMIN_ID" : "");
+
+        if (senderId && recipientId) {
           await api
             .patch("/api/internalChat/read", {
               senderId,
@@ -360,21 +523,74 @@ export function MessagesModal({ isOpen, onClose }) {
   };
 
   const handlePreviewItem = async (item) => {
+    if (activeTab === "message") {
+      await handleOpenItem(item);
+      return;
+    }
+
     setSelectedItem({ ...item, isRead: true, unreadCount: 0 });
+    setViewMode("conversation");
     await markItemAsRead(item);
   };
 
   const handleOpenItem = async (item) => {
     await markItemAsRead(item);
 
-    if (item.isChatConversation) {
-      setSelectedChatRecipient(item.rawPartner);
-    } else {
-      setSelectedItem({ ...item, isRead: true, unreadCount: 0 });
+    if (activeTab === "message" || item.isChatConversation) {
+      const recipient = buildChatRecipient(item);
+
+      if (recipient?.id || recipient?._id || recipient?.empCode) {
+        setSelectedChatRecipient(recipient);
+        return;
+      }
     }
+
+    setSelectedItem({ ...item, isRead: true, unreadCount: 0 });
+    setViewMode("conversation");
   };
 
-  const renderEmailChatLayout = () => {
+  const handleTopTabClick = (tabName) => {
+    setSelectedItem(null);
+    setQuickMessage("");
+    setViewMode("inbox");
+    setActiveTab(tabName);
+  };
+
+  const handleBackToInbox = () => {
+    setSelectedItem(null);
+    setQuickMessage("");
+    setViewMode("inbox");
+  };
+
+  const handleQuickSubmit = (e) => {
+    e.preventDefault();
+
+    if (!quickMessage.trim()) return;
+
+    const target = selectedItem || items[items.length - 1];
+
+    if (activeTab === "email") {
+      if (target) {
+        handleReply(target);
+      } else {
+        handleComposeNew();
+      }
+
+      setQuickMessage("");
+      return;
+    }
+
+    if (target) {
+      handleOpenItem(target);
+      setQuickMessage("");
+      return;
+    }
+
+    setIsStartChatOpen(true);
+    setQuickMessage("");
+  };
+
+  const renderInboxLayout = (mode) => {
     if (isLoading) {
       return (
         <div className="flex h-72 w-full items-center justify-center">
@@ -383,210 +599,269 @@ export function MessagesModal({ isOpen, onClose }) {
       );
     }
 
-    if (items.length === 0) {
+    const isEmail = mode === "email";
+    const inboxItems = getSortedInboxItems();
+
+    if (inboxItems.length === 0) {
       return (
         <div className="flex min-h-[420px] w-full flex-col items-center justify-center gap-3 text-center text-muted-foreground">
           <Inbox size={48} className="opacity-40" />
 
-          <p className="font-semibold">No email history recorded yet.</p>
+          <p className="font-semibold">
+            No {isEmail ? "email" : "message"} history recorded yet.
+          </p>
 
           <button
-            onClick={handleComposeNew}
-            className="text-xs font-bold text-blue-500 hover:underline"
+            onClick={isEmail ? handleComposeNew : () => setIsStartChatOpen(true)}
+            className={`text-xs font-bold hover:underline ${
+              isEmail ? "text-blue-500" : "text-purple-500"
+            }`}
           >
-            Click here to send your first email &rarr;
+            {isEmail
+              ? "Click here to send your first email →"
+              : "Click here to start a chat →"}
           </button>
         </div>
       );
     }
 
     return (
-      <div className="grid min-h-0 flex-1 grid-cols-1 overflow-hidden md:grid-cols-[42%_58%]">
-        <div className="min-h-0 border-b border-border bg-muted/10 p-4 md:border-b-0 md:border-r">
-          <div className="mb-3 flex items-center justify-between gap-3">
-            <div>
-              <h3 className="text-sm font-extrabold text-foreground">Inbox</h3>
-              <p className="text-xs text-muted-foreground">
-                Select an email to read the full conversation
-              </p>
-            </div>
+      <div className="flex min-h-0 flex-1 flex-col overflow-hidden bg-background">
+        <div className="flex items-center justify-between border-b border-border/50 bg-muted/10 px-6 py-4">
+          <div>
+            <h3 className="text-lg font-extrabold text-foreground">
+              {isEmail ? "Inbox" : "Messages Inbox"}
+            </h3>
 
-            <span className="rounded-full bg-blue-500/10 px-2.5 py-1 text-[11px] font-bold text-blue-500">
-              {items.length} Emails
-            </span>
+            <p className="text-xs text-muted-foreground">
+              {isEmail
+                ? "Select an email to open the conversation view."
+                : "Click Open Chat to continue the conversation."}
+            </p>
           </div>
 
-          <div className="max-h-[58vh] space-y-2 overflow-y-auto pr-1">
-            {items.map((item, idx) => {
-              const isSelected = isSameItem(selectedItem, item);
-              const isUnread = !item.isRead && item.direction === "inbound";
-
-              return (
-                <button
-                  key={getItemKey(item, idx)}
-                  type="button"
-                  onClick={() => handlePreviewItem(item)}
-                  className={`group w-full rounded-2xl border p-4 text-left transition-all ${
-                    isSelected
-                      ? "border-blue-500/40 bg-blue-500/10 shadow-sm dark:bg-blue-500/15"
-                      : "border-border/70 bg-background hover:border-blue-500/30 hover:bg-muted/40"
-                  }`}
-                >
-                  <div className="flex items-start justify-between gap-3">
-                    <div className="min-w-0 flex-1">
-                      <div className="flex items-center gap-2">
-                        <p className="block truncate text-[13px] font-bold leading-5 text-foreground">
-                          {getDisplayPerson(item)}
-                        </p>
-
-                        {isUnread && (
-                          <span
-                            className="h-2 w-2 shrink-0 rounded-full bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.8)]"
-                            title="Unread Email"
-                          />
-                        )}
-                      </div>
-
-                      <p className="mt-1 block truncate text-xs font-semibold text-foreground">
-                        {item.subject || "No Subject"}
-                      </p>
-                    </div>
-
-                    <span className="shrink-0 max-w-[96px] text-right text-[10px] font-semibold leading-4 text-muted-foreground">
-                      {formatDate(item.createdAt)}
-                    </span>
-                  </div>
-
-                  <p className="mt-1 line-clamp-2 text-[11px] leading-5 text-muted-foreground">
-                    {getMessagePreview(item)}
-                  </p>
-
-                  {item.attachments && item.attachments.length > 0 && (
-                    <div className="mt-2 inline-flex items-center gap-1 rounded-full bg-blue-500/10 px-2 py-1 text-[10px] font-bold text-blue-500">
-                      <FileText size={11} />
-                      {item.attachments.length} Attachment
-                      {item.attachments.length > 1 ? "s" : ""}
-                    </div>
-                  )}
-                </button>
-              );
-            })}
-          </div>
+          <span
+            className={`rounded-full px-3 py-1 text-[11px] font-bold ${
+              isEmail
+                ? "bg-blue-500/10 text-blue-500"
+                : "bg-purple-500/10 text-purple-500"
+            }`}
+          >
+            {inboxItems.length} {isEmail ? "Emails" : "Messages"}
+          </span>
         </div>
 
-        <div className="min-h-0 overflow-y-auto bg-background p-5">
-          {!selectedItem ? (
-            <div className="flex h-full min-h-[380px] flex-col items-center justify-center rounded-2xl border border-dashed border-border bg-muted/20 text-center text-muted-foreground">
-              <Mail size={42} className="mb-3 opacity-40" />
-              <p className="text-sm font-bold text-foreground">Select an email</p>
-              <p className="mt-1 text-xs">The full email will appear here.</p>
-            </div>
-          ) : (
-            <div className="flex min-h-full flex-col">
-              <div className="border-b border-border/60 pb-4">
-                <div className="flex items-start justify-between gap-4">
-                  <div className="min-w-0">
-                    <span className="text-xs font-bold uppercase tracking-wider text-blue-500">
-                      Email Preview
-                    </span>
+        <div className="flex-1 overflow-y-auto p-6">
+          <div className="overflow-x-auto rounded-2xl border border-border bg-background shadow-sm">
+            <table className="w-full min-w-[960px] text-left text-sm">
+              <thead className="border-b border-border bg-muted/20 text-xs uppercase tracking-wider text-muted-foreground">
+                <tr>
+                  <th className="px-5 py-4 font-extrabold">#</th>
+                  <th className="px-5 py-4 font-extrabold">Recipient / Sender</th>
+                  <th className="px-5 py-4 font-extrabold">
+                    {isEmail ? "Subject / Preview" : "Message / Preview"}
+                  </th>
+                  <th className="px-5 py-4 font-extrabold">Date</th>
+                  <th className="px-5 py-4 text-right font-extrabold">Actions</th>
+                </tr>
+              </thead>
 
-                    <h3 className="mt-1 text-2xl font-extrabold leading-tight text-foreground">
-                      {selectedItem.subject || "No Subject"}
-                    </h3>
-                  </div>
+              <tbody className="divide-y divide-border/50">
+                {inboxItems.map((item, idx) => {
+                  const isUnread =
+                    item.unreadCount > 0 ||
+                    (!item.isRead && item.direction === "inbound");
 
-                  <button
-                    onClick={() => setSelectedItem(null)}
-                    className="rounded-full p-2 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground md:hidden"
-                    title="Close preview"
-                  >
-                    <X size={18} />
-                  </button>
-                </div>
+                  return (
+                    <tr
+                      key={getItemKey(item, idx)}
+                      onClick={() =>
+                        isEmail ? handlePreviewItem(item) : handleOpenItem(item)
+                      }
+                      className="cursor-pointer transition hover:bg-muted/30"
+                    >
+                      <td className="px-5 py-4 align-middle">
+                        <div className="flex items-center gap-2 font-bold text-muted-foreground">
+                          <span>{idx + 1}</span>
 
-                <div className="mt-4 grid gap-2 rounded-2xl border border-border/70 bg-muted/20 p-4 text-xs sm:grid-cols-2">
-                  <div>
-                    <p className="font-semibold text-muted-foreground">From</p>
-                    <p className="mt-1 break-all font-bold text-foreground">
-                      {selectedItem.from || "NovaNectar ERP"}
-                    </p>
-                  </div>
+                          {isUnread && (
+                            <span
+                              className="h-2 w-2 rounded-full bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.8)]"
+                              title="Unread"
+                            />
+                          )}
+                        </div>
+                      </td>
 
-                  <div>
-                    <p className="font-semibold text-muted-foreground">To</p>
-                    <p className="mt-1 break-all font-bold text-foreground">
-                      {selectedItem.to || "N/A"}
-                    </p>
-                  </div>
+                      <td className="px-5 py-4 align-middle">
+                        <p className="max-w-[280px] truncate text-sm font-extrabold text-foreground">
+                          {getDisplayPerson(item)}
+                        </p>
+                      </td>
 
-                  <div className="sm:col-span-2">
-                    <p className="font-semibold text-muted-foreground">Date</p>
-                    <p className="mt-1 font-semibold text-muted-foreground">
-                      {selectedItem.createdAt
-                        ? new Date(selectedItem.createdAt).toLocaleString()
-                        : "N/A"}
-                    </p>
-                  </div>
-                </div>
-              </div>
+                      <td className="px-5 py-4 align-middle">
+                        <p className="max-w-[420px] truncate text-sm font-bold text-foreground">
+                          {getMessageTitle(item)}
+                        </p>
 
-              <div className="mt-4 flex-1 rounded-2xl border border-border/80 bg-muted/10 p-5 text-sm leading-relaxed text-foreground shadow-sm">
-                <div
-                  className="whitespace-pre-wrap"
-                  dangerouslySetInnerHTML={{
-                    __html: selectedItem.body?.includes("<")
-                      ? selectedItem.body
-                      : selectedItem.body?.replace(/\n/g, "<br/>") ||
-                        "No email body available.",
-                  }}
-                />
-              </div>
+                        <p className="mt-1 max-w-[420px] truncate text-xs text-muted-foreground">
+                          {getMessagePreview(item)}
+                        </p>
+                      </td>
 
-              {selectedItem.attachments && selectedItem.attachments.length > 0 && (
-                <div className="mt-4 border-t border-border/60 pt-4">
-                  <span className="mb-2 block text-xs font-bold uppercase text-muted-foreground">
-                    Attached Files ({selectedItem.attachments.length})
-                  </span>
+                      <td className="whitespace-nowrap px-5 py-4 align-middle text-xs font-semibold text-muted-foreground">
+                        {formatDate(item.createdAt)}
+                      </td>
 
-                  <div className="flex flex-wrap gap-2">
-                    {selectedItem.attachments.map((att, idx) => (
-                      <div
-                        key={idx}
-                        className="flex items-center gap-2 rounded-lg border border-border bg-background px-3 py-2 text-xs font-semibold"
+                      <td
+                        className="px-5 py-4 align-middle"
+                        onClick={(e) => e.stopPropagation()}
                       >
-                        <FileText size={15} className="text-blue-500" />
-                        <span>{att.name || "Attachment"}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
+                        <div className="flex justify-end gap-2">
+                          {isEmail ? (
+                            <>
+                              <button
+                                onClick={() => handlePreviewItem(item)}
+                                className="rounded-xl bg-blue-600 px-3 py-2 text-xs font-bold text-white shadow-sm transition hover:bg-blue-500"
+                              >
+                                <span className="inline-flex items-center gap-1.5">
+                                  <Eye size={13} />
+                                  View
+                                </span>
+                              </button>
 
-              <div className="mt-5 flex items-center justify-end gap-3 border-t border-border/60 pt-4">
-                <button
-                  onClick={() => handleDelete(selectedItem)}
-                  className="flex items-center gap-1.5 rounded-xl border border-red-500/30 px-4 py-2 text-xs font-semibold text-red-500 transition-colors hover:bg-red-500 hover:text-white"
-                >
-                  <Trash2 size={14} />
-                  Delete
-                </button>
+                              <button
+                                onClick={() => handleReply(item)}
+                                className="rounded-xl border border-blue-500/30 px-3 py-2 text-xs font-bold text-blue-500 transition hover:bg-blue-500 hover:text-white"
+                                title="Reply"
+                              >
+                                <Reply size={13} />
+                              </button>
 
-                <button
-                  onClick={() => handleReply(selectedItem)}
-                  className="flex items-center gap-2 rounded-xl bg-blue-600 px-5 py-2 text-xs font-bold text-white shadow-md transition-colors hover:bg-blue-700"
-                >
-                  <Reply size={14} />
-                  Reply to {selectedItem.to || selectedItem.from || "Email"}
-                </button>
-              </div>
-            </div>
-          )}
+                              <button
+                                onClick={() => handleDelete(item)}
+                                className="rounded-xl border border-red-500/30 px-3 py-2 text-xs font-bold text-red-500 transition hover:bg-red-500 hover:text-white"
+                                title="Delete"
+                              >
+                                <Trash2 size={13} />
+                              </button>
+                            </>
+                          ) : (
+                            <button
+                              onClick={() => handleOpenItem(item)}
+                              className="rounded-xl border border-purple-500/30 px-4 py-2 text-xs font-bold text-purple-500 transition hover:bg-purple-500 hover:text-white"
+                            >
+                              Open Chat
+                            </button>
+                          )}
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
     );
   };
 
-  const renderMessageChatLayout = () => {
+  const renderConversationBubble = (item, idx) => {
+    const isSent = isSentByCurrentUser(item);
+    const isUnread =
+      item.unreadCount > 0 || (!item.isRead && item.direction === "inbound");
+
+    return (
+      <div
+        key={getItemKey(item, idx)}
+        className={`flex w-full ${isSent ? "justify-end" : "justify-start"}`}
+      >
+        <button
+          type="button"
+          onClick={() => handlePreviewItem(item)}
+          className="group max-w-[88%] text-left transition-all md:max-w-[48%]"
+        >
+          <div
+            className={`rounded-2xl border p-2 shadow-sm transition-all ${
+              isSent
+                ? "border-violet-300 bg-violet-100 dark:border-indigo-500/40 dark:bg-indigo-600/15"
+                : "border-purple-200 bg-purple-50 dark:border-slate-700 dark:bg-slate-800/70"
+            }`}
+          >
+            <div
+              className={`rounded-xl border px-3 py-2 text-xs font-bold ${
+                isSent
+                  ? "border-violet-300 bg-violet-200 text-[#260b45] dark:border-indigo-500/30 dark:bg-indigo-500/15 dark:text-indigo-100"
+                  : "border-purple-200 bg-purple-100 text-[#260b45] dark:border-slate-700 dark:bg-slate-900/80 dark:text-slate-100"
+              }`}
+            >
+              <div className="flex items-center justify-between gap-2">
+                <span className="line-clamp-2">
+                  Sender&apos;s Subject: {getMessageTitle(item)}
+                </span>
+
+                {isUnread && (
+                  <span
+                    className="h-2 w-2 shrink-0 rounded-full bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.8)]"
+                    title="Unread Email"
+                  />
+                )}
+              </div>
+            </div>
+
+            <div
+              className={`mt-2 rounded-xl border px-3 py-3 text-xs leading-relaxed ${
+                isSent
+                  ? "border-violet-200 bg-white/75 text-[#260b45] dark:border-indigo-500/20 dark:bg-indigo-500/10 dark:text-slate-100"
+                  : "border-purple-200 bg-white text-[#260b45] dark:border-slate-700 dark:bg-slate-950/50 dark:text-slate-100"
+              }`}
+            >
+              <p className="whitespace-pre-wrap break-words">
+                {getMessagePreview(item)}
+              </p>
+            </div>
+
+            <div className="mt-2 flex items-center justify-between gap-2 px-1">
+              <span className="truncate text-[10px] font-semibold text-muted-foreground">
+                {getDisplayPerson(item)}
+              </span>
+
+              <span className="shrink-0 text-[10px] font-medium text-muted-foreground">
+                {isSent ? "Sent" : "Received"} on {formatDate(item.createdAt)}
+              </span>
+            </div>
+
+            <div className="mt-2 flex items-center justify-end gap-2 opacity-0 transition-opacity group-hover:opacity-100">
+              <span
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleReply(item);
+                }}
+                className="inline-flex items-center gap-1 rounded-lg bg-blue-600 px-2.5 py-1.5 text-[10px] font-bold text-white hover:bg-blue-700"
+              >
+                <Reply size={12} />
+                Reply
+              </span>
+
+              <span
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleDelete(item);
+                }}
+                className="inline-flex items-center gap-1 rounded-lg bg-red-500/10 px-2.5 py-1.5 text-[10px] font-bold text-red-500 hover:bg-red-500 hover:text-white"
+              >
+                <Trash2 size={12} />
+                Delete
+              </span>
+            </div>
+          </div>
+        </button>
+      </div>
+    );
+  };
+
+  const renderConversationLayout = (mode) => {
     if (isLoading) {
       return (
         <div className="flex h-72 w-full items-center justify-center">
@@ -595,252 +870,69 @@ export function MessagesModal({ isOpen, onClose }) {
       );
     }
 
-    if (items.length === 0) {
-      return (
-        <div className="flex min-h-[420px] w-full flex-col items-center justify-center gap-3 text-center text-muted-foreground">
-          <Inbox size={48} className="opacity-40" />
-
-          <p className="font-semibold">No message history recorded yet.</p>
-
-          <button
-            onClick={() => setIsStartChatOpen(true)}
-            className="text-xs font-bold text-purple-500 hover:underline"
-          >
-            Click here to start a chat &rarr;
-          </button>
-        </div>
-      );
+    if (!selectedItem) {
+      return renderInboxLayout(mode);
     }
 
+    const conversationItems = getConversationItemsForSelected();
+
     return (
-      <div className="grid min-h-0 flex-1 grid-cols-1 overflow-hidden md:grid-cols-[42%_58%]">
-        <div className="min-h-0 border-b border-border bg-muted/10 p-4 md:border-b-0 md:border-r">
-          <div className="mb-3 flex items-center justify-between gap-3">
-            <div>
-              <h3 className="text-sm font-extrabold text-foreground">
-                Messages
-              </h3>
-              <p className="text-xs text-muted-foreground">
-                Select a message to read the full conversation
-              </p>
-            </div>
+      <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
+        <div className="flex items-center justify-between border-b border-border/50 bg-muted/10 px-6 py-3">
+          <div>
+            <h3 className="text-sm font-extrabold text-foreground">
+              Email Conversation
+            </h3>
 
-            <span className="rounded-full bg-purple-500/10 px-2.5 py-1 text-[11px] font-bold text-purple-500">
-              {items.length} Messages
-            </span>
+            <p className="text-xs text-muted-foreground">
+              {getDisplayPerson(selectedItem)}
+            </p>
           </div>
 
-          <div className="max-h-[58vh] space-y-2 overflow-y-auto pr-1">
-            {items.map((item, idx) => {
-              const isSelected = isSameItem(selectedItem, item);
-              const isUnread =
-                item.unreadCount > 0 ||
-                (!item.isRead && item.direction === "inbound");
+          <button
+            onClick={handleBackToInbox}
+            className="rounded-xl bg-blue-600 px-4 py-2 text-xs font-bold text-white shadow-sm transition hover:bg-blue-500"
+          >
+            Back to Inbox
+          </button>
+        </div>
 
-              return (
-                <button
-                  key={getItemKey(item, idx)}
-                  type="button"
-                  onClick={() => handlePreviewItem(item)}
-                  className={`group w-full rounded-2xl border p-4 text-left transition-all ${
-                    isSelected
-                      ? "border-purple-500/40 bg-purple-500/10 shadow-sm dark:bg-purple-500/15"
-                      : "border-border/70 bg-background hover:border-purple-500/30 hover:bg-muted/40"
-                  }`}
-                >
-                  <div className="flex items-start justify-between gap-3">
-                    <div className="min-w-0 flex-1">
-                      <div className="flex items-center gap-2">
-                        <p className="block truncate text-[13px] font-bold leading-5 text-foreground">
-                          {getDisplayPerson(item)}
-                        </p>
-
-                        {isUnread && (
-                          <span
-                            className="h-2 w-2 shrink-0 rounded-full bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.8)]"
-                            title="Unread Message"
-                          />
-                        )}
-                      </div>
-
-                      <p className="mt-1 block truncate text-xs font-semibold text-foreground">
-                        {getMessageTitle(item)}
-                      </p>
-                    </div>
-
-                    <span className="shrink-0 max-w-[96px] text-right text-[10px] font-semibold leading-4 text-muted-foreground">
-                      {formatDate(item.createdAt)}
-                    </span>
-                  </div>
-
-                  <p className="mt-1 line-clamp-2 text-[11px] leading-5 text-muted-foreground">
-                    {getMessagePreview(item)}
-                  </p>
-
-                  {item.isChatConversation && (
-                    <div className="mt-2 inline-flex items-center gap-1 rounded-full bg-purple-500/10 px-2 py-1 text-[10px] font-bold text-purple-500">
-                      <MessageSquare size={11} />
-                      Internal Chat
-                    </div>
-                  )}
-
-                  {!item.isChatConversation &&
-                    item.attachments &&
-                    item.attachments.length > 0 && (
-                      <div className="mt-2 inline-flex items-center gap-1 rounded-full bg-purple-500/10 px-2 py-1 text-[10px] font-bold text-purple-500">
-                        <FileText size={11} />
-                        {item.attachments.length} Attachment
-                        {item.attachments.length > 1 ? "s" : ""}
-                      </div>
-                    )}
-                </button>
-              );
-            })}
+        <div className="flex-1 overflow-y-auto bg-[#f7f0ff] p-6 dark:bg-slate-950/20">
+          <div className="mx-auto flex max-w-5xl flex-col gap-5">
+            {conversationItems.map((item, idx) =>
+              renderConversationBubble(item, idx)
+            )}
           </div>
         </div>
 
-        <div className="min-h-0 overflow-y-auto bg-background p-5">
-          {!selectedItem ? (
-            <div className="flex h-full min-h-[380px] flex-col items-center justify-center rounded-2xl border border-dashed border-border bg-muted/20 text-center text-muted-foreground">
-              <MessageSquare size={42} className="mb-3 opacity-40" />
-              <p className="text-sm font-bold text-foreground">
-                Select a message
-              </p>
-              <p className="mt-1 text-xs">The full message will appear here.</p>
-            </div>
-          ) : (
-            <div className="flex min-h-full flex-col">
-              <div className="border-b border-border/60 pb-4">
-                <div className="flex items-start justify-between gap-4">
-                  <div className="min-w-0">
-                    <span className="text-xs font-bold uppercase tracking-wider text-purple-500">
-                      {selectedItem.isChatConversation
-                        ? "Chat Preview"
-                        : "Message Preview"}
-                    </span>
+        <form
+          onSubmit={handleQuickSubmit}
+          className="border-t border-border/60 bg-muted/20 p-4"
+        >
+          <div className="mx-auto flex max-w-5xl items-center gap-3">
+            <input
+              type="text"
+              value={quickMessage}
+              onChange={(e) => setQuickMessage(e.target.value)}
+              placeholder="Enter your email reply here..."
+              className="flex-1 rounded-xl border border-border bg-background px-4 py-3 text-sm text-foreground outline-none transition focus:border-primary placeholder:text-muted-foreground"
+            />
 
-                    <h3 className="mt-1 text-2xl font-extrabold leading-tight text-foreground">
-                      {getMessageTitle(selectedItem)}
-                    </h3>
-                  </div>
+            <button
+              type="submit"
+              disabled={!quickMessage.trim()}
+              className="flex items-center gap-2 rounded-xl bg-blue-600 px-4 py-3 text-sm font-bold text-white shadow-md transition hover:bg-blue-500 disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              <Send size={16} />
+              Reply
+            </button>
+          </div>
 
-                  <button
-                    onClick={() => setSelectedItem(null)}
-                    className="rounded-full p-2 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground md:hidden"
-                    title="Close preview"
-                  >
-                    <X size={18} />
-                  </button>
-                </div>
-
-                <div className="mt-4 grid gap-2 rounded-2xl border border-border/70 bg-muted/20 p-4 text-xs sm:grid-cols-2">
-                  <div>
-                    <p className="font-semibold text-muted-foreground">
-                      {selectedItem.isChatConversation ? "Chat With" : "From"}
-                    </p>
-
-                    <p className="mt-1 break-all font-bold text-foreground">
-                      {getDisplayPerson(selectedItem)}
-                    </p>
-                  </div>
-
-                  <div>
-                    <p className="font-semibold text-muted-foreground">Type</p>
-
-                    <p className="mt-1 break-all font-bold text-foreground">
-                      {selectedItem.isChatConversation
-                        ? "Internal Chat"
-                        : selectedItem.type || "Message"}
-                    </p>
-                  </div>
-
-                  <div className="sm:col-span-2">
-                    <p className="font-semibold text-muted-foreground">Date</p>
-
-                    <p className="mt-1 font-semibold text-muted-foreground">
-                      {selectedItem.createdAt
-                        ? new Date(selectedItem.createdAt).toLocaleString()
-                        : "N/A"}
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-              <div className="mt-4 flex-1 rounded-2xl border border-border/80 bg-muted/10 p-5 text-sm leading-relaxed text-foreground shadow-sm">
-                {selectedItem.isChatConversation ? (
-                  <p className="whitespace-pre-wrap">
-                    {getMessagePreview(selectedItem) ||
-                      selectedItem.lastMessage ||
-                      "No message preview available."}
-                  </p>
-                ) : (
-                  <div
-                    className="whitespace-pre-wrap"
-                    dangerouslySetInnerHTML={{
-                      __html: selectedItem.body?.includes("<")
-                        ? selectedItem.body
-                        : selectedItem.body?.replace(/\n/g, "<br/>") ||
-                          getMessagePreview(selectedItem) ||
-                          "No message body available.",
-                    }}
-                  />
-                )}
-              </div>
-
-              {!selectedItem.isChatConversation &&
-                selectedItem.attachments &&
-                selectedItem.attachments.length > 0 && (
-                  <div className="mt-4 border-t border-border/60 pt-4">
-                    <span className="mb-2 block text-xs font-bold uppercase text-muted-foreground">
-                      Attached Files ({selectedItem.attachments.length})
-                    </span>
-
-                    <div className="flex flex-wrap gap-2">
-                      {selectedItem.attachments.map((att, idx) => (
-                        <div
-                          key={idx}
-                          className="flex items-center gap-2 rounded-lg border border-border bg-background px-3 py-2 text-xs font-semibold"
-                        >
-                          <FileText size={15} className="text-purple-500" />
-                          <span>{att.name || "Attachment"}</span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-              <div className="mt-5 flex items-center justify-end gap-3 border-t border-border/60 pt-4">
-                {!selectedItem.isChatConversation && (
-                  <button
-                    onClick={() => handleDelete(selectedItem)}
-                    className="flex items-center gap-1.5 rounded-xl border border-red-500/30 px-4 py-2 text-xs font-semibold text-red-500 transition-colors hover:bg-red-500 hover:text-white"
-                  >
-                    <Trash2 size={14} />
-                    Delete
-                  </button>
-                )}
-
-                {selectedItem.isChatConversation ? (
-                  <button
-                    onClick={() => handleOpenItem(selectedItem)}
-                    className="flex items-center gap-2 rounded-xl bg-purple-600 px-5 py-2 text-xs font-bold text-white shadow-md transition-colors hover:bg-purple-700"
-                  >
-                    <MessageSquare size={14} />
-                    Continue Chat with {getDisplayPerson(selectedItem)}
-                  </button>
-                ) : (
-                  <button
-                    onClick={() => handleReply(selectedItem)}
-                    className="flex items-center gap-2 rounded-xl bg-purple-600 px-5 py-2 text-xs font-bold text-white shadow-md transition-colors hover:bg-purple-700"
-                  >
-                    <Reply size={14} />
-                    Reply to {selectedItem.to || selectedItem.from || "Message"}
-                  </button>
-                )}
-              </div>
-            </div>
-          )}
-        </div>
+          <p className="mx-auto mt-2 max-w-5xl text-[11px] text-muted-foreground">
+            Typing here opens the existing email composer with the selected email
+            details.
+          </p>
+        </form>
       </div>
     );
   };
@@ -878,10 +970,7 @@ export function MessagesModal({ isOpen, onClose }) {
                 <div className="flex rounded-xl border border-border/60 bg-muted p-1">
                   <button
                     type="button"
-                    onClick={() => {
-                      setSelectedItem(null);
-                      setActiveTab("email");
-                    }}
+                    onClick={() => handleTopTabClick("email")}
                     className={`flex cursor-pointer items-center gap-2 rounded-lg px-4 py-2 text-xs font-bold transition-all ${
                       activeTab === "email"
                         ? "bg-background text-foreground shadow-sm"
@@ -907,10 +996,7 @@ export function MessagesModal({ isOpen, onClose }) {
 
                   <button
                     type="button"
-                    onClick={() => {
-                      setSelectedItem(null);
-                      setActiveTab("message");
-                    }}
+                    onClick={() => handleTopTabClick("message")}
                     className={`flex cursor-pointer items-center gap-2 rounded-lg px-4 py-2 text-xs font-bold transition-all ${
                       activeTab === "message"
                         ? "bg-background text-foreground shadow-sm"
@@ -965,9 +1051,9 @@ export function MessagesModal({ isOpen, onClose }) {
             </div>
 
             <div className="flex min-h-0 flex-1 overflow-hidden">
-              {activeTab === "email"
-                ? renderEmailChatLayout()
-                : renderMessageChatLayout()}
+              {viewMode === "inbox"
+                ? renderInboxLayout(activeTab)
+                : renderConversationLayout(activeTab)}
             </div>
           </motion.div>
         </div>

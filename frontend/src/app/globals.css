@@ -2301,3 +2301,215 @@ html:not(.dark) .employee-chat-window-modal svg {
 .dark .employee-chat-window-footer {
   background: unset;
 }
+
+/* ===================================================== */
+/* Communication & Email Center - Light Theme Fixes Only */
+/* Dark theme untouched                                  */
+/* ===================================================== */
+
+/* Main Communication & Email Center modal */
+html:not(.dark) .z-\[90\] .max-w-7xl {
+  background: #ffffff !important;
+  border: 1px solid #eadcff !important;
+  box-shadow: 0 28px 80px rgba(139, 92, 246, 0.18) !important;
+}
+
+/* Modal header */
+html:not(.dark) .z-\[90\] .max-w-7xl > div:first-child {
+  background: #fbf7ff !important;
+  border-bottom: 1px solid #eadcff !important;
+}
+
+/* Remove grey email conversation background */
+html:not(.dark) .z-\[90\] .bg-\[\#f7f0ff\] {
+  background: linear-gradient(135deg, #ffffff 0%, #fbf7ff 45%, #f7efff 100%) !important;
+}
+
+/* Email conversation top strip */
+html:not(.dark) .z-\[90\] .bg-muted\/10 {
+  background: #fbf7ff !important;
+}
+
+/* Email received card */
+html:not(.dark) .z-\[90\] .bg-purple-50 {
+  background: #fff7ed !important;
+  border-color: #fdba74 !important;
+  color: #260b45 !important;
+}
+
+/* Email received subject box */
+html:not(.dark) .z-\[90\] .bg-purple-100 {
+  background: #fed7aa !important;
+  border-color: #fb923c !important;
+  color: #260b45 !important;
+}
+
+/* Email sent card */
+html:not(.dark) .z-\[90\] .bg-violet-100 {
+  background: #ede9fe !important;
+  border-color: #a78bfa !important;
+  color: #260b45 !important;
+}
+
+/* Email sent subject box */
+html:not(.dark) .z-\[90\] .bg-violet-200 {
+  background: #ddd6fe !important;
+  border-color: #8b5cf6 !important;
+  color: #260b45 !important;
+}
+
+/* Email message body boxes */
+html:not(.dark) .z-\[90\] .bg-white,
+html:not(.dark) .z-\[90\] .bg-white\/75 {
+  background: #ffffff !important;
+  color: #260b45 !important;
+}
+
+/* Make all email conversation text readable */
+html:not(.dark) .z-\[90\] .bg-purple-50 p,
+html:not(.dark) .z-\[90\] .bg-purple-50 span,
+html:not(.dark) .z-\[90\] .bg-purple-100 p,
+html:not(.dark) .z-\[90\] .bg-purple-100 span,
+html:not(.dark) .z-\[90\] .bg-violet-100 p,
+html:not(.dark) .z-\[90\] .bg-violet-100 span,
+html:not(.dark) .z-\[90\] .bg-violet-200 p,
+html:not(.dark) .z-\[90\] .bg-violet-200 span,
+html:not(.dark) .z-\[90\] .bg-white p,
+html:not(.dark) .z-\[90\] .bg-white span,
+html:not(.dark) .z-\[90\] .bg-white\/75 p,
+html:not(.dark) .z-\[90\] .bg-white\/75 span {
+  color: #260b45 !important;
+}
+
+/* Email reply input area */
+html:not(.dark) .z-\[90\] form {
+  background: #fbf7ff !important;
+  border-top: 1px solid #eadcff !important;
+}
+
+html:not(.dark) .z-\[90\] form input {
+  background: #ffffff !important;
+  border: 1px solid #d8b4fe !important;
+  color: #260b45 !important;
+}
+
+html:not(.dark) .z-\[90\] form input::placeholder {
+  color: #9b7ab7 !important;
+}
+
+/* ===================================================== */
+/* Open Chat Window - Light Theme Fixes Only             */
+/* ===================================================== */
+
+html:not(.dark) .employee-chat-window-modal {
+  background: #ffffff !important;
+  border: 1px solid #eadcff !important;
+  color: #260b45 !important;
+  box-shadow: 0 28px 80px rgba(139, 92, 246, 0.25) !important;
+}
+
+/* Chat header */
+html:not(.dark) .employee-chat-window-header {
+  background: #f3e8ff !important;
+  border-bottom: 1px solid #eadcff !important;
+}
+
+html:not(.dark) .employee-chat-window-header h3 {
+  color: #260b45 !important;
+}
+
+html:not(.dark) .employee-chat-window-header p {
+  color: #7c3aed !important;
+}
+
+html:not(.dark) .employee-chat-window-header button svg {
+  color: #7c3aed !important;
+}
+
+/* Chat body background */
+html:not(.dark) .employee-chat-window-body {
+  background: #ffffff !important;
+}
+
+/* Received message bubble */
+html:not(.dark) .employee-chat-window-body .bg-slate-800 {
+  background: #f3e8ff !important;
+  border: 1px solid #d8b4fe !important;
+  color: #260b45 !important;
+}
+
+html:not(.dark) .employee-chat-window-body .bg-slate-800 p {
+  color: #260b45 !important;
+}
+
+/* Sent message bubble */
+html:not(.dark) .employee-chat-window-body .bg-blue-600 {
+  background: #7c3aed !important;
+  color: #ffffff !important;
+}
+
+html:not(.dark) .employee-chat-window-body .bg-blue-600 p {
+  color: #ffffff !important;
+}
+
+/* Message timing text */
+html:not(.dark) .employee-chat-window-body .text-slate-500 {
+  color: #7a6692 !important;
+}
+
+/* Read tick */
+html:not(.dark) .employee-chat-window-body .text-blue-400 {
+  color: #7c3aed !important;
+}
+
+/* Empty state */
+html:not(.dark) .employee-chat-window-body .text-slate-500 p {
+  color: #7a6692 !important;
+}
+
+html:not(.dark) .employee-chat-window-body .text-slate-500 svg {
+  color: #8b5cf6 !important;
+}
+
+/* Chat footer */
+html:not(.dark) .employee-chat-window-footer {
+  background: #fbf7ff !important;
+  border-top: 1px solid #eadcff !important;
+}
+
+/* Chat input */
+html:not(.dark) .employee-chat-window-input {
+  background: #ffffff !important;
+  border: 1px solid #d8b4fe !important;
+  color: #260b45 !important;
+}
+
+html:not(.dark) .employee-chat-window-input::placeholder {
+  color: #9b7ab7 !important;
+}
+
+html:not(.dark) .employee-chat-window-input:focus {
+  border-color: #8b5cf6 !important;
+  box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.15) !important;
+}
+
+/* Chat send button */
+html:not(.dark) .employee-chat-window-footer button[type="submit"] {
+  background: #8b5cf6 !important;
+  color: #ffffff !important;
+  opacity: 1 !important;
+}
+
+html:not(.dark) .employee-chat-window-footer button[type="submit"]:hover {
+  background: #7c3aed !important;
+}
+
+html:not(.dark) .employee-chat-window-footer button[type="submit"]:disabled {
+  background: #d8b4fe !important;
+  color: #ffffff !important;
+  opacity: 1 !important;
+}
+
+html:not(.dark) .employee-chat-window-footer button[type="submit"] svg {
+  color: #ffffff !important;
+}
