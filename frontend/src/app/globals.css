@@ -2513,3 +2513,138 @@ html:not(.dark) .employee-chat-window-footer button[type="submit"]:disabled {
 html:not(.dark) .employee-chat-window-footer button[type="submit"] svg {
   color: #ffffff !important;
 }
+
+/* ===================================================== */
+/* Start Chat Modal - Light Theme Final Fix Only         */
+/* Dark theme untouched                                  */
+/* ===================================================== */
+
+html:not(.dark) .employee-start-chat-modal {
+  background: #ffffff !important;
+  border: 1px solid #eadcff !important;
+  color: #260b45 !important;
+  box-shadow: 0 28px 80px rgba(139, 92, 246, 0.24) !important;
+}
+
+/* Header */
+html:not(.dark) .employee-start-chat-modal > div:first-child {
+  border-bottom: 1px solid #eadcff !important;
+}
+
+html:not(.dark) .employee-start-chat-modal h3 {
+  color: #260b45 !important;
+}
+
+html:not(.dark) .employee-start-chat-modal p {
+  color: #7a6692 !important;
+}
+
+/* Header icon */
+html:not(.dark) .employee-start-chat-modal > div:first-child > div > div:first-child {
+  background: #ede9fe !important;
+  border: 1px solid #c4b5fd !important;
+  color: #7c3aed !important;
+}
+
+html:not(.dark) .employee-start-chat-modal svg {
+  color: #7c3aed !important;
+}
+
+/* Close button */
+html:not(.dark) .employee-start-chat-modal button {
+  color: #7c3aed !important;
+}
+
+html:not(.dark) .employee-start-chat-modal button:hover {
+  background: #f3e8ff !important;
+  color: #6d28d9 !important;
+}
+
+/* Search wrapper and input */
+html:not(.dark) .employee-start-chat-search {
+  background: #ffffff !important;
+}
+
+html:not(.dark) .employee-start-chat-search input {
+  background: #ffffff !important;
+  border: 1px solid #d8b4fe !important;
+  color: #260b45 !important;
+  box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.08) !important;
+}
+
+html:not(.dark) .employee-start-chat-search input::placeholder {
+  color: #9b7ab7 !important;
+}
+
+html:not(.dark) .employee-start-chat-search input:focus {
+  border-color: #8b5cf6 !important;
+  box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.16) !important;
+}
+
+/* User cards */
+html:not(.dark) .employee-start-chat-user-card {
+  background: #fbf7ff !important;
+  border: 1px solid #eadcff !important;
+  color: #260b45 !important;
+  box-shadow: 0 8px 20px rgba(139, 92, 246, 0.08) !important;
+}
+
+html:not(.dark) .employee-start-chat-user-card:hover {
+  background: #f3e8ff !important;
+  border-color: #c084fc !important;
+  box-shadow: 0 12px 28px rgba(139, 92, 246, 0.16) !important;
+}
+
+/* Avatar boxes - remove very dark blue */
+html:not(.dark) .employee-start-chat-user-card > div:first-child > div:first-child {
+  background: linear-gradient(135deg, #8b5cf6, #6d28d9) !important;
+  border: 1px solid #c4b5fd !important;
+  color: #ffffff !important;
+  box-shadow: 0 8px 18px rgba(139, 92, 246, 0.28) !important;
+}
+
+/* Names */
+html:not(.dark) .employee-start-chat-user-card .text-sm {
+  color: #260b45 !important;
+  font-weight: 800 !important;
+}
+
+/* Designation / department / login id */
+html:not(.dark) .employee-start-chat-user-card .text-xs {
+  color: #7a6692 !important;
+}
+
+html:not(.dark) .employee-start-chat-user-card .font-mono {
+  color: #6d28d9 !important;
+}
+
+/* EMP code badge */
+html:not(.dark) .employee-start-chat-user-card span[class*="bg-blue-500"] {
+  background: #ede9fe !important;
+  border: 1px solid #c4b5fd !important;
+  color: #6d28d9 !important;
+}
+
+/* Grey arrow button fix */
+html:not(.dark) .employee-start-chat-user-card > div:last-child {
+  background: #ede9fe !important;
+  border: 1px solid #c4b5fd !important;
+  color: #7c3aed !important;
+  box-shadow: 0 8px 18px rgba(139, 92, 246, 0.18) !important;
+}
+
+html:not(.dark) .employee-start-chat-user-card:hover > div:last-child {
+  background: #7c3aed !important;
+  border-color: #7c3aed !important;
+  color: #ffffff !important;
+}
+
+html:not(.dark) .employee-start-chat-user-card > div:last-child svg {
+  color: inherit !important;
+}
+
+/* Loading / empty state */
+html:not(.dark) .employee-start-chat-modal .text-slate-400,
+html:not(.dark) .employee-start-chat-modal .text-slate-500 {
+  color: #7a6692 !important;
+}
