@@ -117,7 +117,8 @@ export function RemoveAdminModal({ isOpen, onClose, onSuccess }) {
                   </div>
                   <button
                     onClick={resetAndClose}
-                    className="p-2 text-muted-foreground hover:bg-muted rounded-full"
+                    className="p-2 text-red-500 bg-red-500/10 hover:bg-red-500 hover:text-white rounded-full transition-colors"
+                    title="Close (Esc)"
                   >
                     <X size={20} />
                   </button>
@@ -202,7 +203,8 @@ export function RemoveAdminModal({ isOpen, onClose, onSuccess }) {
                   </div>
                   <button
                     onClick={resetAndClose}
-                    className="p-2 text-muted-foreground hover:bg-muted rounded-full"
+                    className="p-2 text-red-500 bg-red-500/10 hover:bg-red-500 hover:text-white rounded-full transition-colors"
+                    title="Close (Esc)"
                   >
                     <X size={20} />
                   </button>

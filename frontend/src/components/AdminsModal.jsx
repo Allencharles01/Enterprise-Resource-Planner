@@ -75,9 +75,10 @@ export function AdminsModal({ isOpen, onClose }) {
                 </button>
                 <button
                   onClick={onClose}
-                  className="p-2 ml-4 text-muted-foreground hover:text-foreground hover:bg-muted rounded-full transition-colors"
+                  className="p-2 ml-4 text-red-500 bg-red-500/10 hover:bg-red-500 hover:text-white rounded-full transition-colors"
+                  title="Close (Esc)"
                 >
-                  <X size={24} />
+                  <X size={20} />
                 </button>
               </div>
             </div>

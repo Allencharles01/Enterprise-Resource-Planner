@@ -37,6 +37,14 @@ export function GmailComposerModal({
   const [isMinimized, setIsMinimized] = useState(false);
 
   useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === "Escape" && isOpen) onClose?.();
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [isOpen, onClose]);
+
+  useEffect(() => {
     if (isOpen) {
       setTo(initialTo);
       setSubject(initialSubject);

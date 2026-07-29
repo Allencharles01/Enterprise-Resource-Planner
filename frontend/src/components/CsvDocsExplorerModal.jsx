@@ -34,6 +34,14 @@ export default function CsvDocsExplorerModal({ isOpen, onClose }) {
   };
 
   useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === "Escape" && isOpen) onClose?.();
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [isOpen, onClose]);
+
+  useEffect(() => {
     if (isOpen) {
       fetchTree();
       setCurrentPath([]);

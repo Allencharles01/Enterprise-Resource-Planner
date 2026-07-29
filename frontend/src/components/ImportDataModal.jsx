@@ -384,6 +384,13 @@ const getDuplicateResults = (records, dbContacts = []) => {
 };
 
 export default function ImportDataModal({ onClose }) {
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === "Escape") onClose?.();
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [onClose]);
   const [selectedFile, setSelectedFile] = useState(null);
   const [fileUrl, setFileUrl] = useState("");
   const [fileType, setFileType] = useState("");
@@ -768,7 +775,8 @@ export default function ImportDataModal({ onClose }) {
 
           <button
             onClick={onClose}
-            className="rounded-full p-2 text-slate-400 dark:text-muted-foreground transition hover:bg-violet-50 dark:hover:bg-muted hover:text-slate-900 dark:hover:text-foreground"
+            className="rounded-full p-2 text-red-500 bg-red-500/10 hover:bg-red-500 hover:text-white transition"
+            title="Close (Esc)"
           >
             <X size={20} />
           </button>
@@ -1504,7 +1512,8 @@ function SectionHeader({ icon: Icon, iconClass, title, subtitle, onClose }) {
 
       <button
         onClick={onClose}
-        className="rounded-full p-2 text-slate-400 dark:text-muted-foreground hover:bg-violet-50 dark:hover:bg-muted hover:text-slate-900 dark:hover:text-foreground"
+        className="rounded-full p-2 text-red-500 bg-red-500/10 hover:bg-red-500 hover:text-white transition"
+        title="Close (Esc)"
       >
         <X size={18} />
       </button>
@@ -1843,7 +1852,8 @@ function SmallPopup({ title, children, onClose }) {
 
           <button
             onClick={onClose}
-            className="rounded-full p-2 text-slate-400 dark:text-muted-foreground hover:bg-violet-50 dark:hover:bg-muted hover:text-slate-900 dark:hover:text-foreground"
+            className="rounded-full p-2 text-red-500 bg-red-500/10 hover:bg-red-500 hover:text-white transition"
+            title="Close (Esc)"
           >
             <X size={18} />
           </button>

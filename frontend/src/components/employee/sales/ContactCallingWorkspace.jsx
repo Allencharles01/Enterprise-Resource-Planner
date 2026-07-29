@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import {
   PhoneCall,
   PhoneOff,
@@ -195,6 +195,20 @@ export default function ContactCallingWorkspace({ onBack }) {
 
   const { resolvedTheme } = useTheme();
   const isDarkMode = resolvedTheme === "dark";
+
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === "Escape") {
+        if (isQrModalOpen) {
+          setIsQrModalOpen(false);
+        } else if (statusModalContact) {
+          setStatusModalContact(null);
+        }
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [isQrModalOpen, statusModalContact]);
 
   const filteredContacts = useMemo(() => {
     return contacts.filter((contact) => {

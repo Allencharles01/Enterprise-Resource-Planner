@@ -172,7 +172,8 @@ export function AddAdminModal({ isOpen, onClose, onSuccess }) {
               </div>
               <button
                 onClick={onClose}
-                className="p-2 text-muted-foreground hover:bg-muted hover:text-foreground rounded-full transition-colors"
+                className="p-2 text-red-500 bg-red-500/10 hover:bg-red-500 hover:text-white rounded-full transition-colors"
+                title="Close (Esc)"
               >
                 <X size={20} />
               </button>

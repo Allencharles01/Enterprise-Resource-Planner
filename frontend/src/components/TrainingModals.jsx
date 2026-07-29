@@ -70,10 +70,10 @@ function SalesAgentSearch({ value, onChange, employees, placeholder = "Search Sa
           setTimeout(() => setIsOpen(false), 200);
         }}
         placeholder={placeholder}
-        className={`w-full bg-zinc-800 border border-border rounded-xl p-3 text-sm outline-none ${focusBorderColor} text-foreground`}
+        className={`w-full bg-muted/40 border border-border rounded-xl p-3 text-sm outline-none ${focusBorderColor} text-foreground`}
       />
       {isOpen && (
-        <div className="absolute z-[100] w-full mt-1 bg-zinc-800 border border-border rounded-xl shadow-xl max-h-60 overflow-y-auto divide-y divide-zinc-700/50">
+        <div className="absolute z-[100] w-full mt-1 bg-background border border-border rounded-xl shadow-xl max-h-60 overflow-y-auto divide-y divide-border/50">
           {salesEmployees.length === 0 ? (
             <div className="p-3 text-xs text-muted-foreground">No Sales employees found</div>
           ) : (
@@ -90,7 +90,7 @@ function SalesAgentSearch({ value, onChange, employees, placeholder = "Search Sa
                     onChange(name);
                     setIsOpen(false);
                   }}
-                  className="w-full text-left p-3 hover:bg-zinc-700/50 flex flex-col gap-0.5 text-xs text-foreground transition"
+                  className="w-full text-left p-3 hover:bg-muted/60 flex flex-col gap-0.5 text-xs text-foreground transition"
                 >
                   <div className="font-semibold text-sm text-foreground">{name}</div>
                   <div className="text-muted-foreground flex justify-between">
@@ -158,7 +158,7 @@ function AddCourseModal({ onClose }) {
             value={name}
             onChange={(e) => setName(e.target.value)}
             placeholder="e.g. Enterprise Cloud Architecture"
-            className="w-full bg-zinc-800 border border-border rounded-xl px-4 py-3 text-sm focus:border-amber-500 outline-none transition text-foreground"
+            className="w-full bg-muted/40 text-foreground border border-border rounded-xl px-4 py-3 text-sm focus:border-amber-500 outline-none transition"
           />
         </div>
 
@@ -170,7 +170,7 @@ function AddCourseModal({ onClose }) {
               value={price}
               onChange={handlePriceChange}
               placeholder="25,000"
-              className="w-full bg-zinc-800 border border-border rounded-xl px-4 py-3 text-sm focus:border-amber-500 outline-none transition text-foreground font-semibold"
+              className="w-full bg-muted/40 text-foreground border border-border rounded-xl px-4 py-3 text-sm focus:border-amber-500 outline-none transition font-semibold"
             />
           </div>
 
@@ -179,12 +179,12 @@ function AddCourseModal({ onClose }) {
             <select
               value={currency}
               onChange={(e) => setCurrency(e.target.value)}
-              className="w-full bg-zinc-800 border border-border rounded-xl px-4 py-3 text-sm focus:border-amber-500 outline-none transition text-foreground font-semibold"
+              className="w-full bg-muted/40 text-foreground border border-border rounded-xl px-4 py-3 text-sm focus:border-amber-500 outline-none transition font-semibold"
             >
-              <option value="INR (₹)">INR (₹)</option>
-              <option value="USD ($)">USD ($)</option>
-              <option value="EUR (€)">EUR (€)</option>
-              <option value="GBP (£)">GBP (£)</option>
+              <option value="INR (₹)" className="bg-background text-foreground">INR (₹)</option>
+              <option value="USD ($)" className="bg-background text-foreground">USD ($)</option>
+              <option value="EUR (€)" className="bg-background text-foreground">EUR (€)</option>
+              <option value="GBP (£)" className="bg-background text-foreground">GBP (£)</option>
             </select>
           </div>
         </div>
@@ -260,9 +260,9 @@ function EditCourseModal({ onClose }) {
           <p className="text-sm text-muted-foreground">Select course curriculum to modify</p>
         </div>
         {courses.length > 0 && (
-          <select value={selectedId} onChange={handleSelect} className="bg-zinc-800 border border-amber-500/40 text-amber-400 font-semibold rounded-xl px-4 py-2 text-sm outline-none">
+          <select value={selectedId} onChange={handleSelect} className="mr-12 bg-muted/40 border border-amber-500/40 text-amber-500 font-semibold rounded-xl px-4 py-2 text-sm outline-none">
             {courses.map((c) => (
-              <option key={c._id} value={c._id}>{c.name}</option>
+              <option key={c._id} value={c._id} className="bg-background text-foreground">{c.name}</option>
             ))}
           </select>
         )}
@@ -275,22 +275,22 @@ function EditCourseModal({ onClose }) {
           <div className="space-y-4">
             <div>
               <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider block mb-1">Course Name</label>
-              <input required name="name" value={formData.name || ""} onChange={handleChange} className="w-full bg-zinc-800 border border-border rounded-xl px-4 py-3 text-sm focus:border-amber-500 outline-none text-foreground font-medium" />
+              <input required name="name" value={formData.name || ""} onChange={handleChange} className="w-full bg-muted/40 text-foreground border border-border rounded-xl px-4 py-3 text-sm focus:border-amber-500 outline-none font-medium" />
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider block mb-1">Price</label>
-                <input required name="price" value={formData.price || ""} onChange={handleChange} className="w-full bg-zinc-800 border border-border rounded-xl px-4 py-3 text-sm focus:border-amber-500 outline-none text-foreground font-semibold" />
+                <input required name="price" value={formData.price || ""} onChange={handleChange} className="w-full bg-muted/40 text-foreground border border-border rounded-xl px-4 py-3 text-sm focus:border-amber-500 outline-none font-semibold" />
               </div>
 
               <div>
                 <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider block mb-1">Currency</label>
-                <select name="currency" value={formData.currency || "INR (₹)"} onChange={handleChange} className="w-full bg-zinc-800 border border-border rounded-xl px-4 py-3 text-sm focus:border-amber-500 outline-none text-foreground font-semibold">
-                  <option value="INR (₹)">INR (₹)</option>
-                  <option value="USD ($)">USD ($)</option>
-                  <option value="EUR (€)">EUR (€)</option>
-                  <option value="GBP (£)">GBP (£)</option>
+                <select name="currency" value={formData.currency || "INR (₹)"} onChange={handleChange} className="w-full bg-muted/40 text-foreground border border-border rounded-xl px-4 py-3 text-sm focus:border-amber-500 outline-none font-semibold">
+                  <option value="INR (₹)" className="bg-background text-foreground">INR (₹)</option>
+                  <option value="USD ($)" className="bg-background text-foreground">USD ($)</option>
+                  <option value="EUR (€)" className="bg-background text-foreground">EUR (€)</option>
+                  <option value="GBP (£)" className="bg-background text-foreground">GBP (£)</option>
                 </select>
               </div>
             </div>
@@ -347,7 +347,7 @@ function RemoveCourseModal({ onClose }) {
           <p className="text-center py-12 text-muted-foreground">No courses available to remove.</p>
         ) : (
           courses.map((c) => (
-            <div key={c._id} className="flex items-center justify-between p-4 bg-zinc-800/80 border border-border/80 rounded-2xl hover:border-red-500/40 transition group">
+            <div key={c._id} className="flex items-center justify-between p-4 bg-muted/30 border border-border rounded-2xl hover:border-red-500/40 transition group">
               <div>
                 <h3 className="font-bold text-foreground text-base">{c.name}</h3>
                 <p className="text-xs text-muted-foreground mt-0.5">{c.currency || "INR (₹)"} {c.price}</p>
@@ -460,23 +460,23 @@ function AddCandidateModal({ onClose }) {
           </h3>
           <div>
             <label className="text-xs text-muted-foreground block mb-1">Full Name</label>
-            <input required name="name" value={formData.name} onChange={handleChange} className="w-full bg-zinc-800 border border-border rounded-xl p-2.5 text-sm outline-none focus:border-amber-500" placeholder="Participant Name" />
+            <input required name="name" value={formData.name} onChange={handleChange} className="w-full bg-muted/40 text-foreground border border-border rounded-xl p-2.5 text-sm outline-none focus:border-amber-500" placeholder="Participant Name" />
           </div>
           <div>
             <label className="text-xs text-muted-foreground block mb-1">Email ID</label>
-            <input required type="email" name="email" value={formData.email} onChange={handleChange} className="w-full bg-zinc-800 border border-border rounded-xl p-2.5 text-sm outline-none focus:border-amber-500" placeholder="name@company.com" />
+            <input required type="email" name="email" value={formData.email} onChange={handleChange} className="w-full bg-muted/40 text-foreground border border-border rounded-xl p-2.5 text-sm outline-none focus:border-amber-500" placeholder="name@company.com" />
           </div>
           <div>
             <label className="text-xs text-muted-foreground block mb-1">Phone Number</label>
-            <input name="phone" value={formData.phone} onChange={handleChange} className="w-full bg-zinc-800 border border-border rounded-xl p-2.5 text-sm outline-none focus:border-amber-500" placeholder="+91 98765 43210" />
+            <input name="phone" value={formData.phone} onChange={handleChange} className="w-full bg-muted/40 text-foreground border border-border rounded-xl p-2.5 text-sm outline-none focus:border-amber-500" placeholder="+91 98765 43210" />
           </div>
           <div>
             <label className="text-xs text-muted-foreground block mb-1">Education</label>
-            <input name="education" value={formData.education} onChange={handleChange} className="w-full bg-zinc-800 border border-border rounded-xl p-2.5 text-sm outline-none focus:border-amber-500" placeholder="B.Tech / MCA / MBA" />
+            <input name="education" value={formData.education} onChange={handleChange} className="w-full bg-muted/40 text-foreground border border-border rounded-xl p-2.5 text-sm outline-none focus:border-amber-500" placeholder="B.Tech / MCA / MBA" />
           </div>
           <div>
             <label className="text-xs text-muted-foreground block mb-1">University / Company</label>
-            <input name="university" value={formData.university} onChange={handleChange} className="w-full bg-zinc-800 border border-border rounded-xl p-2.5 text-sm outline-none focus:border-amber-500" placeholder="Organization or Institution" />
+            <input name="university" value={formData.university} onChange={handleChange} className="w-full bg-muted/40 text-foreground border border-border rounded-xl p-2.5 text-sm outline-none focus:border-amber-500" placeholder="Organization or Institution" />
           </div>
         </div>
 
@@ -488,24 +488,24 @@ function AddCandidateModal({ onClose }) {
           <div>
             <label className="text-xs text-muted-foreground block mb-1">Course Name</label>
             {courses.length > 0 ? (
-              <select name="courseName" value={formData.courseName} onChange={handleChange} className="w-full bg-zinc-800 border border-border rounded-xl p-2.5 text-sm outline-none focus:border-amber-500 font-medium">
-                {courses.map((c) => <option key={c._id} value={c.name}>{c.name}</option>)}
+              <select name="courseName" value={formData.courseName} onChange={handleChange} className="w-full bg-muted/40 text-foreground border border-border rounded-xl p-2.5 text-sm outline-none focus:border-amber-500 font-medium">
+                {courses.map((c) => <option key={c._id} value={c.name} className="bg-background text-foreground">{c.name}</option>)}
               </select>
             ) : (
-              <input required name="courseName" value={formData.courseName} onChange={handleChange} className="w-full bg-zinc-800 border border-border rounded-xl p-2.5 text-sm outline-none focus:border-amber-500" placeholder="Course Title" />
+              <input required name="courseName" value={formData.courseName} onChange={handleChange} className="w-full bg-muted/40 text-foreground border border-border rounded-xl p-2.5 text-sm outline-none focus:border-amber-500" placeholder="Course Title" />
             )}
           </div>
           <div>
             <label className="text-xs text-muted-foreground block mb-1">Cost</label>
-            <input name="cost" value={formData.cost} onChange={handleChange} className="w-full bg-zinc-800 border border-border rounded-xl p-2.5 text-sm outline-none focus:border-amber-500 font-semibold text-emerald-400" placeholder="₹ 25,000" />
+            <input name="cost" value={formData.cost} onChange={handleChange} className="w-full bg-muted/40 border border-border rounded-xl p-2.5 text-sm outline-none focus:border-amber-500 font-semibold text-emerald-400" placeholder="₹ 25,000" />
           </div>
           <div>
             <label className="text-xs text-muted-foreground block mb-1">Payment Method</label>
-            <select name="paymentMethod" value={formData.paymentMethod} onChange={handleChange} className="w-full bg-zinc-800 border border-border rounded-xl p-2.5 text-sm outline-none focus:border-amber-500">
-              <option value="Cash">Cash</option>
-              <option value="Card">Card</option>
-              <option value="UPI">UPI</option>
-              <option value="Bank Transfer">Bank Transfer</option>
+            <select name="paymentMethod" value={formData.paymentMethod} onChange={handleChange} className="w-full bg-muted/40 text-foreground border border-border rounded-xl p-2.5 text-sm outline-none focus:border-amber-500">
+              <option value="Cash" className="bg-background text-foreground">Cash</option>
+              <option value="Card" className="bg-background text-foreground">Card</option>
+              <option value="UPI" className="bg-background text-foreground">UPI</option>
+              <option value="Bank Transfer" className="bg-background text-foreground">Bank Transfer</option>
             </select>
           </div>
           <datalist id="trainEmpSuggest">
@@ -627,15 +627,15 @@ function EditCandidateModal({ onClose }) {
           <p className="text-sm text-muted-foreground">Modify trainee enrollment parameters</p>
         </div>
         {filteredCandidates.length > 0 && (
-          <select value={selectedId} onChange={handleSelect} className="bg-zinc-800 border border-amber-500/40 text-amber-400 font-semibold rounded-xl px-4 py-2 text-sm outline-none">
+          <select value={selectedId} onChange={handleSelect} className="mr-12 bg-muted/40 border border-amber-500/40 text-amber-500 font-semibold rounded-xl px-4 py-2 text-sm outline-none">
             {filteredCandidates.map((c) => (
-              <option key={c._id} value={c._id}>{c.name} ({c.email})</option>
+              <option key={c._id} value={c._id} className="bg-background text-foreground">{c.name} ({c.email})</option>
             ))}
           </select>
         )}
       </div>
 
-      <div className="flex gap-2 p-1.5 bg-zinc-800 rounded-2xl border border-border/60">
+      <div className="flex gap-2 p-1.5 bg-muted/40 rounded-2xl border border-border/60">
         {["Active", "Inactive"].map((tName) => (
           <button
             key={tName}
@@ -660,23 +660,23 @@ function EditCandidateModal({ onClose }) {
               <h3 className="text-base font-bold text-amber-400 border-b border-border/40 pb-2">Personal Info</h3>
               <div>
                 <label className="text-xs text-muted-foreground block mb-1">Full Name</label>
-                <input required name="name" value={formData.name || ""} onChange={handleChange} className="w-full bg-zinc-800 border border-border rounded-xl p-2.5 text-sm outline-none" />
+                <input required name="name" value={formData.name || ""} onChange={handleChange} className="w-full bg-muted/40 text-foreground border border-border rounded-xl p-2.5 text-sm outline-none" />
               </div>
               <div>
                 <label className="text-xs text-muted-foreground block mb-1">Email ID</label>
-                <input required type="email" name="email" value={formData.email || ""} onChange={handleChange} className="w-full bg-zinc-800 border border-border rounded-xl p-2.5 text-sm outline-none" />
+                <input required type="email" name="email" value={formData.email || ""} onChange={handleChange} className="w-full bg-muted/40 text-foreground border border-border rounded-xl p-2.5 text-sm outline-none" />
               </div>
               <div>
                 <label className="text-xs text-muted-foreground block mb-1">Phone Number</label>
-                <input name="phone" value={formData.phone || ""} onChange={handleChange} className="w-full bg-zinc-800 border border-border rounded-xl p-2.5 text-sm outline-none" />
+                <input name="phone" value={formData.phone || ""} onChange={handleChange} className="w-full bg-muted/40 text-foreground border border-border rounded-xl p-2.5 text-sm outline-none" />
               </div>
               <div>
                 <label className="text-xs text-muted-foreground block mb-1">Education</label>
-                <input name="education" value={formData.education || ""} onChange={handleChange} className="w-full bg-zinc-800 border border-border rounded-xl p-2.5 text-sm outline-none" />
+                <input name="education" value={formData.education || ""} onChange={handleChange} className="w-full bg-muted/40 text-foreground border border-border rounded-xl p-2.5 text-sm outline-none" />
               </div>
               <div>
                 <label className="text-xs text-muted-foreground block mb-1">University / Company</label>
-                <input name="university" value={formData.university || ""} onChange={handleChange} className="w-full bg-zinc-800 border border-border rounded-xl p-2.5 text-sm outline-none" />
+                <input name="university" value={formData.university || ""} onChange={handleChange} className="w-full bg-muted/40 text-foreground border border-border rounded-xl p-2.5 text-sm outline-none" />
               </div>
             </div>
 
@@ -685,25 +685,25 @@ function EditCandidateModal({ onClose }) {
               <h3 className="text-base font-bold text-amber-400 border-b border-border/40 pb-2">Program details</h3>
               <div>
                 <label className="text-xs text-muted-foreground block mb-1">Course Name</label>
-                <input required name="courseName" value={formData.courseName || ""} onChange={handleChange} className="w-full bg-zinc-800 border border-border rounded-xl p-2.5 text-sm outline-none font-medium" />
+                <input required name="courseName" value={formData.courseName || ""} onChange={handleChange} className="w-full bg-muted/40 text-foreground border border-border rounded-xl p-2.5 text-sm outline-none font-medium" />
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="text-xs text-muted-foreground block mb-1">Duration</label>
-                  <input name="duration" value={formData.duration || "4 weeks"} onChange={handleChange} className="w-full bg-zinc-800 border border-border rounded-xl p-2.5 text-sm outline-none" placeholder="e.g. 6 weeks" />
+                  <input name="duration" value={formData.duration || "4 weeks"} onChange={handleChange} className="w-full bg-muted/40 text-foreground border border-border rounded-xl p-2.5 text-sm outline-none" placeholder="e.g. 6 weeks" />
                 </div>
                 <div>
                   <label className="text-xs text-muted-foreground block mb-1">Cost</label>
-                  <input name="cost" value={formData.cost || ""} onChange={handleChange} className="w-full bg-zinc-800 border border-border rounded-xl p-2.5 text-sm outline-none font-semibold text-emerald-400" />
+                  <input name="cost" value={formData.cost || ""} onChange={handleChange} className="w-full bg-muted/40 border border-border rounded-xl p-2.5 text-sm outline-none font-semibold text-emerald-400" />
                 </div>
               </div>
               <div>
                 <label className="text-xs text-muted-foreground block mb-1">Payment Method</label>
-                <select name="paymentMethod" value={formData.paymentMethod || "Bank Transfer"} onChange={handleChange} className="w-full bg-zinc-800 border border-border rounded-xl p-2.5 text-sm outline-none">
-                  <option value="Cash">Cash</option>
-                  <option value="Card">Card</option>
-                  <option value="UPI">UPI</option>
-                  <option value="Bank Transfer">Bank Transfer</option>
+                <select name="paymentMethod" value={formData.paymentMethod || "Bank Transfer"} onChange={handleChange} className="w-full bg-muted/40 text-foreground border border-border rounded-xl p-2.5 text-sm outline-none">
+                  <option value="Cash" className="bg-background text-foreground">Cash</option>
+                  <option value="Card" className="bg-background text-foreground">Card</option>
+                  <option value="UPI" className="bg-background text-foreground">UPI</option>
+                  <option value="Bank Transfer" className="bg-background text-foreground">Bank Transfer</option>
                 </select>
               </div>
               <datalist id="trainEditEmpSuggest">
@@ -716,11 +716,11 @@ function EditCandidateModal({ onClose }) {
                 </div>
                 <div>
                   <label className="text-xs text-muted-foreground block mb-1">Status</label>
-                  <select name="status" value={formData.status || "Active"} onChange={handleChange} className="w-full bg-zinc-800 border border-border rounded-xl p-2.5 text-sm outline-none font-semibold text-amber-400">
-                    <option value="Active" className="text-foreground">Active</option>
-                    <option value="Inactive" className="text-foreground">Inactive</option>
-                    <option value="Dropped Out" className="text-foreground">Dropped Out</option>
-                    <option value="Completed" className="text-foreground">Completed</option>
+                  <select name="status" value={formData.status || "Active"} onChange={handleChange} className="w-full bg-muted/40 text-foreground border border-border rounded-xl p-2.5 text-sm outline-none font-semibold text-amber-500">
+                    <option value="Active" className="bg-background text-foreground">Active</option>
+                    <option value="Inactive" className="bg-background text-foreground">Inactive</option>
+                    <option value="Dropped Out" className="bg-background text-foreground">Dropped Out</option>
+                    <option value="Completed" className="bg-background text-foreground">Completed</option>
                   </select>
                 </div>
               </div>
@@ -780,7 +780,7 @@ function RemoveCandidateModal({ onClose }) {
         </div>
       </div>
 
-      <div className="flex gap-2 p-1.5 bg-zinc-800 rounded-2xl border border-border/60">
+      <div className="flex gap-2 p-1.5 bg-muted/40 rounded-2xl border border-border/60">
         {["Active", "Inactive"].map((tName) => (
           <button
             key={tName}
@@ -800,7 +800,7 @@ function RemoveCandidateModal({ onClose }) {
           <p className="text-center py-12 text-muted-foreground">No {tab.toLowerCase()} training candidates found.</p>
         ) : (
           filtered.map((c) => (
-            <div key={c._id} className="flex items-center justify-between p-4 bg-zinc-800/80 border border-border/80 rounded-2xl hover:border-red-500/40 transition group">
+            <div key={c._id} className="flex items-center justify-between p-4 bg-muted/30 border border-border rounded-2xl hover:border-red-500/40 transition group">
               <div>
                 <h3 className="font-bold text-foreground text-base">{c.name}</h3>
                 <p className="text-xs text-muted-foreground mt-0.5">{c.courseName} · {c.email}</p>
@@ -828,6 +828,14 @@ function RemoveCandidateModal({ onClose }) {
 
 // --- MAIN EXPORT WRAPPER ---
 export function TrainingModals({ activeModal, onClose }) {
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === "Escape") onClose?.();
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [onClose]);
+
   if (!activeModal) return null;
 
   return (
@@ -837,11 +845,12 @@ export function TrainingModals({ activeModal, onClose }) {
           initial={{ opacity: 0, scale: 0.95, y: 10 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.95, y: 10 }}
-          className="relative w-full max-w-3xl bg-zinc-900 border border-border/80 rounded-3xl p-6 sm:p-8 shadow-2xl max-h-[90vh] overflow-y-auto text-foreground"
+          className="relative w-full max-w-3xl bg-background border border-border rounded-3xl p-6 sm:p-8 shadow-2xl max-h-[90vh] overflow-y-auto text-foreground"
         >
           <button
             onClick={onClose}
-            className="absolute top-6 right-6 p-2 rounded-full hover:bg-muted text-muted-foreground hover:text-foreground transition z-10"
+            className="absolute top-6 right-6 p-2 rounded-full bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white transition z-20 shadow-sm"
+            title="Close (Esc)"
           >
             <X size={20} />
           </button>

@@ -319,7 +319,7 @@ const toggleTheme = () =>
 
   return (
     <>
-      <nav className="sticky top-0 z-50 border-b border-slate-200/70 bg-white/85 backdrop-blur-lg shadow-sm dark:border-border/50 dark:bg-[#050816]/90 dark:shadow-xl">
+      <nav className="sales-employee-light-navbar sticky top-0 z-50 border-b border-slate-200/70 bg-white/85 backdrop-blur-lg shadow-sm dark:border-border/50 dark:bg-[#050816]/90 dark:shadow-xl">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-20">
             {/* Left side */}

@@ -12,6 +12,7 @@ import {
   Inbox,
   Send,
   Eye,
+  CheckCheck,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { api } from "@/lib/api";
@@ -519,6 +520,50 @@ export function MessagesModal({ isOpen, onClose }) {
       } catch (e) {
         console.error("Failed to mark email/message as read:", e);
       }
+    }
+  };
+
+  const handleMarkAllAsRead = async () => {
+    setItems((prev) =>
+      prev.map((i) => ({
+        ...i,
+        isRead: true,
+        unreadCount: 0,
+      }))
+    );
+
+    window.dispatchEvent(new CustomEvent("messagesRead"));
+
+    if (activeTab === "email") {
+      const unreadEmails = items.filter(
+        (i) => !i.isChatConversation && (!i.isRead || i.unreadCount > 0) && i._id
+      );
+      await Promise.all(
+        unreadEmails.map((e) =>
+          api.put(`/api/emails/${e._id}`, { isRead: true }).catch(() => {})
+        )
+      );
+    } else {
+      const uId = currentUser?.id || "";
+      const uCode = currentUser?.code || "";
+      const uRole = currentUser?.role || "";
+      if (uId || uCode) {
+        await api
+          .patch("/api/internalChat/read-all", {
+            userId: uId,
+            code: uCode,
+            role: uRole,
+          })
+          .catch(() => {});
+      }
+      const unreadEmails = items.filter(
+        (i) => !i.isChatConversation && (!i.isRead || i.unreadCount > 0) && i._id
+      );
+      await Promise.all(
+        unreadEmails.map((e) =>
+          api.put(`/api/emails/${e._id}`, { isRead: true }).catch(() => {})
+        )
+      );
     }
   };
 
@@ -1040,6 +1085,16 @@ export function MessagesModal({ isOpen, onClose }) {
                     Start Chat
                   </button>
                 )}
+
+                <button
+                  type="button"
+                  onClick={handleMarkAllAsRead}
+                  className="flex cursor-pointer items-center gap-1.5 rounded-xl border border-emerald-500/40 bg-emerald-500/10 px-3.5 py-2 text-xs font-bold text-emerald-500 shadow-sm transition-all hover:bg-emerald-600 hover:text-white"
+                  title={`Mark all ${activeTab === "email" ? "emails" : "messages"} as read`}
+                >
+                  <CheckCheck size={15} />
+                  Mark all as Read
+                </button>
               </div>
 
               <button

@@ -27,10 +27,13 @@ import {
   Zap,
   Trash2,
   ShieldCheck,
+  Sun,
+  Moon,
 } from "lucide-react";
 import axios from "axios";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { useTheme } from "next-themes";
 import { formatAmount } from "@/lib/formatAmount";
 
 // Custom WOW Interactive Calendar Picker Component
@@ -226,6 +229,13 @@ function CustomDatePicker({ selectedDate, onSelectDate, onClose }) {
 
 export default function LoginPage() {
   const router = useRouter();
+  const { resolvedTheme, setTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -471,29 +481,87 @@ export default function LoginPage() {
           <div className="glass-card rounded-2xl p-8 shadow-2xl relative overflow-hidden">
             <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-primary via-secondary to-accent"></div>
 
-            <div className="text-center mb-8 lg:hidden">
-              <div className="w-16 h-16 shrink-0 bg-primary rounded-xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-primary/30 overflow-hidden">
-                <img
-                  src="/NovaLogo.jpeg"
-                  alt="Nova Logo"
-                  className="w-full h-full object-cover"
-                />
+            <div className="flex items-start justify-between mb-8 lg:hidden">
+              <div className="flex-1">
+                <div className="w-16 h-16 shrink-0 bg-primary rounded-xl flex items-center justify-center mb-4 shadow-lg shadow-primary/30 overflow-hidden">
+                  <img
+                    src="/NovaLogo.jpeg"
+                    alt="Nova Logo"
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+                <h2 className="text-2xl font-bold text-foreground">
+                  Welcome Back
+                </h2>
+                <p className="text-muted-foreground mt-2">
+                  Sign in to your account
+                </p>
               </div>
-              <h2 className="text-2xl font-bold text-foreground">
-                Welcome Back
-              </h2>
-              <p className="text-muted-foreground mt-2">
-                Sign in to your account
-              </p>
+
+              {mounted && (
+                <button
+                  type="button"
+                  onClick={() => setTheme(resolvedTheme === "dark" ? "light" : "dark")}
+                  className="relative inline-flex items-center h-9 w-16 rounded-full bg-muted/80 p-1 transition-colors duration-300 border border-border/80 focus:outline-none hover:border-primary/40 shadow-inner shrink-0 cursor-pointer"
+                  title={`Switch to ${resolvedTheme === "dark" ? "Light" : "Dark"} mode`}
+                >
+                  <div className="absolute inset-0 flex items-center justify-between px-2.5 text-xs pointer-events-none">
+                    <Sun size={13} className="text-amber-500/70" />
+                    <Moon size={13} className="text-indigo-400/70" />
+                  </div>
+                  <span
+                    className={`relative z-10 inline-flex items-center justify-center h-7 w-7 rounded-full bg-background shadow-md transition-transform duration-300 transform ${
+                      resolvedTheme === "dark"
+                        ? "translate-x-7 bg-slate-900 text-indigo-400"
+                        : "translate-x-0 bg-white text-amber-500"
+                    }`}
+                  >
+                    {resolvedTheme === "dark" ? (
+                      <Moon size={14} className="text-indigo-400" />
+                    ) : (
+                      <Sun size={14} className="text-amber-500" />
+                    )}
+                  </span>
+                </button>
+              )}
             </div>
 
-            <div className="hidden lg:block mb-6">
-              <h2 className="text-2xl font-bold text-foreground">
-                Welcome Back
-              </h2>
-              <p className="text-muted-foreground mt-2">
-                Please sign in to your workspace
-              </p>
+            <div className="hidden lg:flex items-start justify-between mb-6">
+              <div>
+                <h2 className="text-2xl font-bold text-foreground">
+                  Welcome Back
+                </h2>
+                <p className="text-muted-foreground mt-2">
+                  Please sign in to your workspace
+                </p>
+              </div>
+
+              {mounted && (
+                <button
+                  type="button"
+                  onClick={() => setTheme(resolvedTheme === "dark" ? "light" : "dark")}
+                  className="relative inline-flex items-center h-9 w-16 rounded-full bg-muted/80 p-1 transition-colors duration-300 border border-border/80 focus:outline-none hover:border-primary/40 shadow-inner shrink-0 cursor-pointer"
+                  title={`Switch to ${resolvedTheme === "dark" ? "Light" : "Dark"} mode`}
+                >
+                  <div className="absolute inset-0 flex items-center justify-between px-2.5 text-xs pointer-events-none">
+                    <Sun size={13} className="text-amber-500/70" />
+                    <Moon size={13} className="text-indigo-400/70" />
+                  </div>
+                  <span
+                    className={`relative z-10 inline-flex items-center justify-center h-7 w-7 rounded-full bg-background shadow-md transition-transform duration-300 transform ${
+                      resolvedTheme === "dark"
+                        ? "translate-x-7 bg-slate-900 text-indigo-400"
+                        : "translate-x-0 bg-white text-amber-500"
+                    }`}
+                  >
+                    {resolvedTheme === "dark" ? (
+                      <Moon size={14} className="text-indigo-400" />
+                    ) : (
+                      <Sun size={14} className="text-amber-500" />
+                    )}
+                  </span>
+                </button>
+              )}
             </div>
 
             {/* Role Toggle */}
