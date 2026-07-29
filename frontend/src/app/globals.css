@@ -2694,3 +2694,60 @@ html:not(.dark) .admin-light-page div[class*="bg-gray"]:has(svg) svg {
   color: #c4b5fd !important;
   box-shadow: none !important;
 }
+
+/* ---------- Admin Dashboard Background Light Lavender Fix ---------- */
+/* Light theme only. Dark theme untouched. */
+
+html:not(.dark) body:has(.admin-light-page) {
+  background: #f8f1ff !important;
+}
+
+html:not(.dark) .admin-light-page {
+  --background: #f8f1ff !important;
+  background: #f8f1ff !important;
+}
+
+html:not(.dark) .admin-light-page > div {
+  background: #f8f1ff !important;
+}
+
+html:not(.dark) .admin-light-page main {
+  background: #f8f1ff !important;
+}
+
+/* This fixes any white dashboard wrapper inside admin page */
+html:not(.dark) .admin-light-page .bg-background {
+  background: #f8f1ff !important;
+}
+
+/* Keep navbar slightly darker than body */
+html:not(.dark) .admin-light-navbar {
+  background: #f3e8ff !important;
+  border-bottom: 1px solid #e4d4ff !important;
+  box-shadow: 0 8px 28px rgba(139, 92, 246, 0.12) !important;
+  backdrop-filter: blur(18px) !important;
+}
+
+/* Dark theme protected */
+.dark .admin-light-page {
+  --background: #020617 !important;
+  background: var(--background) !important;
+}
+
+.dark .admin-light-page > div {
+  background: var(--background) !important;
+}
+
+.dark .admin-light-page main {
+  background: transparent !important;
+}
+
+.dark .admin-light-page .bg-background {
+  background: var(--background) !important;
+}
+
+.dark .admin-light-navbar {
+  background: #020617 !important;
+  border-bottom: 1px solid #1e293b !important;
+  box-shadow: none !important;
+}
