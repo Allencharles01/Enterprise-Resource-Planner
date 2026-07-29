@@ -19,6 +19,8 @@ import ContactListModal from "./ContactListModal";
 import NotificationModal from "./NotificationModal";
 import ReviewSheetModal from "./ReviewSheetModal";
 import SyncSuccessModal from "./SyncSuccessModal";
+import AssignedContactsTable from "./AssignedContactsTable";
+import CustomerDetailsModal from "./CustomerDetailsModal";
 
 export default function CallingWorkspace({ open, onClose }) {
   if (!open) return null;
@@ -300,6 +302,30 @@ export default function CallingWorkspace({ open, onClose }) {
     setDurationSeconds(0);
   };
 
+  const handleContactSelect = (contact) => {
+  const index = contacts.findIndex((c) => c.id === contact.id);
+
+  if (index !== -1) {
+    setSelectedIndex(index);
+    setPhoneNumber(contact.phoneNumber);
+    setCallState("ready");
+    setDurationSeconds(0);
+  }
+};
+  const [showCustomerDetails, setShowCustomerDetails] = useState(false);
+
+const handleViewDetails = (contact) => {
+  const index = contacts.findIndex((c) => c.id === contact.id);
+
+  if (index !== -1) {
+    setSelectedIndex(index);
+  }
+
+  setShowCustomerDetails(true);
+};
+
+
+
   /* ===================================================
       JSX
   ==================================================== */
@@ -437,18 +463,6 @@ dark:hover:bg-violet-500/10
                   durationSeconds={durationSeconds}
                 />
 
-                <LeadCategory
-                  value={leadCategory}
-                  onChange={setLeadCategory}
-                />
-
-                <button
-                  onClick={nextContact}
-                  className="w-full h-12 rounded-xl bg-violet-600 hover:bg-violet-700 text-white flex items-center justify-center gap-2"
-                >
-                  Next Contact
-                  <ArrowRight size={18} />
-                </button>
 
               </div>
 
@@ -456,14 +470,12 @@ dark:hover:bg-violet-500/10
 
               <div className="lg:col-span-2">
 
-                <CustomerInfo
-                  contact={selectedContact}
-                  recentCalls={recentCalls}
-                  onPhoneClick={handlePhoneClick}
-                  onEmailClick={handleEmailClick}
-                  onViewAllHistory={handleViewHistory}
-                  onAddNote={handleAddNote}
-                />
+                <AssignedContactsTable
+  contacts={contacts}
+  selectedContact={selectedContact}
+  onSelect={handleContactSelect}
+  onViewDetails={handleViewDetails}
+/>
 
               </div>
 
@@ -554,6 +566,16 @@ dark:hover:bg-violet-500/10
               nextContact();
             }}
           />
+          <CustomerDetailsModal
+  open={showCustomerDetails}
+  onClose={() => setShowCustomerDetails(false)}
+  contact={selectedContact}
+  recentCalls={recentCalls}
+  onPhoneClick={handlePhoneClick}
+  onEmailClick={handleEmailClick}
+  onViewAllHistory={() => {}}
+  onAddNote={handleAddNote}
+/>
 
         </div>
       </div>
