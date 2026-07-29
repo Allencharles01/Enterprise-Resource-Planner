@@ -93,10 +93,10 @@ export default function AdminDashboard() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <motion.div
             whileHover={{ scale: 1.02, y: -5 }}
-            className="glass-card bg-gradient-to-br from-amber-500/20 to-amber-600/5 border-amber-500/30 rounded-2xl p-6 shadow-lg shadow-amber-500/10 flex flex-col cursor-pointer"
+            className="glass-card bg-violet-50/70 dark:bg-gradient-to-br dark:from-amber-500/20 dark:to-amber-600/5 border border-violet-100 dark:border-amber-500/30 rounded-2xl p-6 shadow-lg shadow-violet-100/40 dark:shadow-amber-500/10 flex flex-col cursor-pointer"
           >
             <div className="flex justify-between items-start mb-4">
-              <div className="p-3 bg-amber-500/20 rounded-xl text-amber-600 dark:text-amber-400">
+              <div className="p-3 bg-violet-100 text-violet-600 dark:bg-amber-500/20 dark:text-amber-400 rounded-xl">
                 <FolderOpen size={24} />
               </div>
 
@@ -116,10 +116,10 @@ export default function AdminDashboard() {
 
           <motion.div
             whileHover={{ scale: 1.02, y: -5 }}
-            className="glass-card bg-gradient-to-br from-emerald-500/20 to-emerald-600/5 border-emerald-500/30 rounded-2xl p-6 shadow-lg shadow-emerald-500/10 flex flex-col cursor-pointer"
+            className="glass-card bg-violet-50/60 dark:bg-gradient-to-br dark:from-emerald-500/20 dark:to-emerald-600/5 border border-violet-100 dark:border-emerald-500/30 rounded-2xl p-6 shadow-lg shadow-violet-100/40 dark:shadow-emerald-500/10 flex flex-col cursor-pointer"
           >
             <div className="flex justify-between items-start mb-4">
-              <div className="p-3 bg-emerald-500/20 rounded-xl text-emerald-600 dark:text-emerald-400">
+              <div className="p-3 bg-violet-100 text-violet-600 dark:bg-emerald-500/20 dark:text-emerald-400 rounded-xl">
                 <FolderCheck size={24} />
               </div>
 
@@ -139,10 +139,10 @@ export default function AdminDashboard() {
 
           <motion.div
             whileHover={{ scale: 1.02, y: -5 }}
-            className="glass-card bg-gradient-to-br from-rose-500/20 to-rose-600/5 border-rose-500/30 rounded-2xl p-6 shadow-lg shadow-rose-500/10 flex flex-col cursor-pointer"
+            className="glass-card bg-rose-50/70 dark:bg-gradient-to-br dark:from-rose-500/20 dark:to-rose-600/5 border border-rose-100 dark:border-rose-500/30 rounded-2xl p-6 shadow-lg shadow-rose-100/40 dark:shadow-rose-500/10 flex flex-col cursor-pointer"
           >
             <div className="flex justify-between items-start mb-4">
-              <div className="p-3 bg-rose-500/20 rounded-xl text-rose-600 dark:text-rose-400">
+              <div className="p-3 bg-rose-100 text-rose-600 dark:bg-rose-500/20 dark:text-rose-400 rounded-xl">
                 <CalendarClock size={24} />
               </div>
 
@@ -209,16 +209,16 @@ export default function AdminDashboard() {
                   transition={{ delay: index * 0.1 }}
                   whileHover={{ y: -5, scale: 1.02 }}
                   onClick={() => router.push(`/projects/${project._id}`)}
-                  className="glass-card min-h-[180px] rounded-2xl p-5 border border-border/60 hover:border-primary/60 transition-all cursor-pointer flex flex-col justify-between group shadow-lg hover:shadow-xl relative overflow-hidden bg-gradient-to-b from-slate-900/40 to-slate-900/80"
+                  className="module-card min-h-[180px] rounded-2xl p-5 border border-violet-100 dark:border-border/60 hover:border-primary/60 transition-all cursor-pointer flex flex-col justify-between group shadow-md hover:shadow-lg shadow-violet-100/50 dark:shadow-lg relative overflow-hidden bg-violet-50/50 dark:bg-gradient-to-br dark:from-slate-900/40 dark:to-slate-900/80"
                 >
                   {/* Top Section */}
                   <div>
                     <div className="flex items-center justify-between gap-2 mb-4">
-                      <span className="px-3 py-1 rounded-full bg-blue-500/10 text-blue-400 text-xs font-bold border border-blue-500/20 tracking-wide uppercase">
+                      <span className="px-3 py-1 rounded-full bg-violet-100 text-violet-600 border border-violet-200 dark:bg-blue-500/10 dark:text-blue-400 dark:border-blue-500/20 text-xs font-bold uppercase tracking-wide">
                         {project.status}
                       </span>
 
-                      <div className="w-9 h-9 rounded-full bg-slate-800/80 group-hover:bg-primary group-hover:text-white transition-colors flex items-center justify-center text-muted-foreground shadow-sm">
+                      <div className="w-10 h-10 rounded-full bg-violet-600 text-white dark:bg-slate-800/80 dark:text-muted-foreground group-hover:scale-105 transition-all flex items-center justify-center shadow-md shadow-violet-300/30 dark:shadow-none">
                         <ChevronRight
                           size={18}
                           className="group-hover:translate-x-0.5 transition-transform"
@@ -232,9 +232,9 @@ export default function AdminDashboard() {
                   </div>
 
                   {/* Bottom Details Section */}
-                  <div className="space-y-3 pt-4 border-t border-border/40 text-xs">
+                  <div className="space-y-3 pt-4 border-t border-violet-100 dark:border-border/40 text-xs">
                     <div className="flex items-center justify-between text-muted-foreground">
-                      <span className="font-semibold text-slate-400">
+                      <span className="font-semibold text-violet-500 dark:text-slate-400">
                         Assigned to:
                       </span>
 
@@ -244,17 +244,17 @@ export default function AdminDashboard() {
                     </div>
 
                     <div className="flex items-center justify-between text-muted-foreground">
-                      <span className="font-semibold text-slate-400">
+                      <span className="font-semibold text-slate-500 dark:text-slate-400">
                         Deadline:
                       </span>
 
-                      <span className="font-mono font-medium text-slate-300">
+                      <span className="font-mono font-medium text-slate-500 dark:text-slate-300">
                         {new Date(project.createdAt).toLocaleDateString()}
                       </span>
                     </div>
 
                     {project.remainingTasks !== undefined && (
-                      <div className="flex items-center justify-between bg-amber-500/10 border border-amber-500/20 px-3 py-2 rounded-xl text-amber-400 font-bold">
+                      <div className="flex items-center justify-between bg-amber-50 border border-amber-200 px-3 py-2 rounded-xl text-amber-500 dark:bg-amber-500/10 dark:border-amber-500/20 dark:text-amber-400 font-bold">
                         <span>Remaining Tasks</span>
 
                         <span className="text-sm font-black">

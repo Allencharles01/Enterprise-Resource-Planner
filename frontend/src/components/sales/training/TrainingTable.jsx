@@ -8,22 +8,47 @@ import TrainingStatusBadge from "./TrainingStatusBadge";
 import TrainingProgressBar from "./TrainingProgressBar";
 import TrainingParticipantsModal from "./TrainingParticipantsModal";
 
+const getCategoryPillClass = (category) => {
+  const styles = {
+    Technical: "training-pill training-pill-blue",
+    Management: "training-pill training-pill-purple",
+    Business: "training-pill training-pill-green",
+    Design: "training-pill training-pill-yellow",
+    "Soft Skills": "training-pill training-pill-pink",
+  };
+
+  return styles[category] || "training-pill bg-muted text-foreground border-border";
+};
+
 export default function TrainingTable() {
   const [selectedProgram, setSelectedProgram] = useState(null);
   const [liveCourses, setLiveCourses] = useState([]);
   const [liveCandidates, setLiveCandidates] = useState([]);
 
   useEffect(() => {
-    api.get("/api/training/courses").then((res) => setLiveCourses(res.data || [])).catch(() => {});
-    api.get("/api/training/candidates").then((res) => setLiveCandidates(res.data || [])).catch(() => {});
+    api
+      .get("/api/training/courses")
+      .then((res) => setLiveCourses(res.data || []))
+      .catch(() => {});
+
+    api
+      .get("/api/training/candidates")
+      .then((res) => setLiveCandidates(res.data || []))
+      .catch(() => {});
   }, []);
 
-  // Merge live database courses with seed static programs
   const combinedPrograms = [
     ...trainingPrograms.map((p) => {
-      const enrolledCandidates = liveCandidates.filter((c) => c.courseName === p.name);
+      const enrolledCandidates = liveCandidates.filter(
+        (c) => c.courseName === p.name
+      );
+
       const totalEnrolled = p.enrolled + enrolledCandidates.length;
-      const completedCount = p.completed + enrolledCandidates.filter((c) => c.status === "Completed").length;
+
+      const completedCount =
+        p.completed +
+        enrolledCandidates.filter((c) => c.status === "Completed").length;
+
       return {
         ...p,
         enrolled: totalEnrolled,
@@ -36,7 +61,7 @@ export default function TrainingTable() {
             email: c.email,
             contact: c.phone || "N/A",
             progress: c.progress || 0,
-            status: c.status || "Enrolled",
+            status: c.status || "Active",
             courseName: c.courseName,
             cost: c.cost,
             education: c.education,
@@ -45,110 +70,129 @@ export default function TrainingTable() {
         ],
       };
     }),
-    ...liveCourses.filter((c) => !trainingPrograms.some((tp) => tp.name === c.name)).map((c) => {
-      const enrolledCandidates = liveCandidates.filter((cand) => cand.courseName === c.name);
-      return {
-        id: c._id,
-        name: c.name,
-        category: "Technical",
-        duration: "8 weeks",
-        instructor: "Enterprise Mentor",
-        enrolled: enrolledCandidates.length,
-        completed: enrolledCandidates.filter((cand) => cand.status === "Completed").length,
-        revenue: `${c.currency || "₹"} ${c.price}`,
-        progress: enrolledCandidates.length > 0 ? Math.round(enrolledCandidates.reduce((acc, curr) => acc + (curr.progress || 0), 0) / enrolledCandidates.length) : 0,
-        status: "Active",
-        participants: enrolledCandidates.map((cand) => ({
-          id: cand._id,
-          name: cand.name,
-          email: cand.email,
-          contact: cand.phone || "N/A",
-          progress: cand.progress || 0,
-          status: cand.status || "Enrolled",
-          courseName: cand.courseName,
-          cost: cand.cost,
-          education: cand.education,
-          university: cand.university,
-        })),
-      };
-    }),
+
+    ...liveCourses
+      .filter((c) => !trainingPrograms.some((tp) => tp.name === c.name))
+      .map((c) => {
+        const enrolledCandidates = liveCandidates.filter(
+          (cand) => cand.courseName === c.name
+        );
+
+        return {
+          id: c._id,
+          name: c.name,
+          category: "Technical",
+          duration: "8 weeks",
+          instructor: "Enterprise Mentor",
+          enrolled: enrolledCandidates.length,
+          completed: enrolledCandidates.filter(
+            (cand) => cand.status === "Completed"
+          ).length,
+          revenue: `${c.currency || "₹"} ${c.price}`,
+          progress:
+            enrolledCandidates.length > 0
+              ? Math.round(
+                  enrolledCandidates.reduce(
+                    (acc, curr) => acc + (curr.progress || 0),
+                    0
+                  ) / enrolledCandidates.length
+                )
+              : 0,
+          status: "Active",
+          participants: enrolledCandidates.map((cand) => ({
+            id: cand._id,
+            name: cand.name,
+            email: cand.email,
+            contact: cand.phone || "N/A",
+            progress: cand.progress || 0,
+            status: cand.status || "Active",
+            courseName: cand.courseName,
+            cost: cand.cost,
+            education: cand.education,
+            university: cand.university,
+          })),
+        };
+      }),
   ];
 
   return (
     <>
       <motion.div
         whileHover={{ y: -2 }}
-        className="rounded-3xl border border-gray-200 bg-white shadow-sm dark:bg-white/5 dark:border-white/10 overflow-hidden"
+        className="glass-card rounded-2xl p-6 border border-border"
       >
-        {/* Header */}
-        <div className="px-6 py-5 border-b border-gray-200 dark:border-white/10">
-          <h2 className="text-xl font-semibold text-foreground">
-            Training Programs
-          </h2>
+        <div className="flex items-center justify-between mb-6">
+          <div>
+            <h2 className="text-xl font-bold text-foreground">
+              Training Programs
+            </h2>
 
-          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-            Active and completed training sessions · Click Enrolled count to see participants
-          </p>
+            <p className="text-sm text-muted-foreground mt-1">
+              Active and completed training sessions · Click Enrolled count to
+              see participants
+            </p>
+          </div>
         </div>
 
         <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead className="border-b border-gray-200 dark:border-white/10">
-              <tr className="text-left text-sm text-gray-500 dark:text-gray-400">
-                <th className="px-6 py-4 min-w-[260px]">Program</th>
-                <th className="px-6 py-4">Category</th>
-                <th className="px-6 py-4 min-w-[100px]">Duration</th>
-                <th className="px-6 py-4 min-w-[160px]">Instructor</th>
-                <th className="px-6 py-4">Enrolled</th>
-                <th className="px-6 py-4">Completed</th>
-                <th className="px-6 py-4">Revenue</th>
-                <th className="px-6 py-4">Progress</th>
-                <th className="px-6 py-4">Status</th>
+          <table className="w-full min-w-[1300px] text-left border-collapse">
+            <thead>
+              <tr className="border-b border-border text-xs uppercase text-muted-foreground tracking-wider">
+                <th className="py-4 px-4 whitespace-nowrap font-bold">
+                  Program
+                </th>
+                <th className="py-4 px-4 whitespace-nowrap font-bold">
+                  Category
+                </th>
+                <th className="py-4 px-4 whitespace-nowrap font-bold">
+                  Duration
+                </th>
+                <th className="py-4 px-4 whitespace-nowrap font-bold">
+                  Instructor
+                </th>
+                <th className="py-4 px-4 whitespace-nowrap font-bold">
+                  Enrolled
+                </th>
+                <th className="py-4 px-4 whitespace-nowrap font-bold">
+                  Completed
+                </th>
+                <th className="py-4 px-4 whitespace-nowrap font-bold">
+                  Revenue
+                </th>
+                <th className="py-4 px-4 whitespace-nowrap font-bold">
+                  Progress
+                </th>
+                <th className="py-4 px-4 whitespace-nowrap font-bold">
+                  Status
+                </th>
               </tr>
             </thead>
 
-            <tbody>
+            <tbody className="divide-y divide-border/40 text-sm">
               {combinedPrograms.map((program) => (
                 <tr
                   key={program.id}
-                  className="border-b border-gray-100 dark:border-white/5 hover:bg-gray-50 dark:hover:bg-white/[0.03] transition"
+                  className="hover:bg-muted/30 transition-colors"
                 >
-                  <td className="px-6 py-5 font-medium min-w-[260px] whitespace-nowrap text-foreground">
+                  <td className="py-4 px-4 font-bold text-foreground whitespace-nowrap">
                     {program.name}
                   </td>
 
-                  <td className="px-6 py-5">
-                    <span
-                      className={`
-                        inline-flex items-center px-3 py-1 rounded-full text-xs font-medium border whitespace-nowrap
-                        ${
-                          program.category === "Technical"
-                            ? "bg-blue-500/10 text-blue-500 border-blue-500/20"
-                            : program.category === "Management"
-                            ? "bg-purple-500/10 text-purple-500 border-purple-500/20"
-                            : program.category === "Business"
-                            ? "bg-emerald-500/10 text-emerald-500 border-emerald-500/20"
-                            : program.category === "Design"
-                            ? "bg-amber-500/10 text-amber-500 border-amber-500/20"
-                            : program.category === "Soft Skills"
-                            ? "bg-pink-500/10 text-pink-500 border-pink-500/20"
-                            : "bg-muted text-foreground border-border"
-                        }
-                      `}
-                    >
-                      {program.category}
-                    </span>
+                  <td className="py-4 px-4 whitespace-nowrap">
+                    <span className={getCategoryPillClass(program.category)}>
+  {program.category}
+</span>
                   </td>
 
-                  <td className="px-6 py-5 min-w-[100px] whitespace-nowrap text-foreground">
+                  <td className="py-4 px-4 text-foreground whitespace-nowrap">
                     {program.duration}
                   </td>
 
-                  <td className="px-6 py-5 min-w-[160px] whitespace-nowrap text-foreground">
+                  <td className="py-4 px-4 text-foreground whitespace-nowrap">
                     {program.instructor}
                   </td>
 
-                  <td className="px-6 py-5">
+                  <td className="py-4 px-4 whitespace-nowrap">
                     <button
                       onClick={() => setSelectedProgram(program)}
                       className="font-semibold underline underline-offset-4 text-primary hover:opacity-80 transition"
@@ -157,19 +201,19 @@ export default function TrainingTable() {
                     </button>
                   </td>
 
-                  <td className="px-6 py-5 text-foreground">
+                  <td className="py-4 px-4 text-foreground whitespace-nowrap">
                     {program.completed}
                   </td>
 
-                  <td className="px-6 py-5 font-medium text-emerald-500">
+                  <td className="py-4 px-4 font-bold text-emerald-500 whitespace-nowrap">
                     {program.revenue}
                   </td>
 
-                  <td className="px-6 py-5 min-w-[160px]">
+                  <td className="py-4 px-4 min-w-[180px]">
                     <TrainingProgressBar progress={program.progress} />
                   </td>
 
-                  <td className="px-6 py-5">
+                  <td className="py-4 px-4 whitespace-nowrap">
                     <TrainingStatusBadge status={program.status} />
                   </td>
                 </tr>

@@ -4,8 +4,9 @@ import { useEffect, useState } from "react";
 import { X, Upload, Pencil, CheckCircle } from "lucide-react";
 import { api } from "@/lib/api";
 
-const inputClass =
-  "w-full rounded-2xl bg-[#1b2333] border border-slate-700/70 px-4 py-3 text-sm text-slate-100 placeholder:text-slate-500 outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/40 transition";
+const labelClass = "new-lead-label";
+
+const inputClass = "new-lead-input";
 
 const getInitialFormData = (activeTab) => {
   if (activeTab === "Internships") {
@@ -65,11 +66,15 @@ export default function NewLeadModal({
 
   useEffect(() => {
     if (isOpen) {
-      api.get("/api/internships/courses")
+      api
+        .get("/api/internships/courses")
         .then((res) => setInternshipCourses(res.data || []))
-        .catch((err) => console.error("Failed to fetch internship courses", err));
+        .catch((err) =>
+          console.error("Failed to fetch internship courses", err)
+        );
 
-      api.get("/api/training/courses")
+      api
+        .get("/api/training/courses")
         .then((res) => setTrainingCourses(res.data || []))
         .catch((err) => console.error("Failed to fetch training courses", err));
     }
@@ -129,14 +134,12 @@ export default function NewLeadModal({
 
     setFiles((prevFiles) => {
       const existingFiles = new Set(
-        prevFiles.map(
-          (file) => `${file.name}-${file.size}-${file.lastModified}`,
-        ),
+        prevFiles.map((file) => `${file.name}-${file.size}-${file.lastModified}`)
       );
 
       const newFiles = selectedFiles.filter(
         (file) =>
-          !existingFiles.has(`${file.name}-${file.size}-${file.lastModified}`),
+          !existingFiles.has(`${file.name}-${file.size}-${file.lastModified}`)
       );
 
       return [...prevFiles, ...newFiles];
@@ -147,7 +150,7 @@ export default function NewLeadModal({
 
   const removeFile = (indexToRemove) => {
     setFiles((prevFiles) =>
-      prevFiles.filter((_, index) => index !== indexToRemove),
+      prevFiles.filter((_, index) => index !== indexToRemove)
     );
   };
 
@@ -173,6 +176,7 @@ export default function NewLeadModal({
           status: "Active",
           progress: 0,
         };
+
         await api.post("/api/internships/candidates", payload);
       } else if (activeTab === "Training") {
         const payload = {
@@ -186,6 +190,7 @@ export default function NewLeadModal({
           status: "Active",
           progress: 0,
         };
+
         await api.post("/api/training/candidates", payload);
       } else {
         const payload = {
@@ -194,11 +199,17 @@ export default function NewLeadModal({
             clientName: formData.name,
             clientEmail: formData.email,
             clientPhone: formData.phone,
-            projectLead: { personal: { firstName: agentName, lastName: "" } },
+            projectLead: {
+              personal: {
+                firstName: agentName,
+                lastName: "",
+              },
+            },
             budget: formData.budgetRange,
             deadline: formData.deadline,
-          }
+          },
         };
+
         await api.post("/api/projects", payload);
       }
 
@@ -292,12 +303,52 @@ export default function NewLeadModal({
     ];
   };
 
+  const FileUploadSection = () => (
+    <div>
+      <label className={labelClass}>{getUploadLabel()}</label>
+
+      <label className="new-lead-upload-box">
+        <Upload size={18} />
+        <span>{getUploadText()}</span>
+
+        <input
+          type="file"
+          multiple
+          className="hidden"
+          accept=".pdf,.ppt,.pptx,.doc,.docx"
+          onChange={handleFileChange}
+        />
+      </label>
+
+      {files.length > 0 && (
+        <div className="mt-3 space-y-2">
+          {files.map((file, index) => (
+            <div key={`${file.name}-${index}`} className="new-lead-file-row">
+              <span
+                title={file.name}
+                className="new-lead-preview-value min-w-0 flex-1 break-all text-sm font-medium"
+              >
+                {file.name}
+              </span>
+
+              <button
+                type="button"
+                onClick={() => removeFile(index)}
+                className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-red-500/15 text-red-500 transition hover:bg-red-500 hover:text-white dark:text-red-400"
+              >
+                <X size={15} />
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+
   const renderClientProjectForm = () => (
     <>
       <div>
-        <label className="mb-2 block text-sm font-semibold text-slate-200">
-          Name *
-        </label>
+        <label className={labelClass}>Name *</label>
         <input
           name="name"
           value={formData.name}
@@ -309,9 +360,7 @@ export default function NewLeadModal({
 
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
         <div>
-          <label className="mb-2 block text-sm font-semibold text-slate-200">
-            Email ID *
-          </label>
+          <label className={labelClass}>Email ID *</label>
           <input
             name="email"
             value={formData.email}
@@ -322,9 +371,7 @@ export default function NewLeadModal({
         </div>
 
         <div>
-          <label className="mb-2 block text-sm font-semibold text-slate-200">
-            Phone Number *
-          </label>
+          <label className={labelClass}>Phone Number *</label>
           <input
             name="phone"
             value={formData.phone}
@@ -335,9 +382,7 @@ export default function NewLeadModal({
         </div>
 
         <div>
-          <label className="mb-2 block text-sm font-semibold text-slate-200">
-            Additional Phone
-          </label>
+          <label className={labelClass}>Additional Phone</label>
           <input
             name="additionalPhone"
             value={formData.additionalPhone}
@@ -348,9 +393,7 @@ export default function NewLeadModal({
         </div>
 
         <div>
-          <label className="mb-2 block text-sm font-semibold text-slate-200">
-            Additional Email
-          </label>
+          <label className={labelClass}>Additional Email</label>
           <input
             name="additionalEmail"
             value={formData.additionalEmail}
@@ -362,9 +405,7 @@ export default function NewLeadModal({
       </div>
 
       <div>
-        <label className="mb-2 block text-sm font-semibold text-slate-200">
-          Project Details
-        </label>
+        <label className={labelClass}>Project Details</label>
         <textarea
           name="projectDetails"
           value={formData.projectDetails}
@@ -379,9 +420,7 @@ export default function NewLeadModal({
 
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
         <div>
-          <label className="mb-2 block text-sm font-semibold text-slate-200">
-            Budget Range
-          </label>
+          <label className={labelClass}>Budget Range</label>
           <select
             name="budgetRange"
             value={formData.budgetRange}
@@ -397,9 +436,7 @@ export default function NewLeadModal({
         </div>
 
         <div>
-          <label className="mb-2 block text-sm font-semibold text-slate-200">
-            Preferable Deadline
-          </label>
+          <label className={labelClass}>Preferable Deadline</label>
           <input
             type="date"
             name="deadline"
@@ -415,9 +452,7 @@ export default function NewLeadModal({
   const renderInternshipForm = () => (
     <>
       <div>
-        <label className="mb-2 block text-sm font-semibold text-slate-200">
-          Candidate Name *
-        </label>
+        <label className={labelClass}>Candidate Name *</label>
         <input
           name="candidateName"
           value={getValue("candidateName")}
@@ -429,9 +464,7 @@ export default function NewLeadModal({
 
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
         <div>
-          <label className="mb-2 block text-sm font-semibold text-slate-200">
-            Email ID *
-          </label>
+          <label className={labelClass}>Email ID *</label>
           <input
             name="email"
             value={formData.email}
@@ -442,9 +475,7 @@ export default function NewLeadModal({
         </div>
 
         <div>
-          <label className="mb-2 block text-sm font-semibold text-slate-200">
-            Phone Number *
-          </label>
+          <label className={labelClass}>Phone Number *</label>
           <input
             name="phone"
             value={formData.phone}
@@ -455,9 +486,7 @@ export default function NewLeadModal({
         </div>
 
         <div>
-          <label className="mb-2 block text-sm font-semibold text-slate-200">
-            College / University
-          </label>
+          <label className={labelClass}>College / University</label>
           <input
             name="college"
             value={formData.college}
@@ -468,9 +497,7 @@ export default function NewLeadModal({
         </div>
 
         <div>
-          <label className="mb-2 block text-sm font-semibold text-slate-200">
-            Course / Branch
-          </label>
+          <label className={labelClass}>Course / Branch</label>
           <input
             name="courseBranch"
             value={formData.courseBranch}
@@ -481,53 +508,66 @@ export default function NewLeadModal({
         </div>
 
         <div>
-          <label className="mb-2 block text-sm font-semibold text-slate-200">
-            Internship Program
-          </label>
+          <label className={labelClass}>Internship Program</label>
           <select
             name="internshipProgram"
             value={formData.internshipProgram}
             onChange={(e) => {
               handleChange(e);
-              // Clear duration and fee when program changes
-              setFormData(prev => ({
+
+              setFormData((prev) => ({
                 ...prev,
                 internshipProgram: e.target.value,
                 internshipDuration: "",
-                courseFee: ""
+                courseFee: "",
               }));
             }}
             className={inputClass}
           >
             <option value="">Select program</option>
             {internshipCourses.map((c) => (
-              <option key={c._id} value={c.name}>{c.name}</option>
+              <option key={c._id} value={c.name}>
+                {c.name}
+              </option>
             ))}
           </select>
         </div>
 
         <div>
-          <label className="mb-2 block text-sm font-semibold text-slate-200">
-            Internship Duration
-          </label>
+          <label className={labelClass}>Internship Duration</label>
           <select
             name="internshipDuration"
             value={formData.internshipDuration}
             onChange={(e) => {
               handleChange(e);
-              // Auto-fill fee based on selected duration price
-              const selectedCourse = internshipCourses.find(c => c.name === formData.internshipProgram);
+
+              const selectedCourse = internshipCourses.find(
+                (c) => c.name === formData.internshipProgram
+              );
+
               if (selectedCourse?.prices) {
-                const durationKey = e.target.value === "1 Month" ? "month1" :
-                                    e.target.value === "2 Months" ? "month2" :
-                                    e.target.value === "3 Months" ? "month3" :
-                                    e.target.value === "6 Months" ? "month6" :
-                                    e.target.value === "12 Months" ? "month12" : "";
-                const fee = selectedCourse.prices[durationKey] || selectedCourse.price || "";
-                setFormData(prev => ({
+                const durationKey =
+                  e.target.value === "1 Month"
+                    ? "month1"
+                    : e.target.value === "2 Months"
+                      ? "month2"
+                      : e.target.value === "3 Months"
+                        ? "month3"
+                        : e.target.value === "6 Months"
+                          ? "month6"
+                          : e.target.value === "12 Months"
+                            ? "month12"
+                            : "";
+
+                const fee =
+                  selectedCourse.prices[durationKey] ||
+                  selectedCourse.price ||
+                  "";
+
+                setFormData((prev) => ({
                   ...prev,
                   internshipDuration: e.target.value,
-                  courseFee: fee ? `₹ ${fee}` : ""
+                  courseFee: fee ? `₹ ${fee}` : "",
                 }));
               }
             }}
@@ -535,26 +575,36 @@ export default function NewLeadModal({
           >
             <option value="">Select duration</option>
             {(() => {
-              const selectedCourse = internshipCourses.find(c => c.name === formData.internshipProgram);
+              const selectedCourse = internshipCourses.find(
+                (c) => c.name === formData.internshipProgram
+              );
+
               const availableDurations = [];
+
               if (selectedCourse?.prices) {
-                if (selectedCourse.prices.month1) availableDurations.push("1 Month");
-                if (selectedCourse.prices.month2) availableDurations.push("2 Months");
-                if (selectedCourse.prices.month3) availableDurations.push("3 Months");
-                if (selectedCourse.prices.month6) availableDurations.push("6 Months");
-                if (selectedCourse.prices.month12) availableDurations.push("12 Months");
+                if (selectedCourse.prices.month1)
+                  availableDurations.push("1 Month");
+                if (selectedCourse.prices.month2)
+                  availableDurations.push("2 Months");
+                if (selectedCourse.prices.month3)
+                  availableDurations.push("3 Months");
+                if (selectedCourse.prices.month6)
+                  availableDurations.push("6 Months");
+                if (selectedCourse.prices.month12)
+                  availableDurations.push("12 Months");
               }
-              return availableDurations.map(dur => (
-                <option key={dur} value={dur}>{dur}</option>
+
+              return availableDurations.map((dur) => (
+                <option key={dur} value={dur}>
+                  {dur}
+                </option>
               ));
             })()}
           </select>
         </div>
 
         <div>
-          <label className="mb-2 block text-sm font-semibold text-slate-200">
-            Course Fee
-          </label>
+          <label className={labelClass}>Course Fee</label>
           <input
             name="courseFee"
             value={formData.courseFee}
@@ -565,9 +615,7 @@ export default function NewLeadModal({
         </div>
 
         <div>
-          <label className="mb-2 block text-sm font-semibold text-slate-200">
-            Preferred Start Date
-          </label>
+          <label className={labelClass}>Preferred Start Date</label>
           <input
             type="date"
             name="preferredStartDate"
@@ -581,9 +629,7 @@ export default function NewLeadModal({
       <FileUploadSection />
 
       <div>
-        <label className="mb-2 block text-sm font-semibold text-slate-200">
-          Additional Notes
-        </label>
+        <label className={labelClass}>Additional Notes</label>
         <textarea
           name="additionalNotes"
           value={formData.additionalNotes}
@@ -599,9 +645,7 @@ export default function NewLeadModal({
   const renderTrainingForm = () => (
     <>
       <div>
-        <label className="mb-2 block text-sm font-semibold text-slate-200">
-          Client / Organization Name *
-        </label>
+        <label className={labelClass}>Client / Organization Name *</label>
         <input
           name="organizationName"
           value={formData.organizationName}
@@ -613,9 +657,7 @@ export default function NewLeadModal({
 
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
         <div>
-          <label className="mb-2 block text-sm font-semibold text-slate-200">
-            Contact Person Name *
-          </label>
+          <label className={labelClass}>Contact Person Name *</label>
           <input
             name="contactPersonName"
             value={formData.contactPersonName}
@@ -626,9 +668,7 @@ export default function NewLeadModal({
         </div>
 
         <div>
-          <label className="mb-2 block text-sm font-semibold text-slate-200">
-            Email ID *
-          </label>
+          <label className={labelClass}>Email ID *</label>
           <input
             name="email"
             value={formData.email}
@@ -639,9 +679,7 @@ export default function NewLeadModal({
         </div>
 
         <div>
-          <label className="mb-2 block text-sm font-semibold text-slate-200">
-            Phone Number *
-          </label>
+          <label className={labelClass}>Phone Number *</label>
           <input
             name="phone"
             value={formData.phone}
@@ -652,27 +690,30 @@ export default function NewLeadModal({
         </div>
 
         <div>
-          <label className="mb-2 block text-sm font-semibold text-slate-200">
-            Training Program
-          </label>
+          <label className={labelClass}>Training Program</label>
           <select
             name="trainingProgram"
             value={formData.trainingProgram ?? ""}
             onChange={(e) => {
               handleChange(e);
-              // Auto-fill training fee based on selected program
-              const selectedCourse = trainingCourses.find(c => c.name === e.target.value);
+
+              const selectedCourse = trainingCourses.find(
+                (c) => c.name === e.target.value
+              );
+
               if (selectedCourse) {
-                setFormData(prev => ({
+                setFormData((prev) => ({
                   ...prev,
                   trainingProgram: e.target.value,
-                  trainingFee: selectedCourse.price ? `₹ ${selectedCourse.price}` : ""
+                  trainingFee: selectedCourse.price
+                    ? `₹ ${selectedCourse.price}`
+                    : "",
                 }));
               } else {
-                setFormData(prev => ({
+                setFormData((prev) => ({
                   ...prev,
                   trainingProgram: e.target.value,
-                  trainingFee: ""
+                  trainingFee: "",
                 }));
               }
             }}
@@ -680,15 +721,15 @@ export default function NewLeadModal({
           >
             <option value="">Select program</option>
             {trainingCourses.map((c) => (
-              <option key={c._id} value={c.name}>{c.name}</option>
+              <option key={c._id} value={c.name}>
+                {c.name}
+              </option>
             ))}
           </select>
         </div>
 
         <div>
-          <label className="mb-2 block text-sm font-semibold text-slate-200">
-            Number of Participants
-          </label>
+          <label className={labelClass}>Number of Participants</label>
           <input
             name="participantsCount"
             value={formData.participantsCount}
@@ -699,9 +740,7 @@ export default function NewLeadModal({
         </div>
 
         <div>
-          <label className="mb-2 block text-sm font-semibold text-slate-200">
-            Training Mode
-          </label>
+          <label className={labelClass}>Training Mode</label>
           <select
             name="trainingMode"
             value={formData.trainingMode}
@@ -716,9 +755,7 @@ export default function NewLeadModal({
         </div>
 
         <div>
-          <label className="mb-2 block text-sm font-semibold text-slate-200">
-            Training Duration
-          </label>
+          <label className={labelClass}>Training Duration</label>
           <select
             name="trainingDuration"
             value={formData.trainingDuration}
@@ -735,9 +772,7 @@ export default function NewLeadModal({
         </div>
 
         <div>
-          <label className="mb-2 block text-sm font-semibold text-slate-200">
-            Preferred Start Date
-          </label>
+          <label className={labelClass}>Preferred Start Date</label>
           <input
             type="date"
             name="preferredStartDate"
@@ -748,9 +783,7 @@ export default function NewLeadModal({
         </div>
 
         <div>
-          <label className="mb-2 block text-sm font-semibold text-slate-200">
-            Training Fee / Budget
-          </label>
+          <label className={labelClass}>Training Fee / Budget</label>
           <input
             name="trainingFee"
             value={formData.trainingFee}
@@ -762,9 +795,7 @@ export default function NewLeadModal({
       </div>
 
       <div>
-        <label className="mb-2 block text-sm font-semibold text-slate-200">
-          Training Requirements
-        </label>
+        <label className={labelClass}>Training Requirements</label>
         <textarea
           name="trainingRequirements"
           value={formData.trainingRequirements}
@@ -778,9 +809,7 @@ export default function NewLeadModal({
       <FileUploadSection />
 
       <div>
-        <label className="mb-2 block text-sm font-semibold text-slate-200">
-          Additional Notes
-        </label>
+        <label className={labelClass}>Additional Notes</label>
         <textarea
           name="additionalNotes"
           value={formData.additionalNotes}
@@ -793,76 +822,30 @@ export default function NewLeadModal({
     </>
   );
 
-  const FileUploadSection = () => (
-    <div>
-      <label className="mb-2 block text-sm font-semibold text-slate-200">
-        {getUploadLabel()}
-      </label>
-
-      <label className="flex cursor-pointer items-center justify-center gap-3 rounded-2xl border border-dashed border-slate-600 bg-[#151e2e] px-4 py-4 text-sm text-slate-400 hover:border-indigo-500 hover:text-indigo-300 transition">
-        <Upload size={18} />
-        <span>{getUploadText()}</span>
-
-        <input
-          type="file"
-          multiple
-          className="hidden"
-          accept=".pdf,.ppt,.pptx,.doc,.docx"
-          onChange={handleFileChange}
-        />
-      </label>
-
-      {files.length > 0 && (
-        <div className="mt-3 space-y-2">
-          {files.map((file, index) => (
-            <div
-              key={`${file.name}-${index}`}
-              className="flex items-center justify-between gap-3 rounded-xl border border-slate-700/70 bg-[#1b2333] px-4 py-2"
-            >
-              <span
-                title={file.name}
-                className="min-w-0 flex-1 break-all text-sm font-medium text-slate-200"
-              >
-                {file.name}
-              </span>
-
-              <button
-                type="button"
-                onClick={() => removeFile(index)}
-                className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-red-500/15 text-red-400 hover:bg-red-500 hover:text-white transition"
-              >
-                <X size={15} />
-              </button>
-            </div>
-          ))}
-        </div>
-      )}
-    </div>
-  );
-
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/70 backdrop-blur-md px-4">
+    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 px-4 backdrop-blur-md">
       {step === "form" && (
-        <div className="w-full max-w-xl max-h-[88vh] overflow-hidden rounded-2xl border border-slate-700/60 bg-[#111827] shadow-2xl shadow-black/60">
-          <div className="flex items-start justify-between border-b border-slate-700/60 px-6 py-5">
+        <div className="new-lead-modal-card w-full max-w-xl max-h-[88vh] overflow-hidden rounded-2xl">
+          <div className="new-lead-modal-header flex items-start justify-between px-6 py-5">
             <div>
-              <h2 className="text-lg font-bold text-white">
+              <h2 className="new-lead-title text-lg font-bold">
                 {getModalTitle()}
               </h2>
-              <p className="mt-1 text-sm text-slate-400">
+
+              <p className="new-lead-subtitle mt-1 text-sm">
                 {getModalDescription()}
               </p>
             </div>
 
             <button
               onClick={handleClose}
-              className="flex h-12 w-12 items-center justify-center rounded-full bg-red-500 text-white shadow-lg shadow-red-500/30 hover:bg-red-400 hover:scale-105 active:scale-95 transition"
+              className="flex h-12 w-12 items-center justify-center rounded-full bg-red-500 text-white shadow-lg shadow-red-500/30 transition hover:scale-105 hover:bg-red-400 active:scale-95"
             >
               <X size={22} />
             </button>
           </div>
 
-          <div className="max-h-[65vh] overflow-y-auto px-6 py-5">
+          <div className="new-lead-modal-body max-h-[65vh] overflow-y-auto px-6 py-5">
             <div className="space-y-5">
               {activeTab === "Internships"
                 ? renderInternshipForm()
@@ -872,17 +855,17 @@ export default function NewLeadModal({
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-3 border-t border-slate-700/60 px-6 py-5">
+          <div className="new-lead-modal-footer grid grid-cols-2 gap-3 px-6 py-5">
             <button
               onClick={handleClose}
-              className="rounded-2xl border border-slate-700 px-5 py-3 text-sm font-bold text-white hover:bg-slate-800 transition"
+              className="new-lead-secondary-btn rounded-2xl px-5 py-3 text-sm font-bold transition"
             >
               Cancel
             </button>
 
             <button
               onClick={handlePreview}
-              className="rounded-2xl bg-indigo-600 px-5 py-3 text-sm font-bold text-white shadow-lg shadow-indigo-500/25 hover:bg-indigo-500 transition"
+              className="rounded-2xl bg-primary px-5 py-3 text-sm font-bold text-white shadow-lg shadow-primary/25 transition hover:opacity-90 dark:bg-indigo-600 dark:shadow-indigo-500/25 dark:hover:bg-indigo-500"
             >
               Preview
             </button>
@@ -891,42 +874,46 @@ export default function NewLeadModal({
       )}
 
       {step === "preview" && (
-        <div className="w-full max-w-xl overflow-hidden rounded-2xl border border-slate-700/60 bg-[#111827] shadow-2xl shadow-black/60">
-          <div className="flex items-start justify-between border-b border-slate-700/60 px-6 py-5">
+        <div className="new-lead-modal-card w-full max-w-xl overflow-hidden rounded-2xl">
+          <div className="new-lead-modal-header flex items-start justify-between px-6 py-5">
             <div>
-              <h2 className="text-2xl font-bold text-white">
+              <h2 className="new-lead-title text-2xl font-bold">
                 Preview Lead Details
               </h2>
-              <p className="mt-1 text-sm text-slate-400">
+
+              <p className="new-lead-subtitle mt-1 text-sm">
                 Review before submitting for approval
               </p>
             </div>
 
             <button
               onClick={handleClose}
-              className="flex h-12 w-12 items-center justify-center rounded-full bg-red-500 text-white shadow-lg shadow-red-500/30 hover:bg-red-400 hover:scale-105 active:scale-95 transition"
+              className="flex h-12 w-12 items-center justify-center rounded-full bg-red-500 text-white shadow-lg shadow-red-500/30 transition hover:scale-105 hover:bg-red-400 active:scale-95"
             >
               <X size={22} />
             </button>
           </div>
 
-          <div className="px-6 py-7">
-            <div className="rounded-2xl bg-[#182132] px-5 py-5">
+          <div className="new-lead-modal-body px-6 py-7">
+            <div className="new-lead-preview-card">
               <div className="space-y-4 text-sm">
                 {getPreviewRows().map(([label, value]) => (
                   <div
                     key={label}
-                    className="grid grid-cols-[150px_minmax(0,1fr)] gap-4 items-start"
+                    className="grid grid-cols-[150px_minmax(0,1fr)] items-start gap-4"
                   >
-                    <span className="font-bold text-slate-400">{label}</span>
-                    <span className="min-w-0 break-words font-semibold text-slate-100">
+                    <span className="new-lead-preview-label font-bold">
+                      {label}
+                    </span>
+
+                    <span className="new-lead-preview-value min-w-0 break-words font-semibold">
                       {value || "none"}
                     </span>
                   </div>
                 ))}
 
-                <div className="grid grid-cols-[150px_minmax(0,1fr)] gap-4 items-start">
-                  <span className="font-bold text-slate-400">
+                <div className="grid grid-cols-[150px_minmax(0,1fr)] items-start gap-4">
+                  <span className="new-lead-preview-label font-bold">
                     Uploaded Files
                   </span>
 
@@ -935,11 +922,11 @@ export default function NewLeadModal({
                       files.map((file, index) => (
                         <div
                           key={`${file.name}-preview-${index}`}
-                          className="flex items-start justify-between gap-2 rounded-lg bg-[#111827] px-3 py-2"
+                          className="new-lead-file-row"
                         >
                           <span
                             title={file.name}
-                            className="min-w-0 flex-1 break-all font-semibold text-slate-100"
+                            className="new-lead-preview-value min-w-0 flex-1 break-all font-semibold"
                           >
                             {file.name}
                           </span>
@@ -947,14 +934,14 @@ export default function NewLeadModal({
                           <button
                             type="button"
                             onClick={() => removeFile(index)}
-                            className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-red-500/15 text-red-400 hover:bg-red-500 hover:text-white transition"
+                            className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-red-500/15 text-red-500 transition hover:bg-red-500 hover:text-white dark:text-red-400"
                           >
                             <X size={13} />
                           </button>
                         </div>
                       ))
                     ) : (
-                      <span className="font-semibold text-slate-100">
+                      <span className="new-lead-preview-value font-semibold">
                         none
                       </span>
                     )}
@@ -964,10 +951,10 @@ export default function NewLeadModal({
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-3 px-6 pb-7">
+          <div className="new-lead-modal-footer grid grid-cols-2 gap-3 px-6 pb-7 pt-5">
             <button
               onClick={() => setStep("form")}
-              className="flex items-center justify-center gap-2 rounded-2xl border border-slate-700 px-5 py-3 text-sm font-bold text-white hover:bg-slate-800 transition"
+              className="new-lead-secondary-btn flex items-center justify-center gap-2 rounded-2xl px-5 py-3 text-sm font-bold transition"
             >
               <Pencil size={17} />
               Edit
@@ -975,7 +962,7 @@ export default function NewLeadModal({
 
             <button
               onClick={handleSubmit}
-              className="flex items-center justify-center gap-2 rounded-2xl bg-indigo-600 px-5 py-3 text-sm font-bold text-white shadow-lg shadow-indigo-500/25 hover:bg-indigo-500 transition"
+              className="flex items-center justify-center gap-2 rounded-2xl bg-primary px-5 py-3 text-sm font-bold text-white shadow-lg shadow-primary/25 transition hover:opacity-90 dark:bg-indigo-600 dark:shadow-indigo-500/25 dark:hover:bg-indigo-500"
             >
               <CheckCircle size={17} />
               Submit for Approval

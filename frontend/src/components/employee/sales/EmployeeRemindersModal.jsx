@@ -1,13 +1,21 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { X, CalendarClock, Trash2, CheckCircle2, PlusCircle, ListTodo } from "lucide-react";
+import {
+  X,
+  CalendarClock,
+  Trash2,
+  CheckCircle2,
+  PlusCircle,
+  ListTodo,
+} from "lucide-react";
 
-const inputClass =
-  "w-full rounded-2xl bg-[#1b2333] border border-slate-700/70 px-4 py-3 text-sm text-slate-100 placeholder:text-slate-500 outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/40 transition";
+const inputClass = "employee-reminder-input";
+
+const labelClass = "mb-2 block text-sm font-semibold employee-reminder-label";
 
 export default function EmployeeRemindersModal({ isOpen, onClose }) {
-  const [activeTab, setActiveTab] = useState("create"); // "create" | "view"
+  const [activeTab, setActiveTab] = useState("create");
   const [remindersList, setRemindersList] = useState([]);
   const [reminderData, setReminderData] = useState({
     title: "",
@@ -19,17 +27,19 @@ export default function EmployeeRemindersModal({ isOpen, onClose }) {
     const existing = JSON.parse(
       localStorage.getItem("employeeReminders") || "[]"
     );
-    // Sort from nearest date/time to farthest
+
     const sorted = existing.sort((a, b) => {
       const dateA = new Date(a.dateTime || a.createdAt || 0).getTime();
       const dateB = new Date(b.dateTime || b.createdAt || 0).getTime();
       return dateA - dateB;
     });
+
     setRemindersList(sorted);
   };
 
   useEffect(() => {
     if (!isOpen) return;
+
     loadAndSortReminders();
 
     const handleEsc = (e) => {
@@ -39,6 +49,7 @@ export default function EmployeeRemindersModal({ isOpen, onClose }) {
     };
 
     document.addEventListener("keydown", handleEsc);
+
     return () => {
       document.removeEventListener("keydown", handleEsc);
     };
@@ -48,6 +59,7 @@ export default function EmployeeRemindersModal({ isOpen, onClose }) {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
+
     setReminderData((prev) => ({
       ...prev,
       [name]: value,
@@ -96,47 +108,54 @@ export default function EmployeeRemindersModal({ isOpen, onClose }) {
   };
 
   const handleDeleteReminder = (id) => {
-    const updated = remindersList.filter((r, idx) => (r.id || `reminder-${idx}`) !== id);
+    const updated = remindersList.filter(
+      (reminder, idx) => (reminder.id || `reminder-${idx}`) !== id
+    );
+
     localStorage.setItem("employeeReminders", JSON.stringify(updated));
     setRemindersList(updated);
   };
 
   const handleMarkAsDone = (id) => {
-    const updated = remindersList.map((r, idx) =>
-      (r.id || `reminder-${idx}`) === id ? { ...r, isRead: true } : r
+    const updated = remindersList.map((reminder, idx) =>
+      (reminder.id || `reminder-${idx}`) === id
+        ? { ...reminder, isRead: true }
+        : reminder
     );
+
     localStorage.setItem("employeeReminders", JSON.stringify(updated));
     setRemindersList(updated);
   };
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/70 backdrop-blur-md px-4">
-      <div className="w-full max-w-xl overflow-hidden rounded-2xl border border-slate-700/60 bg-[#111827] shadow-2xl shadow-black/60 flex flex-col max-h-[85vh]">
-        {/* Header */}
-        <div className="flex items-start justify-between border-b border-slate-700/60 px-6 py-5">
+    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 px-4 backdrop-blur-md">
+      <div className="employee-reminder-modal-card flex max-h-[85vh] w-full max-w-xl flex-col overflow-hidden rounded-2xl">
+        <div className="employee-reminder-modal-header flex items-start justify-between px-6 py-5">
           <div>
-            <h2 className="text-xl font-bold text-white">Employee Reminders</h2>
-            <p className="mt-1 text-xs text-slate-400">
+            <h2 className="employee-reminder-title text-xl font-bold">
+              Employee Reminders
+            </h2>
+
+            <p className="employee-reminder-subtitle mt-1 text-sm">
               Schedule notifications and view upcoming deadlines
             </p>
           </div>
 
           <button
             onClick={onClose}
-            className="flex h-10 w-10 items-center justify-center rounded-full bg-red-500 text-white shadow-lg shadow-red-500/30 hover:bg-red-400 hover:scale-105 active:scale-95 transition"
+            className="flex h-12 w-12 items-center justify-center rounded-full bg-red-500 text-white shadow-lg shadow-red-500/30 transition hover:scale-105 hover:bg-red-400 active:scale-95"
           >
-            <X size={20} />
+            <X size={22} />
           </button>
         </div>
 
-        {/* Top Tabs */}
-        <div className="flex border-b border-slate-700/60 bg-slate-900/60 px-6 pt-3 gap-3">
+        <div className="employee-reminder-tabs flex gap-3 px-6 pt-3">
           <button
             onClick={() => setActiveTab("create")}
-            className={`flex items-center gap-2 pb-3 px-2 border-b-2 font-bold text-sm transition ${
+            className={`flex items-center gap-2 border-b-2 px-2 pb-3 text-sm font-bold transition ${
               activeTab === "create"
-                ? "border-indigo-500 text-indigo-400"
-                : "border-transparent text-slate-400 hover:text-slate-200"
+                ? "employee-reminder-tab-active"
+                : "employee-reminder-tab-inactive"
             }`}
           >
             <PlusCircle size={17} />
@@ -145,10 +164,10 @@ export default function EmployeeRemindersModal({ isOpen, onClose }) {
 
           <button
             onClick={() => setActiveTab("view")}
-            className={`flex items-center gap-2 pb-3 px-2 border-b-2 font-bold text-sm transition ${
+            className={`flex items-center gap-2 border-b-2 px-2 pb-3 text-sm font-bold transition ${
               activeTab === "view"
-                ? "border-indigo-500 text-indigo-400"
-                : "border-transparent text-slate-400 hover:text-slate-200"
+                ? "employee-reminder-tab-active"
+                : "employee-reminder-tab-inactive"
             }`}
           >
             <ListTodo size={17} />
@@ -156,14 +175,11 @@ export default function EmployeeRemindersModal({ isOpen, onClose }) {
           </button>
         </div>
 
-        {/* Body */}
-        <div className="flex-1 overflow-y-auto p-6 space-y-5">
+        <div className="employee-reminder-modal-body flex-1 space-y-5 overflow-y-auto p-6">
           {activeTab === "create" ? (
             <div className="space-y-5">
               <div>
-                <label className="mb-2 block text-sm font-semibold text-slate-200">
-                  Title
-                </label>
+                <label className={labelClass}>Title</label>
                 <input
                   name="title"
                   value={reminderData.title}
@@ -174,9 +190,7 @@ export default function EmployeeRemindersModal({ isOpen, onClose }) {
               </div>
 
               <div>
-                <label className="mb-2 block text-sm font-semibold text-slate-200">
-                  Description
-                </label>
+                <label className={labelClass}>Description</label>
                 <textarea
                   name="description"
                   value={reminderData.description}
@@ -188,9 +202,7 @@ export default function EmployeeRemindersModal({ isOpen, onClose }) {
               </div>
 
               <div>
-                <label className="mb-2 block text-sm font-semibold text-slate-200">
-                  Date & Time
-                </label>
+                <label className={labelClass}>Date & Time</label>
                 <input
                   type="datetime-local"
                   name="dateTime"
@@ -203,12 +215,14 @@ export default function EmployeeRemindersModal({ isOpen, onClose }) {
           ) : (
             <div className="space-y-3">
               {remindersList.length === 0 ? (
-                <div className="py-12 text-center text-sm text-slate-500">
-                  No scheduled reminders found. Click &quot;Create New Reminder&quot; to add one.
+                <div className="py-12 text-center text-sm text-muted-foreground dark:text-slate-500">
+                  No scheduled reminders found. Click &quot;Create New
+                  Reminder&quot; to add one.
                 </div>
               ) : (
                 remindersList.map((reminder, idx) => {
                   const remId = reminder.id || `reminder-${idx}`;
+
                   const formattedDate = reminder.dateTime
                     ? new Date(reminder.dateTime).toLocaleString("en-US", {
                         dateStyle: "medium",
@@ -219,32 +233,40 @@ export default function EmployeeRemindersModal({ isOpen, onClose }) {
                   return (
                     <div
                       key={remId}
-                      className={`p-4 rounded-2xl border transition flex flex-col sm:flex-row sm:items-center justify-between gap-4 ${
+                      className={`flex flex-col justify-between gap-4 rounded-2xl p-4 transition sm:flex-row sm:items-center ${
                         reminder.isRead
-                          ? "bg-slate-900/40 border-slate-700/50 opacity-60"
-                          : "bg-indigo-500/10 border-indigo-500/30 shadow-md"
+                          ? "employee-reminder-card-done"
+                          : "employee-reminder-card-active"
                       }`}
                     >
-                      <div className="flex items-start gap-3 flex-1 min-w-0">
-                        <div className={`p-2.5 rounded-xl ${reminder.isRead ? "bg-slate-800 text-slate-400" : "bg-indigo-500/20 text-indigo-400"}`}>
+                      <div className="flex min-w-0 flex-1 items-start gap-3">
+                        <div className="employee-reminder-icon-box rounded-xl p-2.5">
                           <CalendarClock size={20} />
                         </div>
+
                         <div className="min-w-0 flex-1">
                           <div className="flex items-center gap-2">
-                            <h3 className={`text-sm font-bold truncate ${reminder.isRead ? "line-through text-slate-400" : "text-white"}`}>
+                            <h3
+                              className={`employee-reminder-card-title truncate text-sm font-bold ${
+                                reminder.isRead ? "line-through" : ""
+                              }`}
+                            >
                               {reminder.title}
                             </h3>
+
                             {!reminder.isRead && (
-                              <span className="px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 text-[10px] font-bold">
+                              <span className="rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-bold text-amber-600 dark:bg-amber-500/20 dark:text-amber-300">
                                 Upcoming
                               </span>
                             )}
                           </div>
-                          <p className="text-xs text-slate-300 mt-1 line-clamp-2">
+
+                          <p className="employee-reminder-card-description mt-1 line-clamp-2 text-xs">
                             {reminder.description}
                           </p>
-                          <p className="text-xs font-semibold text-indigo-300 mt-2 flex items-center gap-1.5">
-                            <span className="w-1.5 h-1.5 rounded-full bg-indigo-400" />
+
+                          <p className="employee-reminder-card-date mt-2 flex items-center gap-1.5 text-xs font-semibold">
+                            <span className="h-1.5 w-1.5 rounded-full bg-primary dark:bg-indigo-400" />
                             {formattedDate}
                           </p>
                         </div>
@@ -254,16 +276,17 @@ export default function EmployeeRemindersModal({ isOpen, onClose }) {
                         {!reminder.isRead && (
                           <button
                             onClick={() => handleMarkAsDone(remId)}
-                            className="p-2 rounded-xl bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 transition text-xs font-bold flex items-center gap-1"
+                            className="flex items-center gap-1 rounded-xl border border-emerald-200 bg-emerald-100 px-3 py-2 text-xs font-bold text-emerald-600 transition hover:bg-emerald-200 dark:border-emerald-500/30 dark:bg-emerald-500/10 dark:text-emerald-400 dark:hover:bg-emerald-500/20"
                             title="Mark as completed"
                           >
                             <CheckCircle2 size={16} />
                             Done
                           </button>
                         )}
+
                         <button
                           onClick={() => handleDeleteReminder(remId)}
-                          className="p-2 rounded-xl bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/30 transition"
+                          className="rounded-xl border border-red-200 bg-red-100 p-2 text-red-500 transition hover:bg-red-200 dark:border-red-500/30 dark:bg-red-500/10 dark:text-red-400 dark:hover:bg-red-500/20"
                           title="Delete reminder"
                         >
                           <Trash2 size={16} />
@@ -277,19 +300,18 @@ export default function EmployeeRemindersModal({ isOpen, onClose }) {
           )}
         </div>
 
-        {/* Footer */}
         {activeTab === "create" && (
-          <div className="grid grid-cols-2 gap-3 border-t border-slate-700/60 px-6 py-4 bg-slate-900/40">
+          <div className="employee-reminder-modal-footer grid grid-cols-2 gap-3 px-6 py-4">
             <button
               onClick={onClose}
-              className="rounded-2xl border border-slate-700 px-5 py-3 text-sm font-bold text-white hover:bg-slate-800 transition"
+              className="employee-reminder-secondary-btn rounded-2xl px-5 py-3 text-sm font-bold transition"
             >
               Cancel
             </button>
 
             <button
               onClick={handleScheduleReminder}
-              className="flex items-center justify-center gap-2 rounded-2xl bg-indigo-600 px-5 py-3 text-sm font-bold text-white shadow-lg shadow-indigo-500/25 hover:bg-indigo-500 transition"
+              className="flex items-center justify-center gap-2 rounded-2xl bg-primary px-5 py-3 text-sm font-bold text-white shadow-lg shadow-primary/25 transition hover:opacity-90 dark:bg-indigo-600 dark:shadow-indigo-500/25 dark:hover:bg-indigo-500"
             >
               <CalendarClock size={17} />
               Schedule Reminder

@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { X, UserRound } from "lucide-react";
 import TrainingParticipantProfileModal from "./TrainingParticipantProfileModal";
+import TrainingStatusBadge from "./TrainingStatusBadge";
 
 export default function TrainingParticipantsModal({ program, onClose }) {
   const [selectedParticipant, setSelectedParticipant] = useState(null);
@@ -25,20 +26,10 @@ export default function TrainingParticipantsModal({ program, onClose }) {
 
   const participants = program.participants || [];
 
-  const statusStyle = (status) => {
-    if (status === "Completed") {
-      return "bg-emerald-500/10 text-emerald-500 border-emerald-500/20";
-    }
-
-    if (status === "Enrolled") {
-      return "bg-blue-500/10 text-blue-500 border-blue-500/20";
-    }
-
-    if (status === "Dropped") {
-      return "bg-red-500/10 text-red-500 border-red-500/20";
-    }
-
-    return "bg-muted text-foreground border-border";
+  const getDisplayStatus = (status) => {
+    if (status === "Enrolled") return "Active";
+    if (status === "Dropped") return "Cancelled";
+    return status || "Active";
   };
 
   return (
@@ -113,13 +104,9 @@ export default function TrainingParticipantsModal({ program, onClose }) {
                     </td>
 
                     <td className="px-5 py-4">
-                      <span
-                        className={`px-3 py-1 rounded-full text-xs font-semibold border ${statusStyle(
-                          participant.status
-                        )}`}
-                      >
-                        {participant.status}
-                      </span>
+                      <TrainingStatusBadge
+                        status={getDisplayStatus(participant.status)}
+                      />
                     </td>
 
                     <td className="px-5 py-4">

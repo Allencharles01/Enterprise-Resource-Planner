@@ -13,6 +13,7 @@ import BudgetModal from "@/components/sales/BudgetModal";
 import TrainingParticipantsModal from "./TrainingParticipantsModal";
 import InternProfileModal from "./InternProfileModal";
 import SalesEmployeeProjectView from "./SalesEmployeeProjectView";
+import { formatAmount } from "@/lib/formatAmount";
 
 const badgeStyle = (status = "") => {
   const value = String(status).toLowerCase();
@@ -102,6 +103,17 @@ export default function SalesEmployeeMonthlyAccordion({ activeTab, data }) {
     return "Training Detailed View";
   };
 
+  const formatCurrencyValue = (value) => {
+    return formatAmount(value || 0);
+  };
+
+  const formatPayments = (payments = []) => {
+    return payments.map((payment) => ({
+      ...payment,
+      amount: formatCurrencyValue(payment.amount || 0),
+    }));
+  };
+
   const isBudgetModalAllowed = (project) => {
     const approval = String(project.approvalStatus || project.approval || "")
       .trim()
@@ -116,16 +128,16 @@ export default function SalesEmployeeMonthlyAccordion({ activeTab, data }) {
     client: project.client || project.clientName || "Client",
     manager: project.manager || "Rahul Sharma",
 
-    agreed: project.agreed || project.budget || "₹0",
-    received: project.received || "₹0",
-    remaining: project.remaining || "₹0",
+    agreed: formatCurrencyValue(project.agreed || project.budget || 0),
+    received: formatCurrencyValue(project.received || 0),
+    remaining: formatCurrencyValue(project.remaining || 0),
 
     progress: project.progress ?? 0,
     status: project.status || project.leadStatus || "Pending",
     deadline: project.deadline || "N/A",
 
     services: project.services || ["Service details pending"],
-    payments: project.payments || [],
+    payments: formatPayments(project.payments || []),
 
     agreementDate:
       project.agreementDate ||
@@ -143,8 +155,8 @@ export default function SalesEmployeeMonthlyAccordion({ activeTab, data }) {
   };
 
   const handleViewProject = (project) => {
-  setSelectedClientProject(formatProjectForModal(project));
-};
+    setSelectedClientProject(formatProjectForModal(project));
+  };
 
   const handleDownloadInvoice = (project) => {
     const invoiceProject = formatProjectForModal(project);
@@ -363,12 +375,19 @@ export default function SalesEmployeeMonthlyAccordion({ activeTab, data }) {
   };
 
   const openTrainingParticipants = (training) => {
+    const formattedTrainingFee = formatCurrencyValue(
+      training.trainingFee || training.fee || training.cost || 0
+    );
+
     setSelectedTrainingProgram({
       ...training,
       name: training.name || training.trainingProgram || training.trainingName,
       category: training.category || "Paid Training Course",
       duration: training.duration || training.trainingDuration || "N/A",
       instructor: training.instructor || "Enterprise Mentor",
+      trainingFee: formattedTrainingFee,
+      fee: formattedTrainingFee,
+      cost: formattedTrainingFee,
     });
   };
 
@@ -406,7 +425,9 @@ export default function SalesEmployeeMonthlyAccordion({ activeTab, data }) {
       mentor: finalMentor,
       status: finalStatus,
       placement: intern.placement || "Under Review",
-      courseCost: intern.courseCost || intern.courseFee || intern.fee,
+      courseCost: formatCurrencyValue(
+        intern.courseCost || intern.courseFee || intern.fee || intern.cost || 0
+      ),
       progress: intern.progress || 0,
       projectsCompleted: intern.projectsCompleted || "0/3",
       salesAgent: intern.salesAgent || "Rahul Sharma",
@@ -444,92 +465,96 @@ export default function SalesEmployeeMonthlyAccordion({ activeTab, data }) {
       </thead>
 
       <tbody className="divide-y divide-border/40 text-sm">
-        {records.map((item, index) => (
-          <tr key={index} className="hover:bg-muted/30 transition-colors">
-            <td className="py-4 px-4 font-bold text-foreground whitespace-nowrap">
-              {item.projectName || item.project}
-            </td>
+        {records.map((item, index) => {
+          const budgetDisplay = formatCurrencyValue(item.budget || item.agreed);
 
-            <td className="py-4 px-4 text-muted-foreground whitespace-nowrap">
-              {item.clientName || item.client}
-            </td>
+          return (
+            <tr key={index} className="hover:bg-muted/30 transition-colors">
+              <td className="py-4 px-4 font-bold text-foreground whitespace-nowrap">
+                {item.projectName || item.project}
+              </td>
 
-            <td className="py-4 px-4 whitespace-nowrap">
-              {isBudgetModalAllowed(item) ? (
-                <button
-                  onClick={() => handleBudgetClick(item)}
-                  className="font-bold underline text-emerald-400 hover:text-emerald-300 transition"
-                >
-                  {item.budget || item.agreed}
-                </button>
-              ) : (
+              <td className="py-4 px-4 text-muted-foreground whitespace-nowrap">
+                {item.clientName || item.client}
+              </td>
+
+              <td className="py-4 px-4 whitespace-nowrap">
+                {isBudgetModalAllowed(item) ? (
+                  <button
+                    onClick={() => handleBudgetClick(item)}
+                    className="font-bold underline text-emerald-400 hover:text-emerald-300 transition"
+                  >
+                    {budgetDisplay}
+                  </button>
+                ) : (
+                  <span
+                    title="Financial overview will be available after admin approval"
+                    className="font-bold text-foreground cursor-not-allowed opacity-80"
+                  >
+                    {budgetDisplay}
+                  </span>
+                )}
+              </td>
+
+              <td className="py-4 px-4 whitespace-nowrap">
                 <span
-                  title="Financial overview will be available after admin approval"
-                  className="font-bold text-foreground cursor-not-allowed opacity-80"
+                  className={`px-3 py-1 rounded-full text-xs font-bold ${badgeStyle(
+                    item.leadStatus || item.status
+                  )}`}
                 >
-                  {item.budget || item.agreed}
+                  {item.leadStatus || item.status}
                 </span>
-              )}
-            </td>
+              </td>
 
-            <td className="py-4 px-4 whitespace-nowrap">
-              <span
-                className={`px-3 py-1 rounded-full text-xs font-bold ${badgeStyle(
-                  item.leadStatus || item.status
-                )}`}
-              >
-                {item.leadStatus || item.status}
-              </span>
-            </td>
-
-            <td className="py-4 px-4 whitespace-nowrap">
-              <span
-                className={`px-3 py-1 rounded-full text-xs font-bold ${badgeStyle(
-                  item.approvalStatus || item.approval
-                )}`}
-              >
-                {item.approvalStatus || item.approval}
-              </span>
-            </td>
-
-            <td className="py-4 px-4 text-muted-foreground whitespace-nowrap">
-              {item.deadline}
-            </td>
-
-            <td className="py-4 px-4 text-muted-foreground whitespace-nowrap">
-              {item.submitted || item.submittedDate}
-            </td>
-
-            <td className="py-4 px-4 whitespace-nowrap">
-              <button
-                onClick={() => handleViewProject(item)}
-                className="flex items-center gap-2 px-3.5 py-2 rounded-xl border border-border/80 hover:bg-indigo-500/10 hover:border-indigo-500/40 text-xs font-bold transition shadow-sm"
-              >
-                <Eye size={15} className="text-indigo-400" />
-                View Project
-              </button>
-            </td>
-
-            <td className="py-4 px-4 whitespace-nowrap">
-              <div className="flex items-center gap-2">
-                <button
-                  onClick={() => handleDownloadInvoice(item)}
-                  className="p-2 rounded-xl border border-border/80 hover:bg-muted text-muted-foreground hover:text-foreground transition shadow-sm"
-                  title="Download Invoice"
+              <td className="py-4 px-4 whitespace-nowrap">
+                <span
+                  className={`px-3 py-1 rounded-full text-xs font-bold ${badgeStyle(
+                    item.approvalStatus || item.approval
+                  )}`}
                 >
-                  <Download size={16} />
-                </button>
+                  {item.approvalStatus || item.approval}
+                </span>
+              </td>
 
+              <td className="py-4 px-4 text-muted-foreground whitespace-nowrap">
+                {item.deadline}
+              </td>
+
+              <td className="py-4 px-4 text-muted-foreground whitespace-nowrap">
+                {item.submitted || item.submittedDate}
+              </td>
+
+              <td className="py-4 px-4 whitespace-nowrap">
                 <button
-                  className="p-2 rounded-xl border border-border/80 hover:bg-muted text-muted-foreground hover:text-foreground transition shadow-sm"
-                  title="More Actions"
+                  onClick={() => handleViewProject(item)}
+                  className="flex items-center gap-2 px-3.5 py-2 rounded-xl border border-border/80 hover:bg-indigo-500/10 hover:border-indigo-500/40 text-xs font-bold transition shadow-sm"
                 >
-                  <MoreVertical size={16} />
+                  <Eye size={15} className="text-indigo-400" />
+                  View Project
                 </button>
-              </div>
-            </td>
-          </tr>
-        ))}
+              </td>
+
+              <td className="py-4 px-4 whitespace-nowrap">
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => handleDownloadInvoice(item)}
+                    className="p-2 rounded-xl border border-border/80 hover:bg-muted text-muted-foreground hover:text-foreground transition shadow-sm"
+                    title="Download Invoice"
+                  >
+                    <Download size={16} />
+                  </button>
+
+                  <button
+                    className="p-2 rounded-xl border border-border/80 hover:bg-muted text-muted-foreground hover:text-foreground transition shadow-sm"
+                    title="More Actions"
+                  >
+                    <MoreVertical size={16} />
+                  </button>
+                </div>
+              </td>
+            </tr>
+          );
+        })}
       </tbody>
     </table>
   );
@@ -786,6 +811,9 @@ export default function SalesEmployeeMonthlyAccordion({ activeTab, data }) {
         {records.map((item, index) => {
           const approval = item.approvalStatus || item.approval;
           const isApproved = String(approval).toLowerCase() === "approved";
+          const trainingFeeDisplay = formatCurrencyValue(
+            item.trainingFee || item.fee || item.cost
+          );
 
           return (
             <tr key={index} className="hover:bg-muted/30 transition-colors">
@@ -798,7 +826,7 @@ export default function SalesEmployeeMonthlyAccordion({ activeTab, data }) {
               </td>
 
               <td className="py-4 px-4 font-bold text-foreground whitespace-nowrap">
-                {item.trainingFee || item.fee}
+                {trainingFeeDisplay}
               </td>
 
               <td className="py-4 px-4 text-muted-foreground whitespace-nowrap">
@@ -882,14 +910,14 @@ export default function SalesEmployeeMonthlyAccordion({ activeTab, data }) {
   };
 
   if (selectedClientProject) {
-  return (
-    <SalesEmployeeProjectView
-      project={selectedClientProject}
-      onBack={() => setSelectedClientProject(null)}
-      onDownloadInvoice={handleDownloadInvoice}
-    />
-  );
-}
+    return (
+      <SalesEmployeeProjectView
+        project={selectedClientProject}
+        onBack={() => setSelectedClientProject(null)}
+        onDownloadInvoice={handleDownloadInvoice}
+      />
+    );
+  }
 
   return (
     <div>

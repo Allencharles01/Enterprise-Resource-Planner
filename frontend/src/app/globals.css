@@ -1,45 +1,46 @@
 @import "tailwindcss";
 
 :root {
-  --background: #fbf8fa;
-  --foreground: #091426;
-  
-  --primary: #1a2c4e;
+  /* Light Theme - White Background + Lavender Cards */
+  --background: #ffffff;
+  --foreground: #260b45;
+
+  --primary: #9b3ff6;
   --primary-foreground: #ffffff;
-  
-  --secondary: #ec4899;
+
+  --secondary: #b25cff;
   --secondary-foreground: #ffffff;
 
-  --accent: #06b6d4;
+  --accent: #c084fc;
   --accent-foreground: #ffffff;
 
-  --muted: #dcd9db;
-  --muted-foreground: #64748b;
-  
-  --border: #e2e8f0;
-  --input: #e2e8f0;
-  --ring: #1a2c4e;
-  
-  --radius: 0.5rem;
+  --muted: #f7f0ff;
+  --muted-foreground: #7a6692;
+
+  --border: #eadcff;
+  --input: #ffffff;
+  --ring: #a855f7;
+
+  --radius: 0.95rem;
 }
 
 .dark {
   --background: #020617;
   --foreground: #f8fafc;
-  
+
   --primary: #6366f1;
   --primary-foreground: #ffffff;
-  
+
   --secondary: #f472b6;
   --secondary-foreground: #ffffff;
-  
+
   --accent: #22d3ee;
   --accent-foreground: #020617;
 
   --muted: #0f172a;
   --muted-foreground: #94a3b8;
-  
-  --border: #1e293b;
+
+  --border: rgba(148, 163, 184, 0.12);
   --input: #1e293b;
   --ring: #6366f1;
 }
@@ -62,92 +63,2691 @@
   --radius-md: calc(var(--radius) - 2px);
   --radius-sm: calc(var(--radius) - 4px);
   --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
-  --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+    "Liberation Mono", "Courier New", monospace;
 }
 
 @layer base {
   * {
     @apply border-border;
   }
+
   body {
     @apply bg-background text-foreground antialiased selection:bg-primary/20 selection:text-primary;
     font-feature-settings: "rlig" 1, "calt" 1;
   }
+
+  html:not(.dark) body {
+  background: #e3d5f5;
+  color: #260b45;
+}
+
+  html.dark body {
+    background: #020617;
+  }
 }
 
 @layer utilities {
+  /* ---------- Glass ---------- */
   .glass {
-    @apply bg-background/60 backdrop-blur-lg border border-border/50 shadow-xl;
-  }
+  @apply backdrop-blur-xl shadow-[0_8px_24px_rgba(139,92,246,0.10)];
+
+  background: #ede7fb;
+  border: 1px solid #eadcff;
+  border-bottom: 1px solid #e6d9ff;
+}
+
+  .dark .glass {
+  @apply bg-black/20 border-white/10 shadow-lg;
+}
+
   .glass-card {
-    @apply bg-white dark:bg-black/20 backdrop-blur-xl border border-border shadow-2xl;
-  }
+  @apply bg-[#FBF7FF] border border-violet-100 rounded-2xl shadow-[0_10px_30px_rgba(139,92,246,0.10)];
+}
+
+  .dark .glass-card {
+  @apply bg-black/20 border-white/10 shadow-2xl;
+}
+
   .text-gradient {
     @apply bg-clip-text text-transparent bg-gradient-to-r from-primary via-secondary to-accent;
   }
-  
-  /* Custom Animations */
-  @keyframes blob {
-    0% { transform: translate(0px, 0px) scale(1); }
-    33% { transform: translate(30px, -50px) scale(1.1); }
-    66% { transform: translate(-20px, 20px) scale(0.9); }
-    100% { transform: translate(0px, 0px) scale(1); }
+
+  /* ---------- Light Theme Card Look ---------- */
+  html:not(.dark) .light-soft-card {
+    background: linear-gradient(145deg, #ffffff 0%, #fbf8ff 100%);
+    border: 1px solid #eadcfb;
+    box-shadow:
+      0 12px 34px rgba(139, 92, 246, 0.1),
+      0 4px 12px rgba(38, 11, 69, 0.04);
   }
+
+  html:not(.dark) .light-purple-section {
+    background:
+      radial-gradient(circle at top, rgba(168, 85, 247, 0.12), transparent 40%),
+      linear-gradient(180deg, #f7f0ff 0%, #ffffff 100%);
+  }
+
+  html:not(.dark) .light-pill {
+    background: #f5edff;
+    border: 1px solid #eadcfb;
+    color: #6d4b86;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.7);
+  }
+
+  html:not(.dark) .light-pill-active {
+    background: #ffffff;
+    color: #260b45;
+    border: 1px solid #eadcfb;
+    box-shadow:
+      0 8px 20px rgba(139, 92, 246, 0.12),
+      0 2px 6px rgba(38, 11, 69, 0.06);
+  }
+
+  /* ---------- Custom Animations ---------- */
+  @keyframes blob {
+    0% {
+      transform: translate(0px, 0px) scale(1);
+    }
+    33% {
+      transform: translate(30px, -50px) scale(1.1);
+    }
+    66% {
+      transform: translate(-20px, 20px) scale(0.9);
+    }
+    100% {
+      transform: translate(0px, 0px) scale(1);
+    }
+  }
+
   .animate-blob {
     animation: blob 7s infinite;
   }
+
   .animation-delay-2000 {
     animation-delay: 2s;
   }
+
   .animation-delay-4000 {
     animation-delay: 4s;
   }
 
-  /* Digital Marketing Styles */
+  /* ---------- Digital Marketing Styles ---------- */
   .glow-blue {
-    box-shadow: 0 0 0 1px rgba(59, 130, 246, 0.58), 0 0 25px rgba(59, 130, 246, 0.22), inset 0 0 42px rgba(59, 130, 246, 0.08);
+    box-shadow:
+      0 0 0 1px rgba(59, 130, 246, 0.58),
+      0 0 25px rgba(59, 130, 246, 0.22),
+      inset 0 0 42px rgba(59, 130, 246, 0.08);
   }
+
   .glow-purple {
-    box-shadow: 0 0 0 1px rgba(168, 85, 247, 0.58), 0 0 25px rgba(168, 85, 247, 0.23), inset 0 0 42px rgba(168, 85, 247, 0.08);
+    box-shadow:
+      0 0 0 1px rgba(168, 85, 247, 0.58),
+      0 0 25px rgba(168, 85, 247, 0.23),
+      inset 0 0 42px rgba(168, 85, 247, 0.08);
   }
+
   .glow-pink {
-    box-shadow: 0 0 0 1px rgba(244, 114, 182, 0.58), 0 0 25px rgba(244, 114, 182, 0.24), inset 0 0 42px rgba(244, 114, 182, 0.08);
+    box-shadow:
+      0 0 0 1px rgba(244, 114, 182, 0.58),
+      0 0 25px rgba(244, 114, 182, 0.24),
+      inset 0 0 42px rgba(244, 114, 182, 0.08);
   }
+
   .glow-orange {
-    box-shadow: 0 0 0 1px rgba(249, 115, 22, 0.58), 0 0 25px rgba(249, 115, 22, 0.24), inset 0 0 42px rgba(249, 115, 22, 0.08);
+    box-shadow:
+      0 0 0 1px rgba(249, 115, 22, 0.58),
+      0 0 25px rgba(249, 115, 22, 0.24),
+      inset 0 0 42px rgba(249, 115, 22, 0.08);
   }
+
   .glow-cyan {
-    box-shadow: 0 0 0 1px rgba(34, 211, 238, 0.58), 0 0 25px rgba(34, 211, 238, 0.22), inset 0 0 42px rgba(34, 211, 238, 0.08);
+    box-shadow:
+      0 0 0 1px rgba(34, 211, 238, 0.58),
+      0 0 25px rgba(34, 211, 238, 0.22),
+      inset 0 0 42px rgba(34, 211, 238, 0.08);
   }
+
+  /* ---------- Module Cards ---------- */
   .module-card {
-    border: 1px solid var(--border);
-    background:
-      linear-gradient(90deg, color-mix(in srgb, var(--module-color) 10%, transparent), transparent 34%),
-      var(--background);
-    box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+    border: 1px solid #eadcfb;
+    background: linear-gradient(180deg, #f4dcfa 0%, #fbf8ff 100%);
+    border-radius: 22px;
+    box-shadow:
+      0 12px 34px rgba(139, 92, 246, 0.1),
+      0 4px 12px rgba(38, 11, 69, 0.04);
+    transition: all 0.25s ease;
   }
+
+  .module-card:hover {
+    transform: translateY(-4px);
+    box-shadow:
+      0 18px 42px rgba(139, 92, 246, 0.16),
+      0 6px 18px rgba(38, 11, 69, 0.06);
+  }
+
   .dark .module-card {
     border: 1px solid color-mix(in srgb, var(--module-color) 58%, #1e293b);
     background:
-      linear-gradient(90deg, color-mix(in srgb, var(--module-color) 10%, transparent), transparent 34%),
+      linear-gradient(
+        90deg,
+        color-mix(in srgb, var(--module-color) 10%, transparent),
+        transparent 34%
+      ),
       linear-gradient(145deg, rgba(15, 23, 42, 0.78), rgba(2, 6, 23, 0.82));
+
+    box-shadow: none;
   }
+
+  .dark .module-card:hover {
+    box-shadow:
+      0 18px 40px rgba(139, 92, 246, 0.14),
+      0 4px 16px rgba(0, 0, 0, 0.05);
+  }
+
+  /* ---------- Module Icons ---------- */
   .module-icon {
-    background: linear-gradient(145deg, color-mix(in srgb, var(--module-color) 48%, #020617), color-mix(in srgb, var(--module-color) 22%, #020617));
-    color: #ffffff;
-    box-shadow: 0 0 24px color-mix(in srgb, var(--module-color) 34%, transparent), inset 0 0 18px rgba(255, 255, 255, 0.08);
+    background: linear-gradient(135deg, #9b3ff6, #b25cff);
+    color: white;
+    box-shadow: 0 8px 18px rgba(139, 92, 246, 0.22);
   }
+
+  .dark .module-icon {
+    background: linear-gradient(
+      145deg,
+      color-mix(in srgb, var(--module-color) 48%, #020617),
+      color-mix(in srgb, var(--module-color) 22%, #020617)
+    );
+
+    color: #fff;
+
+    box-shadow:
+      0 0 24px color-mix(in srgb, var(--module-color) 34%, transparent),
+      inset 0 0 18px rgba(255, 255, 255, 0.08);
+  }
+
+  /* ---------- Module Action Buttons ---------- */
   .module-action {
-    border-color: color-mix(in srgb, var(--module-color) 52%, var(--border));
-    color: var(--module-color);
-    background: rgba(255,255,255,0.72);
+    border: 1px solid #e2cffd;
+    background: #fbf8ff;
+    color: #8b3cf6;
+    border-radius: 9999px;
+    transition: all 0.25s ease;
   }
+
+  .module-action:hover {
+    background: #9b3ff6;
+    color: white;
+    border-color: #9b3ff6;
+    box-shadow: 0 10px 22px rgba(139, 92, 246, 0.22);
+  }
+
   .dark .module-action {
     border-color: color-mix(in srgb, var(--module-color) 70%, #1e293b);
     background: rgba(2, 6, 23, 0.38);
+    color: var(--module-color);
   }
-  .module-action:hover {
-    background: color-mix(in srgb, var(--module-color) 12%, transparent);
-    box-shadow: 0 0 20px color-mix(in srgb, var(--module-color) 28%, transparent);
+
+  .dark .module-action:hover {
+    background: color-mix(in srgb, var(--module-color) 15%, transparent);
+    color: #fff;
+    box-shadow: 0 12px 24px rgba(139, 92, 246, 0.25);
   }
+
+  /* ---------- Useful Light Theme Buttons ---------- */
+  html:not(.dark) .purple-button {
+    background: linear-gradient(135deg, #a855f7, #9333ea);
+    color: white;
+    border: 1px solid rgba(168, 85, 247, 0.3);
+    box-shadow: 0 10px 22px rgba(168, 85, 247, 0.22);
+  }
+
+  html:not(.dark) .purple-button:hover {
+    background: linear-gradient(135deg, #9333ea, #7e22ce);
+    box-shadow: 0 14px 28px rgba(168, 85, 247, 0.28);
+  }
+}
+
+/* ---------- Sales Dashboard Tabs ---------- */
+.sales-tabs-wrapper {
+  background: #eadcff;
+  border: 1px solid #dec8ff;
+  box-shadow: 0 12px 30px rgba(139, 92, 246, 0.16);
+}
+
+.sales-tab {
+  color: #74588f;
+}
+
+.sales-tab:hover {
+  background: rgba(255, 255, 255, 0.65);
+  color: #3b0b63;
+}
+
+.sales-tab-active {
+  background: linear-gradient(135deg, #a855f7, #7c3aed);
+  color: #ffffff;
+  box-shadow: 0 10px 24px rgba(139, 92, 246, 0.36);
+}
+
+/* Keep dark mode exactly like old design */
+.dark .sales-tabs-wrapper {
+  background: var(--muted);
+  border: none;
+  box-shadow: none;
+}
+
+.dark .sales-tab {
+  color: var(--muted-foreground);
+}
+
+.dark .sales-tab:hover {
+  background: transparent;
+  color: var(--foreground);
+}
+
+.dark .sales-tab-active {
+  background: var(--background);
+  color: var(--foreground);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.35);
+}
+
+/* ---------- Sales Status Badges ---------- */
+.sales-status-badge {
+  display: inline-flex;
+  min-width: 96px;
+  align-items: center;
+  justify-content: center;
+  white-space: nowrap;
+  border-radius: 9999px;
+  padding: 6px 16px;
+  font-size: 12px;
+  font-weight: 700;
+  border: none;
+}
+
+.sales-status-on-track {
+  background: #dcfce7;
+  color: #00c853;
+}
+
+.sales-status-at-risk {
+  background: #fff3e0;
+  color: #fb8c00;
+}
+
+.sales-status-delayed {
+  background: #fee2e2;
+  color: #ef4444;
+}
+
+/* Keep dark mode like the previous dark style */
+.dark .sales-status-on-track {
+  background: rgba(20, 83, 45, 0.3);
+  color: #4ade80;
+  border: 1px solid #166534;
+}
+
+.dark .sales-status-at-risk {
+  background: rgba(113, 63, 18, 0.3);
+  color: #facc15;
+  border: 1px solid #854d0e;
+}
+
+.dark .sales-status-delayed {
+  background: rgba(127, 29, 29, 0.3);
+  color: #f87171;
+  border: 1px solid #991b1b;
+}
+
+
+/* ---------- Common Training Pills ---------- */
+.training-pill {
+  display: inline-flex;
+  min-width: 96px;
+  align-items: center;
+  justify-content: center;
+  white-space: nowrap;
+  border-radius: 9999px;
+  padding: 6px 16px;
+  font-size: 12px;
+  font-weight: 600;
+  border: 1px solid transparent;
+}
+
+/* Light mode */
+.training-pill-blue {
+  background: #dbeafe !important;
+  color: #2563eb !important;
+  border-color: #bfdbfe !important;
+}
+
+.training-pill-green {
+  background: #dcfce7 !important;
+  color: #16a34a !important;
+  border-color: #bbf7d0 !important;
+}
+
+.training-pill-purple {
+  background: #f3e8ff !important;
+  color: #9333ea !important;
+  border-color: #e9d5ff !important;
+}
+
+.training-pill-yellow {
+  background: #fef3c7 !important;
+  color: #d97706 !important;
+  border-color: #fde68a !important;
+}
+
+.training-pill-red {
+  background: #fee2e2 !important;
+  color: #dc2626 !important;
+  border-color: #fecaca !important;
+}
+
+.training-pill-pink {
+  background: #fce7f3 !important;
+  color: #db2777 !important;
+  border-color: #fbcfe8 !important;
+}
+
+/* Dark mode */
+.dark .training-pill-blue {
+  background: rgba(30, 58, 138, 0.3) !important;
+  color: #60a5fa !important;
+  border-color: #1e40af !important;
+}
+
+.dark .training-pill-green {
+  background: rgba(20, 83, 45, 0.3) !important;
+  color: #4ade80 !important;
+  border-color: #166534 !important;
+}
+
+.dark .training-pill-purple {
+  background: rgba(88, 28, 135, 0.3) !important;
+  color: #c084fc !important;
+  border-color: #6b21a8 !important;
+}
+
+.dark .training-pill-yellow {
+  background: rgba(113, 63, 18, 0.3) !important;
+  color: #facc15 !important;
+  border-color: #854d0e !important;
+}
+
+.dark .training-pill-red {
+  background: rgba(127, 29, 29, 0.3) !important;
+  color: #f87171 !important;
+  border-color: #991b1b !important;
+}
+
+.dark .training-pill-pink {
+  background: rgba(131, 24, 67, 0.3) !important;
+  color: #f472b6 !important;
+  border-color: #9d174d !important;
+}
+
+/* ---------- New Lead Modal Theme ---------- */
+.new-lead-modal-card {
+  background: #ffffff !important;
+  border: 1px solid #eadcff !important;
+  box-shadow: 0 24px 60px rgba(38, 11, 69, 0.18) !important;
+}
+
+.new-lead-modal-header {
+  background: #ffffff !important;
+  border-bottom: 1px solid #eadcff !important;
+}
+
+.new-lead-modal-body {
+  background: #fbf7ff !important;
+}
+
+.new-lead-modal-footer {
+  background: #ffffff !important;
+  border-top: 1px solid #eadcff !important;
+}
+
+.new-lead-input {
+  width: 100%;
+  border-radius: 1rem;
+  border: 1px solid #eadcff !important;
+  background: #ffffff !important;
+  padding: 12px 16px;
+  font-size: 14px;
+  color: #260b45 !important;
+  outline: none;
+  transition: all 0.2s ease;
+}
+
+.new-lead-input::placeholder {
+  color: #7a6692 !important;
+}
+
+.new-lead-input:focus {
+  border-color: #9b3ff6 !important;
+  box-shadow: 0 0 0 3px rgba(155, 63, 246, 0.16) !important;
+}
+
+.new-lead-label {
+  margin-bottom: 8px;
+  display: block;
+  font-size: 14px;
+  font-weight: 600;
+  color: #260b45 !important;
+}
+
+.new-lead-upload-box {
+  display: flex;
+  cursor: pointer;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  border-radius: 1rem;
+  border: 1px dashed #d8b4fe !important;
+  background: #ffffff !important;
+  padding: 16px;
+  font-size: 14px;
+  color: #7a6692 !important;
+  transition: all 0.2s ease;
+}
+
+.new-lead-upload-box:hover {
+  border-color: #9b3ff6 !important;
+  color: #9b3ff6 !important;
+}
+
+.new-lead-file-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  border-radius: 0.75rem;
+  border: 1px solid #eadcff !important;
+  background: #ffffff !important;
+  padding: 8px 16px;
+  box-shadow: 0 6px 18px rgba(139, 92, 246, 0.08);
+}
+
+.new-lead-preview-card {
+  border-radius: 1rem;
+  border: 1px solid #eadcff !important;
+  background: #ffffff !important;
+  padding: 20px;
+  box-shadow: 0 8px 24px rgba(139, 92, 246, 0.08);
+}
+
+/* Dark mode for New Lead Modal */
+.dark .new-lead-modal-card {
+  background: #111827 !important;
+  border: 1px solid rgba(51, 65, 85, 0.6) !important;
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.6) !important;
+}
+
+.dark .new-lead-modal-header {
+  background: #111827 !important;
+  border-bottom: 1px solid rgba(51, 65, 85, 0.6) !important;
+}
+
+.dark .new-lead-modal-body {
+  background: #111827 !important;
+}
+
+.dark .new-lead-modal-footer {
+  background: #111827 !important;
+  border-top: 1px solid rgba(51, 65, 85, 0.6) !important;
+}
+
+.dark .new-lead-input {
+  background: #1b2333 !important;
+  border-color: rgba(51, 65, 85, 0.7) !important;
+  color: #f1f5f9 !important;
+}
+
+.dark .new-lead-input::placeholder {
+  color: #64748b !important;
+}
+
+.dark .new-lead-label {
+  color: #e2e8f0 !important;
+}
+
+.dark .new-lead-upload-box {
+  background: #151e2e !important;
+  border-color: #475569 !important;
+  color: #94a3b8 !important;
+}
+
+.dark .new-lead-file-row {
+  background: #1b2333 !important;
+  border-color: rgba(51, 65, 85, 0.7) !important;
+}
+
+.dark .new-lead-preview-card {
+  background: #182132 !important;
+  border-color: rgba(51, 65, 85, 0.6) !important;
+}
+
+/* ---------- New Lead Modal Text Fix ---------- */
+.new-lead-title {
+  color: #260b45 !important;
+}
+
+.new-lead-subtitle {
+  color: #7a6692 !important;
+}
+
+.new-lead-preview-label {
+  color: #7a6692 !important;
+}
+
+.new-lead-preview-value {
+  color: #260b45 !important;
+}
+
+.new-lead-secondary-btn {
+  color: #260b45 !important;
+  background: #ffffff !important;
+  border: 1px solid #d8b4fe !important;
+}
+
+.new-lead-secondary-btn:hover {
+  background: #f7f0ff !important;
+}
+
+/* Dark mode text */
+.dark .new-lead-title {
+  color: #ffffff !important;
+}
+
+.dark .new-lead-subtitle {
+  color: #94a3b8 !important;
+}
+
+.dark .new-lead-preview-label {
+  color: #94a3b8 !important;
+}
+
+.dark .new-lead-preview-value {
+  color: #f1f5f9 !important;
+}
+
+.dark .new-lead-secondary-btn {
+  color: #ffffff !important;
+  background: transparent !important;
+  border: 1px solid #334155 !important;
+}
+
+.dark .new-lead-secondary-btn:hover {
+  background: #1e293b !important;
+}
+
+
+/* ---------- Employee Reminder Modal Theme ---------- */
+.employee-reminder-modal-card {
+  background: #ffffff !important;
+  border: 1px solid #eadcff !important;
+  box-shadow: 0 24px 60px rgba(38, 11, 69, 0.18) !important;
+}
+
+.employee-reminder-modal-header {
+  background: #ffffff !important;
+  border-bottom: 1px solid #eadcff !important;
+}
+
+.employee-reminder-modal-body {
+  background: #fbf7ff !important;
+}
+
+.employee-reminder-modal-footer {
+  background: #ffffff !important;
+  border-top: 1px solid #eadcff !important;
+}
+
+.employee-reminder-title {
+  color: #260b45 !important;
+}
+
+.employee-reminder-subtitle {
+  color: #7a6692 !important;
+}
+
+.employee-reminder-label {
+  color: #260b45 !important;
+  font-weight: 600;
+}
+
+.employee-reminder-input {
+  width: 100%;
+  border-radius: 1rem;
+  border: 1px solid #eadcff !important;
+  background: #ffffff !important;
+  padding: 12px 16px;
+  font-size: 14px;
+  color: #260b45 !important;
+  outline: none;
+  transition: all 0.2s ease;
+}
+
+.employee-reminder-input::placeholder {
+  color: #7a6692 !important;
+}
+
+.employee-reminder-input:focus {
+  border-color: #9b3ff6 !important;
+  box-shadow: 0 0 0 3px rgba(155, 63, 246, 0.16) !important;
+}
+
+.employee-reminder-secondary-btn {
+  color: #260b45 !important;
+  background: #ffffff !important;
+  border: 1px solid #d8b4fe !important;
+}
+
+.employee-reminder-secondary-btn:hover {
+  background: #f7f0ff !important;
+}
+
+/* Dark mode unchanged */
+.dark .employee-reminder-modal-card {
+  background: #111827 !important;
+  border: 1px solid rgba(51, 65, 85, 0.6) !important;
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.6) !important;
+}
+
+.dark .employee-reminder-modal-header {
+  background: #111827 !important;
+  border-bottom: 1px solid rgba(51, 65, 85, 0.6) !important;
+}
+
+.dark .employee-reminder-modal-body {
+  background: #111827 !important;
+}
+
+.dark .employee-reminder-modal-footer {
+  background: #111827 !important;
+  border-top: 1px solid rgba(51, 65, 85, 0.6) !important;
+}
+
+.dark .employee-reminder-title {
+  color: #ffffff !important;
+}
+
+.dark .employee-reminder-subtitle {
+  color: #94a3b8 !important;
+}
+
+.dark .employee-reminder-label {
+  color: #e2e8f0 !important;
+}
+
+.dark .employee-reminder-input {
+  background: #1b2333 !important;
+  border-color: rgba(51, 65, 85, 0.7) !important;
+  color: #f1f5f9 !important;
+}
+
+.dark .employee-reminder-input::placeholder {
+  color: #64748b !important;
+}
+
+.dark .employee-reminder-secondary-btn {
+  color: #ffffff !important;
+  background: transparent !important;
+  border: 1px solid #334155 !important;
+}
+
+.dark .employee-reminder-secondary-btn:hover {
+  background: #1e293b !important;
+}
+
+/* ---------- Employee Reminder Extra Light Fix ---------- */
+.employee-reminder-tabs {
+  background: #fbf7ff !important;
+  border-bottom: 1px solid #eadcff !important;
+}
+
+.employee-reminder-tab-active {
+  color: #7c3aed !important;
+  border-bottom-color: #7c3aed !important;
+}
+
+.employee-reminder-tab-inactive {
+  color: #7a6692 !important;
+  border-bottom-color: transparent !important;
+}
+
+.employee-reminder-tab-inactive:hover {
+  color: #7c3aed !important;
+}
+
+.employee-reminder-card-active {
+  background: #f3edff !important;
+  border: 1px solid #cdb4ff !important;
+  box-shadow: 0 10px 26px rgba(124, 58, 237, 0.12) !important;
+}
+
+.employee-reminder-card-done {
+  background: #ffffff !important;
+  border: 1px solid #eadcff !important;
+  opacity: 0.75;
+}
+
+.employee-reminder-card-title {
+  color: #260b45 !important;
+}
+
+.employee-reminder-card-description {
+  color: #7a6692 !important;
+}
+
+.employee-reminder-card-date {
+  color: #7c3aed !important;
+}
+
+.employee-reminder-icon-box {
+  background: #ddd6fe !important;
+  color: #7c3aed !important;
+}
+
+/* Dark mode unchanged */
+.dark .employee-reminder-tabs {
+  background: rgba(15, 23, 42, 0.6) !important;
+  border-bottom: 1px solid rgba(51, 65, 85, 0.6) !important;
+}
+
+.dark .employee-reminder-tab-active {
+  color: #818cf8 !important;
+  border-bottom-color: #6366f1 !important;
+}
+
+.dark .employee-reminder-tab-inactive {
+  color: #94a3b8 !important;
+}
+
+.dark .employee-reminder-tab-inactive:hover {
+  color: #e2e8f0 !important;
+}
+
+.dark .employee-reminder-card-active {
+  background: rgba(99, 102, 241, 0.1) !important;
+  border: 1px solid rgba(99, 102, 241, 0.3) !important;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25) !important;
+}
+
+.dark .employee-reminder-card-done {
+  background: rgba(15, 23, 42, 0.4) !important;
+  border: 1px solid rgba(51, 65, 85, 0.5) !important;
+  opacity: 0.6;
+}
+
+.dark .employee-reminder-card-title {
+  color: #ffffff !important;
+}
+
+.dark .employee-reminder-card-description {
+  color: #cbd5e1 !important;
+}
+
+.dark .employee-reminder-card-date {
+  color: #a5b4fc !important;
+}
+
+.dark .employee-reminder-icon-box {
+  background: rgba(99, 102, 241, 0.2) !important;
+  color: #818cf8 !important;
+}
+
+/* ---------- Notifications Modal Light Theme ---------- */
+.notification-modal-card {
+  background: #ffffff !important;
+  border: 1px solid #eadcff !important;
+  box-shadow: 0 24px 60px rgba(38, 11, 69, 0.18) !important;
+}
+
+.notification-modal-header {
+  background: #ffffff !important;
+  border-bottom: 1px solid #eadcff !important;
+}
+
+.notification-modal-body {
+  background: #fbf7ff !important;
+}
+
+.notification-title {
+  color: #260b45 !important;
+}
+
+.notification-subtitle {
+  color: #7a6692 !important;
+}
+
+.notification-card {
+  background: #ffffff !important;
+  border: 1px solid #eadcff !important;
+  box-shadow: 0 10px 26px rgba(124, 58, 237, 0.08) !important;
+}
+
+.notification-card-title {
+  color: #260b45 !important;
+}
+
+.notification-card-description {
+  color: #7a6692 !important;
+}
+
+.notification-card-date {
+  color: #7c3aed !important;
+}
+
+.notification-icon-box {
+  color: #7c3aed !important;
+}
+
+/* ---------- Notifications Modal Dark Theme Unchanged ---------- */
+.dark .notification-modal-card {
+  background: #111827 !important;
+  border: 1px solid rgba(51, 65, 85, 0.6) !important;
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.6) !important;
+}
+
+.dark .notification-modal-header {
+  background: #111827 !important;
+  border-bottom: 1px solid rgba(51, 65, 85, 0.6) !important;
+}
+
+.dark .notification-modal-body {
+  background: #111827 !important;
+}
+
+.dark .notification-title {
+  color: #ffffff !important;
+}
+
+.dark .notification-subtitle {
+  color: #94a3b8 !important;
+}
+
+.dark .notification-card {
+  background: #0f172a !important;
+  border: 1px solid #1e293b !important;
+  box-shadow: none !important;
+}
+
+.dark .notification-card-title {
+  color: #ffffff !important;
+}
+
+.dark .notification-card-description {
+  color: #cbd5e1 !important;
+}
+
+.dark .notification-card-date {
+  color: #facc15 !important;
+}
+
+.dark .notification-icon-box {
+  color: #facc15 !important;
+}
+
+/* ---------- Contact Calling Workspace Light Theme Fix ---------- */
+/* This only affects light mode. Dark mode remains controlled by existing dark: classes. */
+
+html:not(.dark) .contact-workspace-card {
+  background: #ffffff !important;
+  border: 1px solid #eadcff !important;
+  box-shadow: 0 10px 30px rgba(139, 92, 246, 0.08) !important;
+}
+
+html:not(.dark) .contact-workspace-soft {
+  background: #fbf7ff !important;
+  border: 1px solid #eadcff !important;
+  color: #260b45 !important;
+  box-shadow: 0 6px 18px rgba(139, 92, 246, 0.06) !important;
+}
+
+html:not(.dark) .contact-dial-key {
+  background: #ffffff !important;
+  border: 1px solid #eadcff !important;
+  color: #260b45 !important;
+  box-shadow: 0 8px 18px rgba(139, 92, 246, 0.08) !important;
+}
+
+html:not(.dark) .contact-dial-key:hover {
+  background: #f6efff !important;
+}
+
+html:not(.dark) .contact-search-input {
+  background: #ffffff !important;
+  border: 1px solid #eadcff !important;
+  color: #260b45 !important;
+  box-shadow: 0 6px 18px rgba(139, 92, 246, 0.06) !important;
+}
+
+html:not(.dark) .contact-search-input::placeholder {
+  color: #7a6692 !important;
+}
+
+html:not(.dark) .contact-table-wrap {
+  background: #ffffff !important;
+  border: 1px solid #eadcff !important;
+}
+
+html:not(.dark) .contact-table-head {
+  background: #fbf7ff !important;
+  color: #7a6692 !important;
+  border-bottom: 1px solid #eadcff !important;
+}
+
+html:not(.dark) .contact-table-row {
+  background: #ffffff !important;
+  color: #260b45 !important;
+  border-bottom: 1px solid #f0e3ff !important;
+}
+
+html:not(.dark) .contact-table-row:hover {
+  background: #fbf7ff !important;
+}
+
+html:not(.dark) .contact-table-row-selected {
+  background: #f3e8ff !important;
+}
+
+html:not(.dark) .contact-action-icon {
+  background: #f6efff !important;
+  border: 1px solid #dec7ff !important;
+  color: #9b3ff6 !important;
+}
+
+html:not(.dark) .contact-action-icon:hover {
+  background: #eadcff !important;
+}
+
+html:not(.dark) .contact-mark-status {
+  background: #f6efff !important;
+  border: 1px solid #dec7ff !important;
+  color: #9b3ff6 !important;
+  box-shadow: 0 6px 14px rgba(139, 92, 246, 0.08) !important;
+}
+
+html:not(.dark) .contact-mark-status:hover {
+  background: #eadcff !important;
+}
+
+/* ---------- Contact Calling Pagination Buttons ---------- */
+/* Light theme */
+.contact-pagination-btn {
+  background: #fbf7ff !important;
+  color: #8b3ff6 !important;
+  border: 1px solid #dec7ff !important;
+  box-shadow: 0 6px 14px rgba(139, 92, 246, 0.12) !important;
+}
+
+.contact-pagination-btn:hover {
+  background: #f3e8ff !important;
+}
+
+.contact-pagination-btn-active {
+  background: linear-gradient(135deg, #9b3ff6, #7c3aed) !important;
+  color: #ffffff !important;
+  border: 1px solid #9b3ff6 !important;
+  box-shadow: 0 10px 22px rgba(155, 63, 246, 0.28) !important;
+}
+
+/* Dark theme - kept separate and protected */
+.dark .contact-pagination-btn {
+  background: rgba(15, 23, 42, 0.5) !important;
+  color: #e2e8f0 !important;
+  border: 1px solid #334155 !important;
+  box-shadow: none !important;
+}
+
+.dark .contact-pagination-btn:hover {
+  background: #1e293b !important;
+}
+
+.dark .contact-pagination-btn-active {
+  background: var(--primary) !important;
+  color: var(--primary-foreground) !important;
+  border: 1px solid var(--primary) !important;
+  box-shadow: 0 8px 18px rgba(99, 102, 241, 0.22) !important;
+}
+/* ---------- Contact Status Modal ---------- */
+/* Light theme */
+.contact-status-modal {
+  background: #ffffff !important;
+  border: 1px solid #eadcff !important;
+  box-shadow: 0 24px 60px rgba(38, 11, 69, 0.18) !important;
+}
+
+.contact-status-header {
+  background: #ffffff !important;
+  border-bottom: 1px solid #eadcff !important;
+}
+
+.contact-status-body {
+  background: #fbf7ff !important;
+}
+
+.contact-status-footer {
+  background: #ffffff !important;
+  border-top: 1px solid #eadcff !important;
+}
+
+.contact-status-title {
+  color: #260b45 !important;
+}
+
+.contact-status-subtitle,
+.contact-status-label {
+  color: #7a6692 !important;
+}
+
+.contact-status-option {
+  background: #ffffff !important;
+  border: 1px solid #eadcff !important;
+  color: #260b45 !important;
+}
+
+.contact-status-option:hover {
+  background: #f6efff !important;
+}
+
+.contact-status-option-active {
+  background: #f3e8ff !important;
+  border: 1px solid #9b3ff6 !important;
+  color: #7c3aed !important;
+}
+
+.contact-status-radio {
+  background: #ffffff !important;
+  border: 1px solid #cdb4ff !important;
+}
+
+.contact-status-radio-active {
+  background: #9b3ff6 !important;
+  border: 1px solid #9b3ff6 !important;
+}
+
+.contact-status-textarea {
+  background: #ffffff !important;
+  border: 1px solid #eadcff !important;
+  color: #260b45 !important;
+}
+
+.contact-status-textarea::placeholder {
+  color: #7a6692 !important;
+}
+
+.contact-status-cancel {
+  background: #ffffff !important;
+  border: 1px solid #dec7ff !important;
+  color: #260b45 !important;
+}
+
+.contact-status-cancel:hover {
+  background: #fbf7ff !important;
+}
+
+/* Dark theme protected */
+.dark .contact-status-modal {
+  background: #111827 !important;
+  border: 1px solid #334155 !important;
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.6) !important;
+}
+
+.dark .contact-status-header,
+.dark .contact-status-footer {
+  background: #111827 !important;
+  border-color: #334155 !important;
+}
+
+.dark .contact-status-body {
+  background: #111827 !important;
+}
+
+.dark .contact-status-title {
+  color: #ffffff !important;
+}
+
+.dark .contact-status-subtitle,
+.dark .contact-status-label {
+  color: #94a3b8 !important;
+}
+
+.dark .contact-status-option {
+  background: rgba(30, 41, 59, 0.4) !important;
+  border: 1px solid #334155 !important;
+  color: #e2e8f0 !important;
+}
+
+.dark .contact-status-option-active {
+  background: rgba(99, 102, 241, 0.14) !important;
+  border: 1px solid #8b5cf6 !important;
+  color: #c4b5fd !important;
+}
+
+.dark .contact-status-radio {
+  background: #0f172a !important;
+  border: 1px solid #64748b !important;
+}
+
+.dark .contact-status-radio-active {
+  background: #8b5cf6 !important;
+  border: 1px solid #8b5cf6 !important;
+}
+
+.dark .contact-status-textarea {
+  background: #1e293b !important;
+  border: 1px solid #334155 !important;
+  color: #e2e8f0 !important;
+}
+
+.dark .contact-status-cancel {
+  background: transparent !important;
+  border: 1px solid #334155 !important;
+  color: #e2e8f0 !important;
+}
+
+/* ---------- Sales Employee Dashboard Light Theme Separation ---------- */
+
+/* Light body background */
+.sales-employee-light-page {
+  background: #faf5ff !important;
+}
+
+/* Light navbar background */
+.sales-employee-light-navbar {
+  background: #f3e8ff !important;
+  border-bottom: 1px solid #e4d4ff !important;
+  box-shadow: 0 8px 28px rgba(139, 92, 246, 0.12) !important;
+  backdrop-filter: blur(18px) !important;
+}
+
+/* Dark theme protected */
+.dark .sales-employee-light-page {
+  background: var(--background) !important;
+}
+
+.dark .sales-employee-light-navbar {
+  background: #020617 !important;
+  border-bottom: 1px solid #1e293b !important;
+  box-shadow: none !important;
+}
+
+/* ---------- Admin Dashboard Light Theme Separation ---------- */
+/* Same theme as Sales Employee Dashboard */
+
+/* Light body background */
+html:not(.dark) body:has(.admin-light-page) {
+  background: #faf5ff !important;
+}
+
+html:not(.dark) .admin-light-page {
+  --background: #faf5ff;
+  background: #faf5ff !important;
+}
+
+html:not(.dark) .admin-light-page > div {
+  background: #faf5ff !important;
+}
+
+html:not(.dark) .admin-light-page main {
+  background: #faf5ff !important;
+}
+
+/* Light navbar background */
+html:not(.dark) .admin-light-navbar {
+  background: #f3e8ff !important;
+  border-bottom: 1px solid #e4d4ff !important;
+  box-shadow: 0 8px 28px rgba(139, 92, 246, 0.12) !important;
+  backdrop-filter: blur(18px) !important;
+}
+
+/* Dark theme protected */
+.dark .admin-light-page {
+  --background: #020617;
+  background: var(--background) !important;
+}
+
+.dark .admin-light-page > div {
+  background: var(--background) !important;
+}
+
+.dark .admin-light-page main {
+  background: transparent !important;
+}
+
+.dark .admin-light-navbar {
+  background: #020617 !important;
+  border-bottom: 1px solid #1e293b !important;
+  box-shadow: none !important;
+}
+
+/* ---------- Dialpad Light Theme Fix Only ---------- */
+
+html:not(.dark) .contact-dial-number-input {
+  background: #ffffff !important;
+  color: #260b45 !important;
+  border: 1px solid #eadcff !important;
+  box-shadow: 0 6px 18px rgba(139, 92, 246, 0.06) !important;
+}
+
+html:not(.dark) .contact-dial-number-input::placeholder {
+  color: #7a6692 !important;
+}
+
+html:not(.dark) .contact-dial-number-input:focus {
+  border-color: #9b3ff6 !important;
+  box-shadow: 0 0 0 3px rgba(155, 63, 246, 0.14) !important;
+}
+
+html:not(.dark) .contact-dial-delete-btn {
+  background: #f6efff !important;
+  color: #9b3ff6 !important;
+  border: 1px solid #dec7ff !important;
+  box-shadow: 0 6px 14px rgba(139, 92, 246, 0.08) !important;
+}
+
+html:not(.dark) .contact-dial-delete-btn:hover {
+  background: #eadcff !important;
+}
+
+/* ---------- Gmail Composer Light Theme Fix Only ---------- */
+
+html:not(.dark) .gmail-composer-light-root {
+  background: #ffffff !important;
+  border: 1px solid #eadcff !important;
+  box-shadow: 0 -10px 40px rgba(139, 92, 246, 0.18) !important;
+}
+
+/* Top title bar */
+html:not(.dark) .gmail-composer-light-root > div:first-child {
+  background: #f3e8ff !important;
+  border-bottom: 1px solid #eadcff !important;
+  color: #260b45 !important;
+}
+
+html:not(.dark) .gmail-composer-light-root > div:first-child span {
+  color: #260b45 !important;
+}
+
+html:not(.dark) .gmail-composer-light-root > div:first-child span span {
+  color: #7a6692 !important;
+}
+
+html:not(.dark) .gmail-composer-light-root > div:first-child button {
+  color: #7a6692 !important;
+}
+
+html:not(.dark) .gmail-composer-light-root > div:first-child button:hover {
+  background: #eadcff !important;
+  color: #260b45 !important;
+}
+
+/* Main composer body */
+html:not(.dark) .gmail-composer-light-root form {
+  background: #ffffff !important;
+  color: #260b45 !important;
+}
+
+html:not(.dark) .gmail-composer-light-root form > div {
+  border-color: #eadcff !important;
+}
+
+/* To / Cc / Subject labels */
+html:not(.dark) .gmail-composer-light-root form span {
+  color: #7a6692 !important;
+}
+
+/* Inputs and textarea */
+html:not(.dark) .gmail-composer-light-root input,
+html:not(.dark) .gmail-composer-light-root textarea {
+  background: transparent !important;
+  color: #260b45 !important;
+}
+
+html:not(.dark) .gmail-composer-light-root input::placeholder,
+html:not(.dark) .gmail-composer-light-root textarea::placeholder {
+  color: #7a6692 !important;
+}
+
+/* Optional CC row and bottom toolbar */
+html:not(.dark) .gmail-composer-light-root form > div:last-child {
+  background: #fbf7ff !important;
+  border-top: 1px solid #eadcff !important;
+}
+
+/* Toolbar icons */
+html:not(.dark) .gmail-composer-light-root form > div:last-child button,
+html:not(.dark) .gmail-composer-light-root form > div:last-child label {
+  color: #7a6692 !important;
+}
+
+html:not(.dark) .gmail-composer-light-root form > div:last-child button:hover,
+html:not(.dark) .gmail-composer-light-root form > div:last-child label:hover {
+  background: #eadcff !important;
+  color: #260b45 !important;
+}
+
+/* Keep send button proper */
+html:not(.dark) .gmail-composer-light-root button[type="submit"] {
+  background: #9b3ff6 !important;
+  color: #ffffff !important;
+}
+
+html:not(.dark) .gmail-composer-light-root button[type="submit"]:hover {
+  background: #7c3aed !important;
+}
+
+
+/* ---------- Gmail Composer Light Theme Strong Fix ---------- */
+/* Light mode only. Dark theme is untouched. */
+
+html:not(.dark) .gmail-composer-light-root {
+  background: #ffffff !important;
+  border: 1px solid #eadcff !important;
+  box-shadow: 0 -10px 40px rgba(139, 92, 246, 0.18) !important;
+}
+
+/* Header */
+html:not(.dark) .gmail-composer-light-root > div:first-child {
+  background: #f3e8ff !important;
+  color: #260b45 !important;
+  border-bottom: 1px solid #eadcff !important;
+}
+
+html:not(.dark) .gmail-composer-light-root > div:first-child * {
+  color: #260b45 !important;
+}
+
+/* Main content wrapper */
+html:not(.dark) .gmail-composer-light-root > div:nth-child(2) {
+  background: #ffffff !important;
+}
+
+/* Form */
+html:not(.dark) .gmail-composer-light-root form {
+  background: #ffffff !important;
+  color: #260b45 !important;
+}
+
+/* To / Cc / Subject rows */
+html:not(.dark) .gmail-composer-light-root form > div {
+  background: #ffffff !important;
+  border-color: #eadcff !important;
+  color: #260b45 !important;
+}
+
+/* Labels */
+html:not(.dark) .gmail-composer-light-root form span {
+  color: #7a6692 !important;
+}
+
+/* Inputs */
+html:not(.dark) .gmail-composer-light-root input {
+  background: #ffffff !important;
+  color: #260b45 !important;
+}
+
+html:not(.dark) .gmail-composer-light-root input::placeholder {
+  color: #7a6692 !important;
+}
+
+/* Email body area - this fixes the dark black box */
+html:not(.dark) .gmail-composer-light-root form > div:has(textarea) {
+  background: #ffffff !important;
+}
+
+html:not(.dark) .gmail-composer-light-root textarea {
+  background: #ffffff !important;
+  color: #260b45 !important;
+}
+
+html:not(.dark) .gmail-composer-light-root textarea::placeholder {
+  color: #7a6692 !important;
+}
+
+/* Bottom toolbar */
+html:not(.dark) .gmail-composer-light-root form > div:last-child {
+  background: #fbf7ff !important;
+  border-top: 1px solid #eadcff !important;
+}
+
+/* Toolbar icons */
+html:not(.dark) .gmail-composer-light-root form > div:last-child button,
+html:not(.dark) .gmail-composer-light-root form > div:last-child label {
+  color: #7a6692 !important;
+}
+
+html:not(.dark) .gmail-composer-light-root form > div:last-child button:hover,
+html:not(.dark) .gmail-composer-light-root form > div:last-child label:hover {
+  background: #eadcff !important;
+  color: #260b45 !important;
+}
+
+/* Send button and send dropdown button */
+html:not(.dark) .gmail-composer-light-root form > div:last-child > div:first-child > div:first-child button {
+  background: #9b3ff6 !important;
+  color: #ffffff !important;
+}
+
+html:not(.dark) .gmail-composer-light-root form > div:last-child > div:first-child > div:first-child button:hover {
+  background: #7c3aed !important;
+  color: #ffffff !important;
+}
+
+/* Divider between Send and dropdown */
+html:not(.dark) .gmail-composer-light-root form > div:last-child > div:first-child > div:first-child > div {
+  background: #c084fc !important;
+}
+
+/* ---------- Final Contact Calling Polish ---------- */
+/* Light mode only. Dark theme untouched. */
+
+/* Brighter green Call button */
+html:not(.dark) .contact-call-ready-btn:not(:disabled) {
+  background: linear-gradient(135deg, #18e98f, #00c875) !important;
+  color: #ffffff !important;
+  box-shadow:
+    0 12px 28px rgba(0, 200, 117, 0.42),
+    0 0 22px rgba(24, 233, 143, 0.35) !important;
+}
+
+html:not(.dark) .contact-call-ready-btn:not(:disabled):hover {
+  background: linear-gradient(135deg, #00d97f, #00b86b) !important;
+  box-shadow:
+    0 14px 32px rgba(0, 200, 117, 0.5),
+    0 0 28px rgba(24, 233, 143, 0.45) !important;
+}
+
+/* Make composer more clearly different from table */
+html:not(.dark) .gmail-composer-light-root {
+  background: #ffffff !important;
+  border: 1px solid #cfa7ff !important;
+  box-shadow:
+    0 -14px 48px rgba(88, 28, 135, 0.26),
+    0 0 0 1px rgba(168, 85, 247, 0.12) !important;
+}
+
+/* Darker lavender header for New Message */
+html:not(.dark) .gmail-composer-light-root > div:first-child {
+  background: #e8d7ff !important;
+  color: #260b45 !important;
+  border-bottom: 1px solid #cfa7ff !important;
+}
+
+html:not(.dark) .gmail-composer-light-root > div:first-child * {
+  color: #260b45 !important;
+}
+
+/* Slight tint for To and Subject rows */
+html:not(.dark) .gmail-composer-light-root form > div:nth-child(1),
+html:not(.dark) .gmail-composer-light-root form > div:nth-child(2),
+html:not(.dark) .gmail-composer-light-root form > div:nth-child(3) {
+  background: #fffaff !important;
+  border-color: #e2cfff !important;
+}
+
+/* Keep writing area clean */
+html:not(.dark) .gmail-composer-light-root form > div:has(textarea) {
+  background: #ffffff !important;
+  border-color: #e2cfff !important;
+}
+
+html:not(.dark) .gmail-composer-light-root textarea {
+  background: #ffffff !important;
+  color: #260b45 !important;
+}
+
+/* Bottom bar slightly darker lavender */
+html:not(.dark) .gmail-composer-light-root form > div:last-child {
+  background: #f3e8ff !important;
+  border-top: 1px solid #cfa7ff !important;
+}
+
+/* Send button stronger purple */
+html:not(.dark) .gmail-composer-light-root button[type="submit"],
+html:not(.dark) .gmail-composer-light-root form > div:last-child > div:first-child > div:first-child button {
+  background: #9b3ff6 !important;
+  color: #ffffff !important;
+}
+
+html:not(.dark) .gmail-composer-light-root button[type="submit"]:hover,
+html:not(.dark) .gmail-composer-light-root form > div:last-child > div:first-child > div:first-child button:hover {
+  background: #7c3aed !important;
+  color: #ffffff !important;
+}
+
+/* ---------- Contact List Window Light Theme ---------- */
+/* Light mode only. Dark theme untouched unless .dark rules below apply. */
+
+html:not(.dark) .contact-list-window {
+  background: #ffffff !important;
+  border: 1px solid #d8b4fe !important;
+  color: #260b45 !important;
+  box-shadow:
+    0 24px 70px rgba(88, 28, 135, 0.22),
+    0 0 0 1px rgba(168, 85, 247, 0.1) !important;
+}
+
+html:not(.dark) .contact-list-header {
+  background: #e8d7ff !important;
+  border-bottom: 1px solid #cfa7ff !important;
+  color: #260b45 !important;
+}
+
+html:not(.dark) .contact-list-header p {
+  color: #7a6692 !important;
+}
+
+html:not(.dark) .contact-list-icon-btn {
+  display: inline-flex;
+  height: 28px;
+  width: 28px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  color: #260b45 !important;
+  background: transparent !important;
+  transition: all 0.2s ease;
+}
+
+html:not(.dark) .contact-list-icon-btn:hover {
+  background: #d8b4fe !important;
+}
+
+html:not(.dark) .contact-list-filter-bar {
+  background: #fffaff !important;
+  border-bottom: 1px solid #eadcff !important;
+}
+
+html:not(.dark) .contact-list-filter {
+  background: #ffffff !important;
+  color: #7a6692 !important;
+  border: 1px solid #eadcff !important;
+}
+
+html:not(.dark) .contact-list-filter:hover {
+  background: #f3e8ff !important;
+  color: #7c3aed !important;
+}
+
+html:not(.dark) .contact-list-filter-active {
+  background: linear-gradient(135deg, #9b3ff6, #7c3aed) !important;
+  color: #ffffff !important;
+  border: 1px solid #9b3ff6 !important;
+  box-shadow: 0 10px 22px rgba(155, 63, 246, 0.25) !important;
+}
+
+html:not(.dark) .contact-list-table-wrap {
+  background: #ffffff !important;
+  border: 1px solid #eadcff !important;
+}
+
+html:not(.dark) .contact-list-table-head {
+  background: #fbf7ff !important;
+  color: #000000 !important;
+  border-bottom: 1px solid #eadcff !important;
+}
+
+html:not(.dark) .contact-list-table-head th {
+  color: #000000 !important;
+  font-weight: 800 !important;
+}
+
+html:not(.dark) .contact-list-table-row {
+  border-bottom: 1px solid #f0e3ff !important;
+  color: #260b45 !important;
+}
+
+html:not(.dark) .contact-list-table-row:hover {
+  background: #fbf7ff !important;
+}
+
+/* Dark theme protected */
+.dark .contact-list-window {
+  background: #111827 !important;
+  border: 1px solid #334155 !important;
+  color: #f8fafc !important;
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.6) !important;
+}
+
+.dark .contact-list-header {
+  background: #111827 !important;
+  border-bottom: 1px solid #334155 !important;
+}
+
+.dark .contact-list-header p {
+  color: #94a3b8 !important;
+}
+
+.dark .contact-list-icon-btn {
+  display: inline-flex;
+  height: 28px;
+  width: 28px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  color: #e2e8f0 !important;
+  background: transparent !important;
+  transition: all 0.2s ease;
+}
+
+.dark .contact-list-icon-btn:hover {
+  background: #1e293b !important;
+}
+
+.dark .contact-list-filter-bar {
+  background: #0f172a !important;
+  border-bottom: 1px solid #334155 !important;
+}
+
+.dark .contact-list-filter {
+  background: #111827 !important;
+  color: #94a3b8 !important;
+  border: 1px solid #334155 !important;
+}
+
+.dark .contact-list-filter:hover {
+  background: #1e293b !important;
+  color: #ffffff !important;
+}
+
+.dark .contact-list-filter-active {
+  background: #6366f1 !important;
+  color: #ffffff !important;
+  border: 1px solid #6366f1 !important;
+}
+
+.dark .contact-list-table-wrap {
+  background: #0f172a !important;
+  border: 1px solid #334155 !important;
+}
+
+.dark .contact-list-table-head {
+  background: #111827 !important;
+  color: #94a3b8 !important;
+  border-bottom: 1px solid #334155 !important;
+}
+
+.dark .contact-list-table-row {
+  border-bottom: 1px solid #1e293b !important;
+  color: #f8fafc !important;
+}
+
+.dark .contact-list-table-row:hover {
+  background: #1e293b !important;
+}
+
+/* ---------- Contact List Month Accordion Theme Fix ---------- */
+/* Fixes month accordion light theme without touching existing table styling */
+
+/* Light theme */
+.contact-list-month-card {
+  background: #ffffff !important;
+  border: 1px solid #eadcff !important;
+  color: #260b45 !important;
+}
+
+.contact-list-month-accordion {
+  color: #260b45 !important;
+}
+
+.contact-list-month-expanded {
+  background: #f3e8ff !important;
+}
+
+.contact-list-month-collapsed {
+  background: #ffffff !important;
+}
+
+.contact-list-month-collapsed:hover {
+  background: #fbf7ff !important;
+}
+
+.contact-list-month-accordion h3 {
+  color: #260b45 !important;
+}
+
+.contact-list-month-accordion p {
+  color: #7a6692 !important;
+}
+
+.contact-list-month-accordion span {
+  color: #9b3ff6 !important;
+}
+
+.contact-list-month-table-wrap {
+  background: #ffffff !important;
+}
+
+/* Dark theme protected */
+.dark .contact-list-month-card {
+  background: #111827 !important;
+  border: 1px solid #334155 !important;
+  color: #f8fafc !important;
+}
+
+.dark .contact-list-month-expanded {
+  background: rgba(99, 102, 241, 0.14) !important;
+}
+
+.dark .contact-list-month-collapsed {
+  background: #111827 !important;
+}
+
+.dark .contact-list-month-collapsed:hover {
+  background: #1e293b !important;
+}
+
+.dark .contact-list-month-accordion h3 {
+  color: #ffffff !important;
+}
+
+.dark .contact-list-month-accordion p {
+  color: #94a3b8 !important;
+}
+
+.dark .contact-list-month-accordion span {
+  color: #c4b5fd !important;
+}
+
+.dark .contact-list-month-table-wrap {
+  background: #0f172a !important;
+}
+
+/* ---------- Import Data Modal Light Theme Polish ---------- */
+/* Light theme only. Dark theme remains controlled by existing dark: classes. */
+
+html:not(.dark) .import-data-modal-light {
+  background: #fcf9ff !important;
+  border: 1px solid #eadcff !important;
+}
+
+/* Preview / Duplicate / Upload cards */
+html:not(.dark) .import-step-card-light {
+  opacity: 1 !important;
+  border-radius: 20px !important;
+  transition: all 0.2s ease !important;
+}
+
+html:not(.dark) .import-step-card-light:disabled {
+  opacity: 0.86 !important;
+}
+
+html:not(.dark) .import-step-card-light.preview-card {
+  background: #f0e9ff !important;
+  border-color: #d6c2ff !important;
+  color: #6d57ff !important;
+  box-shadow: 0 10px 24px rgba(109, 87, 255, 0.1) !important;
+}
+
+html:not(.dark) .import-step-card-light.duplicate-card {
+  background: #ffeaf0 !important;
+  border-color: #f6b8c8 !important;
+  color: #ff6b86 !important;
+  box-shadow: 0 10px 24px rgba(255, 107, 134, 0.1) !important;
+}
+
+html:not(.dark) .import-step-card-light.upload-card {
+  background: #e8fbf4 !important;
+  border-color: #aeead9 !important;
+  color: #20b894 !important;
+  box-shadow: 0 10px 24px rgba(32, 184, 148, 0.1) !important;
+}
+
+html:not(.dark) .import-step-card-light .step-title {
+  color: #260b45 !important;
+  font-weight: 800 !important;
+}
+
+html:not(.dark) .import-step-card-light .step-subtitle {
+  color: #7a6692 !important;
+  font-weight: 600 !important;
+}
+
+/* Assign to Employees section */
+html:not(.dark) .import-assign-section-light {
+  background: #fffaff !important;
+  border: 1px solid #eadcff !important;
+}
+
+html:not(.dark) .import-assign-search-light {
+  background: #ffffff !important;
+  border: 1px solid #dcc8ff !important;
+  color: #260b45 !important;
+  box-shadow: 0 6px 18px rgba(139, 92, 246, 0.06) !important;
+}
+
+html:not(.dark) .import-assign-search-light input {
+  color: #260b45 !important;
+}
+
+html:not(.dark) .import-assign-search-light input::placeholder {
+  color: #7a6692 !important;
+}
+
+/* Department filter buttons: Sales / Digital Marketing / All Employees */
+html:not(.dark) .import-employee-filter-group {
+  background: #f3e8ff !important;
+  border: 1px solid #d8b4fe !important;
+}
+
+html:not(.dark) .import-employee-filter-btn {
+  color: #5c3d7c !important;
+  background: transparent !important;
+  font-weight: 800 !important;
+  opacity: 1 !important;
+}
+
+html:not(.dark) .import-employee-filter-btn:hover {
+  background: #eadcff !important;
+  color: #260b45 !important;
+}
+
+html:not(.dark) .import-employee-filter-btn.active {
+  background: linear-gradient(135deg, #c084fc, #a855f7) !important;
+  color: #ffffff !important;
+  box-shadow: 0 8px 20px rgba(168, 85, 247, 0.2) !important;
+}
+
+/* Department pills inside employee table */
+html:not(.dark) .import-department-pill.sales-pill {
+  background: #dff6ff !important;
+  border-color: #8edfff !important;
+  color: #0284c7 !important;
+  font-weight: 800 !important;
+}
+
+html:not(.dark) .import-department-pill.digital-pill {
+  background: #efe1ff !important;
+  border-color: #d1a9ff !important;
+  color: #8b3ff6 !important;
+  font-weight: 800 !important;
+}
+
+/* ---------- FINAL FIX: Contact Calling Table Header Text ---------- */
+/* Light mode only */
+
+html:not(.dark) .contact-workspace-card .contact-table-wrap thead,
+html:not(.dark) .contact-workspace-card .contact-table-wrap thead tr,
+html:not(.dark) .contact-workspace-card .contact-table-wrap thead th,
+html:not(.dark) .contact-table-head,
+html:not(.dark) .contact-table-head tr,
+html:not(.dark) .contact-table-head th,
+html:not(.dark) thead.contact-table-head th {
+  color: #000000 !important;
+  opacity: 1 !important;
+  font-weight: 800 !important;
+}
+
+/* Dark theme untouched */
+.dark .contact-table-head,
+.dark .contact-table-head th,
+.dark thead.contact-table-head th {
+  color: #94a3b8 !important;
+}
+
+/* ---------- Contact List Dark Theme Match With Contact Calling Workspace ---------- */
+/* Dark mode only. Light theme untouched. */
+
+.dark .contact-list-window {
+  background: rgba(0, 0, 0, 0.2) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  color: #f8fafc !important;
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.45) !important;
+}
+
+.dark .contact-list-header {
+  background: transparent !important;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.12) !important;
+  color: #f8fafc !important;
+}
+
+.dark .contact-list-header h2,
+.dark .contact-list-header p {
+  color: #f8fafc !important;
+}
+
+.dark .contact-list-header p {
+  opacity: 0.75 !important;
+}
+
+.dark .contact-list-filter-bar {
+  background: rgba(15, 23, 42, 0.35) !important;
+  border: 1px solid rgba(148, 163, 184, 0.16) !important;
+}
+
+.dark .contact-list-filter {
+  background: transparent !important;
+  color: #cbd5e1 !important;
+  border: 1px solid rgba(148, 163, 184, 0.2) !important;
+}
+
+.dark .contact-list-filter:hover {
+  background: rgba(99, 102, 241, 0.1) !important;
+  color: #ffffff !important;
+}
+
+.dark .contact-list-filter-active {
+  background: #6366f1 !important;
+  color: #ffffff !important;
+  border: 1px solid #6366f1 !important;
+  box-shadow: 0 8px 18px rgba(99, 102, 241, 0.22) !important;
+}
+
+.dark .contact-list-month-card {
+  background: rgba(0, 0, 0, 0.2) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  color: #f8fafc !important;
+}
+
+.dark .contact-list-month-expanded {
+  background: rgba(99, 102, 241, 0.1) !important;
+}
+
+.dark .contact-list-month-collapsed {
+  background: rgba(0, 0, 0, 0.14) !important;
+}
+
+.dark .contact-list-month-collapsed:hover {
+  background: rgba(99, 102, 241, 0.08) !important;
+}
+
+.dark .contact-list-month-accordion h3 {
+  color: #ffffff !important;
+}
+
+.dark .contact-list-month-accordion p {
+  color: #94a3b8 !important;
+}
+
+.dark .contact-list-month-accordion span {
+  color: #c4b5fd !important;
+}
+
+.dark .contact-list-month-table-wrap {
+  background: transparent !important;
+  border-color: rgba(148, 163, 184, 0.12) !important;
+}
+
+.dark .contact-list-table-wrap {
+  background: transparent !important;
+  border: 1px solid rgba(148, 163, 184, 0.18) !important;
+}
+
+.dark .contact-list-table-head {
+  background: rgba(15, 23, 42, 0.55) !important;
+  color: #94a3b8 !important;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.16) !important;
+}
+
+.dark .contact-list-table-head th {
+  color: #94a3b8 !important;
+  font-weight: 800 !important;
+}
+
+.dark .contact-list-table-row {
+  background: transparent !important;
+  color: #f8fafc !important;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.12) !important;
+}
+
+.dark .contact-list-table-row:hover {
+  background: rgba(99, 102, 241, 0.06) !important;
+}
+
+/* ---------- QR Code Modal Theme Fix ---------- */
+/* Light theme */
+
+html:not(.dark) .contact-qr-overlay {
+  background: rgba(38, 11, 69, 0.35) !important;
+  backdrop-filter: blur(8px) !important;
+}
+
+html:not(.dark) .contact-qr-card {
+  background: #ffffff !important;
+  border-color: #eadcff !important;
+  box-shadow: 0 24px 60px rgba(139, 92, 246, 0.22) !important;
+}
+
+html:not(.dark) .contact-qr-header {
+  background: #f3e8ff !important;
+  border-color: #eadcff !important;
+}
+
+html:not(.dark) .contact-qr-title {
+  color: #260b45 !important;
+}
+
+html:not(.dark) .contact-qr-subtitle {
+  color: #7a6692 !important;
+}
+
+html:not(.dark) .contact-qr-close {
+  color: #7a6692 !important;
+}
+
+html:not(.dark) .contact-qr-close:hover {
+  background: #eadcff !important;
+  color: #260b45 !important;
+}
+
+html:not(.dark) .contact-qr-body {
+  background: #ffffff !important;
+}
+
+html:not(.dark) .contact-qr-box {
+  background: #faf5ff !important;
+  border-color: #d8b4fe !important;
+}
+
+html:not(.dark) .contact-qr-code-card {
+  background: #ffffff !important;
+  border: 1px solid #eadcff !important;
+}
+
+html:not(.dark) .contact-qr-error-card {
+  background: #ffffff !important;
+  color: #ef4444 !important;
+  border: 1px solid #fecaca !important;
+}
+
+html:not(.dark) .contact-qr-number {
+  color: #9333ea !important;
+}
+
+html:not(.dark) .contact-qr-help {
+  color: #7a6692 !important;
+}
+
+/* Dark theme protected */
+
+.dark .contact-qr-overlay {
+  background: rgba(0, 0, 0, 0.6) !important;
+  backdrop-filter: blur(8px) !important;
+}
+
+.dark .contact-qr-card {
+  background: #0f172a !important;
+  border-color: #334155 !important;
+}
+
+.dark .contact-qr-header {
+  background: #0f172a !important;
+  border-color: #334155 !important;
+}
+
+.dark .contact-qr-title {
+  color: #f8fafc !important;
+}
+
+.dark .contact-qr-subtitle,
+.dark .contact-qr-help {
+  color: #94a3b8 !important;
+}
+
+.dark .contact-qr-close {
+  color: #94a3b8 !important;
+}
+
+.dark .contact-qr-close:hover {
+  background: #1e293b !important;
+  color: #ffffff !important;
+}
+
+.dark .contact-qr-body {
+  background: #0f172a !important;
+}
+
+.dark .contact-qr-box {
+  background: rgba(30, 41, 59, 0.45) !important;
+  border-color: #334155 !important;
+}
+
+.dark .contact-qr-code-card {
+  background: #ffffff !important;
+}
+
+.dark .contact-qr-error-card {
+  background: #020617 !important;
+  color: #f87171 !important;
+  border: 1px solid #7f1d1d !important;
+}
+
+.dark .contact-qr-number {
+  color: #c084fc !important;
+}
+
+/* ---------- Employee Start Chat + Chat Window Light Theme ---------- */
+/* Light mode only. Dark theme untouched. */
+
+html:not(.dark) .employee-start-chat-modal,
+html:not(.dark) .employee-chat-window-modal {
+  background: #ffffff !important;
+  border: 1px solid #eadcff !important;
+  color: #260b45 !important;
+  box-shadow: 0 24px 70px rgba(139, 92, 246, 0.22) !important;
+}
+
+html:not(.dark) .employee-start-chat-modal h1,
+html:not(.dark) .employee-start-chat-modal h2,
+html:not(.dark) .employee-start-chat-modal h3,
+html:not(.dark) .employee-chat-window-modal h1,
+html:not(.dark) .employee-chat-window-modal h2,
+html:not(.dark) .employee-chat-window-modal h3 {
+  color: #260b45 !important;
+}
+
+html:not(.dark) .employee-start-chat-modal p,
+html:not(.dark) .employee-start-chat-modal span,
+html:not(.dark) .employee-chat-window-modal p,
+html:not(.dark) .employee-chat-window-modal span {
+  color: #7a6692 !important;
+}
+
+html:not(.dark) .employee-start-chat-search,
+html:not(.dark) .employee-start-chat-search input,
+html:not(.dark) .employee-chat-window-input {
+  background: #fbf7ff !important;
+  border-color: #d8b4fe !important;
+  color: #260b45 !important;
+}
+
+html:not(.dark) .employee-start-chat-search input::placeholder,
+html:not(.dark) .employee-chat-window-input::placeholder {
+  color: #9b7ab7 !important;
+}
+
+html:not(.dark) .employee-start-chat-user-card {
+  background: #fbf7ff !important;
+  border: 1px solid #eadcff !important;
+  color: #260b45 !important;
+}
+
+html:not(.dark) .employee-start-chat-user-card:hover {
+  background: #f3e8ff !important;
+  border-color: #c084fc !important;
+}
+
+html:not(.dark) .employee-chat-window-header {
+  background: #f3e8ff !important;
+  border-bottom: 1px solid #eadcff !important;
+}
+
+html:not(.dark) .employee-chat-window-body {
+  background: #ffffff !important;
+}
+
+html:not(.dark) .employee-chat-window-footer {
+  background: #f8f2ff !important;
+  border-top: 1px solid #eadcff !important;
+}
+
+/* Keep icons and close buttons readable in light mode */
+html:not(.dark) .employee-start-chat-modal svg,
+html:not(.dark) .employee-chat-window-modal svg {
+  color: #7c3aed !important;
+}
+
+/* Dark theme protected */
+.dark .employee-start-chat-modal,
+.dark .employee-chat-window-modal,
+.dark .employee-chat-window-header,
+.dark .employee-chat-window-body,
+.dark .employee-chat-window-footer {
+  background: unset;
+}
+
+/* ===================================================== */
+/* Communication & Email Center - Light Theme Fixes Only */
+/* Dark theme untouched                                  */
+/* ===================================================== */
+
+/* Main Communication & Email Center modal */
+html:not(.dark) .z-\[90\] .max-w-7xl {
+  background: #ffffff !important;
+  border: 1px solid #eadcff !important;
+  box-shadow: 0 28px 80px rgba(139, 92, 246, 0.18) !important;
+}
+
+/* Modal header */
+html:not(.dark) .z-\[90\] .max-w-7xl > div:first-child {
+  background: #fbf7ff !important;
+  border-bottom: 1px solid #eadcff !important;
+}
+
+/* Remove grey email conversation background */
+html:not(.dark) .z-\[90\] .bg-\[\#f7f0ff\] {
+  background: linear-gradient(135deg, #ffffff 0%, #fbf7ff 45%, #f7efff 100%) !important;
+}
+
+/* Email conversation top strip */
+html:not(.dark) .z-\[90\] .bg-muted\/10 {
+  background: #fbf7ff !important;
+}
+
+/* Email received card */
+html:not(.dark) .z-\[90\] .bg-purple-50 {
+  background: #fff7ed !important;
+  border-color: #fdba74 !important;
+  color: #260b45 !important;
+}
+
+/* Email received subject box */
+html:not(.dark) .z-\[90\] .bg-purple-100 {
+  background: #fed7aa !important;
+  border-color: #fb923c !important;
+  color: #260b45 !important;
+}
+
+/* Email sent card */
+html:not(.dark) .z-\[90\] .bg-violet-100 {
+  background: #ede9fe !important;
+  border-color: #a78bfa !important;
+  color: #260b45 !important;
+}
+
+/* Email sent subject box */
+html:not(.dark) .z-\[90\] .bg-violet-200 {
+  background: #ddd6fe !important;
+  border-color: #8b5cf6 !important;
+  color: #260b45 !important;
+}
+
+/* Email message body boxes */
+html:not(.dark) .z-\[90\] .bg-white,
+html:not(.dark) .z-\[90\] .bg-white\/75 {
+  background: #ffffff !important;
+  color: #260b45 !important;
+}
+
+/* Make all email conversation text readable */
+html:not(.dark) .z-\[90\] .bg-purple-50 p,
+html:not(.dark) .z-\[90\] .bg-purple-50 span,
+html:not(.dark) .z-\[90\] .bg-purple-100 p,
+html:not(.dark) .z-\[90\] .bg-purple-100 span,
+html:not(.dark) .z-\[90\] .bg-violet-100 p,
+html:not(.dark) .z-\[90\] .bg-violet-100 span,
+html:not(.dark) .z-\[90\] .bg-violet-200 p,
+html:not(.dark) .z-\[90\] .bg-violet-200 span,
+html:not(.dark) .z-\[90\] .bg-white p,
+html:not(.dark) .z-\[90\] .bg-white span,
+html:not(.dark) .z-\[90\] .bg-white\/75 p,
+html:not(.dark) .z-\[90\] .bg-white\/75 span {
+  color: #260b45 !important;
+}
+
+/* Email reply input area */
+html:not(.dark) .z-\[90\] form {
+  background: #fbf7ff !important;
+  border-top: 1px solid #eadcff !important;
+}
+
+html:not(.dark) .z-\[90\] form input {
+  background: #ffffff !important;
+  border: 1px solid #d8b4fe !important;
+  color: #260b45 !important;
+}
+
+html:not(.dark) .z-\[90\] form input::placeholder {
+  color: #9b7ab7 !important;
+}
+
+/* ===================================================== */
+/* Open Chat Window - Light Theme Fixes Only             */
+/* ===================================================== */
+
+html:not(.dark) .employee-chat-window-modal {
+  background: #ffffff !important;
+  border: 1px solid #eadcff !important;
+  color: #260b45 !important;
+  box-shadow: 0 28px 80px rgba(139, 92, 246, 0.25) !important;
+}
+
+/* Chat header */
+html:not(.dark) .employee-chat-window-header {
+  background: #f3e8ff !important;
+  border-bottom: 1px solid #eadcff !important;
+}
+
+html:not(.dark) .employee-chat-window-header h3 {
+  color: #260b45 !important;
+}
+
+html:not(.dark) .employee-chat-window-header p {
+  color: #7c3aed !important;
+}
+
+html:not(.dark) .employee-chat-window-header button svg {
+  color: #7c3aed !important;
+}
+
+/* Chat body background */
+html:not(.dark) .employee-chat-window-body {
+  background: #ffffff !important;
+}
+
+/* Received message bubble */
+html:not(.dark) .employee-chat-window-body .bg-slate-800 {
+  background: #f3e8ff !important;
+  border: 1px solid #d8b4fe !important;
+  color: #260b45 !important;
+}
+
+html:not(.dark) .employee-chat-window-body .bg-slate-800 p {
+  color: #260b45 !important;
+}
+
+/* Sent message bubble */
+html:not(.dark) .employee-chat-window-body .bg-blue-600 {
+  background: #7c3aed !important;
+  color: #ffffff !important;
+}
+
+html:not(.dark) .employee-chat-window-body .bg-blue-600 p {
+  color: #ffffff !important;
+}
+
+/* Message timing text */
+html:not(.dark) .employee-chat-window-body .text-slate-500 {
+  color: #7a6692 !important;
+}
+
+/* Read tick */
+html:not(.dark) .employee-chat-window-body .text-blue-400 {
+  color: #7c3aed !important;
+}
+
+/* Empty state */
+html:not(.dark) .employee-chat-window-body .text-slate-500 p {
+  color: #7a6692 !important;
+}
+
+html:not(.dark) .employee-chat-window-body .text-slate-500 svg {
+  color: #8b5cf6 !important;
+}
+
+/* Chat footer */
+html:not(.dark) .employee-chat-window-footer {
+  background: #fbf7ff !important;
+  border-top: 1px solid #eadcff !important;
+}
+
+/* Chat input */
+html:not(.dark) .employee-chat-window-input {
+  background: #ffffff !important;
+  border: 1px solid #d8b4fe !important;
+  color: #260b45 !important;
+}
+
+html:not(.dark) .employee-chat-window-input::placeholder {
+  color: #9b7ab7 !important;
+}
+
+html:not(.dark) .employee-chat-window-input:focus {
+  border-color: #8b5cf6 !important;
+  box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.15) !important;
+}
+
+/* Chat send button */
+html:not(.dark) .employee-chat-window-footer button[type="submit"] {
+  background: #8b5cf6 !important;
+  color: #ffffff !important;
+  opacity: 1 !important;
+}
+
+html:not(.dark) .employee-chat-window-footer button[type="submit"]:hover {
+  background: #7c3aed !important;
+}
+
+html:not(.dark) .employee-chat-window-footer button[type="submit"]:disabled {
+  background: #d8b4fe !important;
+  color: #ffffff !important;
+  opacity: 1 !important;
+}
+
+html:not(.dark) .employee-chat-window-footer button[type="submit"] svg {
+  color: #ffffff !important;
+}
+
+/* ===================================================== */
+/* Start Chat Modal - Light Theme Final Fix Only         */
+/* Dark theme untouched                                  */
+/* ===================================================== */
+
+html:not(.dark) .employee-start-chat-modal {
+  background: #ffffff !important;
+  border: 1px solid #eadcff !important;
+  color: #260b45 !important;
+  box-shadow: 0 28px 80px rgba(139, 92, 246, 0.24) !important;
+}
+
+/* Header */
+html:not(.dark) .employee-start-chat-modal > div:first-child {
+  border-bottom: 1px solid #eadcff !important;
+}
+
+html:not(.dark) .employee-start-chat-modal h3 {
+  color: #260b45 !important;
+}
+
+html:not(.dark) .employee-start-chat-modal p {
+  color: #7a6692 !important;
+}
+
+/* Header icon */
+html:not(.dark) .employee-start-chat-modal > div:first-child > div > div:first-child {
+  background: #ede9fe !important;
+  border: 1px solid #c4b5fd !important;
+  color: #7c3aed !important;
+}
+
+html:not(.dark) .employee-start-chat-modal svg {
+  color: #7c3aed !important;
+}
+
+/* Close button */
+html:not(.dark) .employee-start-chat-modal button {
+  color: #7c3aed !important;
+}
+
+html:not(.dark) .employee-start-chat-modal button:hover {
+  background: #f3e8ff !important;
+  color: #6d28d9 !important;
+}
+
+/* Search wrapper and input */
+html:not(.dark) .employee-start-chat-search {
+  background: #ffffff !important;
+}
+
+html:not(.dark) .employee-start-chat-search input {
+  background: #ffffff !important;
+  border: 1px solid #d8b4fe !important;
+  color: #260b45 !important;
+  box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.08) !important;
+}
+
+html:not(.dark) .employee-start-chat-search input::placeholder {
+  color: #9b7ab7 !important;
+}
+
+html:not(.dark) .employee-start-chat-search input:focus {
+  border-color: #8b5cf6 !important;
+  box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.16) !important;
+}
+
+/* User cards */
+html:not(.dark) .employee-start-chat-user-card {
+  background: #fbf7ff !important;
+  border: 1px solid #eadcff !important;
+  color: #260b45 !important;
+  box-shadow: 0 8px 20px rgba(139, 92, 246, 0.08) !important;
+}
+
+html:not(.dark) .employee-start-chat-user-card:hover {
+  background: #f3e8ff !important;
+  border-color: #c084fc !important;
+  box-shadow: 0 12px 28px rgba(139, 92, 246, 0.16) !important;
+}
+
+/* Avatar boxes - remove very dark blue */
+html:not(.dark) .employee-start-chat-user-card > div:first-child > div:first-child {
+  background: linear-gradient(135deg, #8b5cf6, #6d28d9) !important;
+  border: 1px solid #c4b5fd !important;
+  color: #ffffff !important;
+  box-shadow: 0 8px 18px rgba(139, 92, 246, 0.28) !important;
+}
+
+/* Names */
+html:not(.dark) .employee-start-chat-user-card .text-sm {
+  color: #260b45 !important;
+  font-weight: 800 !important;
+}
+
+/* Designation / department / login id */
+html:not(.dark) .employee-start-chat-user-card .text-xs {
+  color: #7a6692 !important;
+}
+
+html:not(.dark) .employee-start-chat-user-card .font-mono {
+  color: #6d28d9 !important;
+}
+
+/* EMP code badge */
+html:not(.dark) .employee-start-chat-user-card span[class*="bg-blue-500"] {
+  background: #ede9fe !important;
+  border: 1px solid #c4b5fd !important;
+  color: #6d28d9 !important;
+}
+
+/* Grey arrow button fix */
+html:not(.dark) .employee-start-chat-user-card > div:last-child {
+  background: #ede9fe !important;
+  border: 1px solid #c4b5fd !important;
+  color: #7c3aed !important;
+  box-shadow: 0 8px 18px rgba(139, 92, 246, 0.18) !important;
+}
+
+html:not(.dark) .employee-start-chat-user-card:hover > div:last-child {
+  background: #7c3aed !important;
+  border-color: #7c3aed !important;
+  color: #ffffff !important;
+}
+
+html:not(.dark) .employee-start-chat-user-card > div:last-child svg {
+  color: inherit !important;
+}
+
+/* Loading / empty state */
+html:not(.dark) .employee-start-chat-modal .text-slate-400,
+html:not(.dark) .employee-start-chat-modal .text-slate-500 {
+  color: #7a6692 !important;
+}
+
+/* ---------- Admin Dashboard Project Arrow Buttons Light Theme Fix ---------- */
+/* Light theme only. Dark theme untouched. */
+
+html:not(.dark) .admin-light-page .admin-project-arrow-btn,
+html:not(.dark) .admin-light-page .module-action,
+html:not(.dark) .admin-light-page button[class*="bg-slate"]:has(svg),
+html:not(.dark) .admin-light-page button[class*="bg-gray"]:has(svg),
+html:not(.dark) .admin-light-page div[class*="bg-slate"]:has(svg),
+html:not(.dark) .admin-light-page div[class*="bg-gray"]:has(svg) {
+  background: #ede9fe !important;
+  border: 1px solid #c4b5fd !important;
+  color: #7c3aed !important;
+  box-shadow: 0 8px 20px rgba(139, 92, 246, 0.18) !important;
+}
+
+html:not(.dark) .admin-light-page .admin-project-arrow-btn:hover,
+html:not(.dark) .admin-light-page .module-action:hover,
+html:not(.dark) .admin-light-page button[class*="bg-slate"]:has(svg):hover,
+html:not(.dark) .admin-light-page button[class*="bg-gray"]:has(svg):hover,
+html:not(.dark) .admin-light-page div[class*="bg-slate"]:has(svg):hover,
+html:not(.dark) .admin-light-page div[class*="bg-gray"]:has(svg):hover {
+  background: #7c3aed !important;
+  border-color: #7c3aed !important;
+  color: #ffffff !important;
+  box-shadow: 0 12px 28px rgba(124, 58, 237, 0.28) !important;
+}
+
+html:not(.dark) .admin-light-page .admin-project-arrow-btn svg,
+html:not(.dark) .admin-light-page .module-action svg,
+html:not(.dark) .admin-light-page button[class*="bg-slate"]:has(svg) svg,
+html:not(.dark) .admin-light-page button[class*="bg-gray"]:has(svg) svg,
+html:not(.dark) .admin-light-page div[class*="bg-slate"]:has(svg) svg,
+html:not(.dark) .admin-light-page div[class*="bg-gray"]:has(svg) svg {
+  color: inherit !important;
+  stroke: currentColor !important;
+}
+
+/* Dark theme protected */
+.dark .admin-light-page .admin-project-arrow-btn,
+.dark .admin-light-page .module-action {
+  background: rgba(2, 6, 23, 0.38) !important;
+  border-color: rgba(148, 163, 184, 0.2) !important;
+  color: #c4b5fd !important;
+  box-shadow: none !important;
+}
+
+/* ---------- Admin Dashboard Background Light Lavender Fix ---------- */
+/* Light theme only. Dark theme untouched. */
+
+html:not(.dark) body:has(.admin-light-page) {
+  background: #f8f1ff !important;
+}
+
+html:not(.dark) .admin-light-page {
+  --background: #f8f1ff !important;
+  background: #f8f1ff !important;
+}
+
+html:not(.dark) .admin-light-page > div {
+  background: #f8f1ff !important;
+}
+
+html:not(.dark) .admin-light-page main {
+  background: #f8f1ff !important;
+}
+
+/* This fixes any white dashboard wrapper inside admin page */
+html:not(.dark) .admin-light-page .bg-background {
+  background: #f8f1ff !important;
+}
+
+/* Keep navbar slightly darker than body */
+html:not(.dark) .admin-light-navbar {
+  background: #f3e8ff !important;
+  border-bottom: 1px solid #e4d4ff !important;
+  box-shadow: 0 8px 28px rgba(139, 92, 246, 0.12) !important;
+  backdrop-filter: blur(18px) !important;
+}
+
+/* Dark theme protected */
+.dark .admin-light-page {
+  --background: #020617 !important;
+  background: var(--background) !important;
+}
+
+.dark .admin-light-page > div {
+  background: var(--background) !important;
+}
+
+.dark .admin-light-page main {
+  background: transparent !important;
+}
+
+.dark .admin-light-page .bg-background {
+  background: var(--background) !important;
+}
+
+.dark .admin-light-navbar {
+  background: #020617 !important;
+  border-bottom: 1px solid #1e293b !important;
+  box-shadow: none !important;
 }
