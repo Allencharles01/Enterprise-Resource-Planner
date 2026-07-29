@@ -2648,3 +2648,49 @@ html:not(.dark) .employee-start-chat-modal .text-slate-400,
 html:not(.dark) .employee-start-chat-modal .text-slate-500 {
   color: #7a6692 !important;
 }
+
+/* ---------- Admin Dashboard Project Arrow Buttons Light Theme Fix ---------- */
+/* Light theme only. Dark theme untouched. */
+
+html:not(.dark) .admin-light-page .admin-project-arrow-btn,
+html:not(.dark) .admin-light-page .module-action,
+html:not(.dark) .admin-light-page button[class*="bg-slate"]:has(svg),
+html:not(.dark) .admin-light-page button[class*="bg-gray"]:has(svg),
+html:not(.dark) .admin-light-page div[class*="bg-slate"]:has(svg),
+html:not(.dark) .admin-light-page div[class*="bg-gray"]:has(svg) {
+  background: #ede9fe !important;
+  border: 1px solid #c4b5fd !important;
+  color: #7c3aed !important;
+  box-shadow: 0 8px 20px rgba(139, 92, 246, 0.18) !important;
+}
+
+html:not(.dark) .admin-light-page .admin-project-arrow-btn:hover,
+html:not(.dark) .admin-light-page .module-action:hover,
+html:not(.dark) .admin-light-page button[class*="bg-slate"]:has(svg):hover,
+html:not(.dark) .admin-light-page button[class*="bg-gray"]:has(svg):hover,
+html:not(.dark) .admin-light-page div[class*="bg-slate"]:has(svg):hover,
+html:not(.dark) .admin-light-page div[class*="bg-gray"]:has(svg):hover {
+  background: #7c3aed !important;
+  border-color: #7c3aed !important;
+  color: #ffffff !important;
+  box-shadow: 0 12px 28px rgba(124, 58, 237, 0.28) !important;
+}
+
+html:not(.dark) .admin-light-page .admin-project-arrow-btn svg,
+html:not(.dark) .admin-light-page .module-action svg,
+html:not(.dark) .admin-light-page button[class*="bg-slate"]:has(svg) svg,
+html:not(.dark) .admin-light-page button[class*="bg-gray"]:has(svg) svg,
+html:not(.dark) .admin-light-page div[class*="bg-slate"]:has(svg) svg,
+html:not(.dark) .admin-light-page div[class*="bg-gray"]:has(svg) svg {
+  color: inherit !important;
+  stroke: currentColor !important;
+}
+
+/* Dark theme protected */
+.dark .admin-light-page .admin-project-arrow-btn,
+.dark .admin-light-page .module-action {
+  background: rgba(2, 6, 23, 0.38) !important;
+  border-color: rgba(148, 163, 184, 0.2) !important;
+  color: #c4b5fd !important;
+  box-shadow: none !important;
+}
