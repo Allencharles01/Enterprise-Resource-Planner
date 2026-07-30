@@ -21,6 +21,7 @@ import ReviewSheetModal from "./ReviewSheetModal";
 import SyncSuccessModal from "./SyncSuccessModal";
 import AssignedContactsTable from "./AssignedContactsTable";
 import CustomerDetailsModal from "./CustomerDetailsModal";
+import CallOutcomeModal from "./CallOutcomeModal";
 
 export default function CallingWorkspace({ open, onClose }) {
   if (!open) return null;
@@ -324,6 +325,8 @@ const handleViewDetails = (contact) => {
   setShowCustomerDetails(true);
 };
 
+const [showOutcome,setShowOutcome]=useState(false);
+
 
 
   /* ===================================================
@@ -458,7 +461,7 @@ dark:hover:bg-violet-500/10
                   onDial={handleDial}
                   onBackspace={handleBackspace}
                   onCall={handleCall}
-                  onEndCall={handleEndCall}
+                  onEndCall={() => setShowOutcome(true)}
                   callState={callState}
                   durationSeconds={durationSeconds}
                 />
@@ -575,6 +578,33 @@ dark:hover:bg-violet-500/10
   onEmailClick={handleEmailClick}
   onViewAllHistory={() => {}}
   onAddNote={handleAddNote}
+/>
+<CallOutcomeModal
+  open={showOutcome}
+  onClose={() => setShowOutcome(false)}
+  onSave={(data) => {
+  if (data.status === "Call Later") {
+    const existingReminders = JSON.parse(
+      localStorage.getItem("employeeReminders") || "[]"
+    );
+
+    const reminder = {
+      id: `reminder-${Date.now()}`,
+      title: `Follow up with ${selectedContact?.name || "Client"}`,
+      description: `Call ${selectedContact?.phoneNumber || phoneNumber}`,
+      dateTime: `${data.date}T${data.time}`,
+      isRead: false,
+      createdAt: new Date().toISOString(),
+    };
+
+    localStorage.setItem(
+      "employeeReminders",
+      JSON.stringify([...existingReminders, reminder])
+    );
+  }
+
+  handleEndCall();
+}}
 />
 
         </div>

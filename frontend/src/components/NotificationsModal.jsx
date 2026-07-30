@@ -139,7 +139,7 @@ export function NotificationsModal({ isOpen, onClose, onNavigate }) {
         className="bg-background border border-border/80 w-full max-w-2xl rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-[85vh]"
       >
         {/* Header */}
-        <div className="p-6 border-b border-border/60 bg-muted/20 flex items-center justify-between">
+        <div className="p-6 border-b border-border/60 bg-violet-50 dark:bg-muted/20 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-2xl bg-pink-500/10 border border-pink-500/20 flex items-center justify-center text-pink-500 shadow-inner">
               <Bell size={20} className="animate-bounce" />
@@ -255,8 +255,8 @@ export function NotificationsModal({ isOpen, onClose, onNavigate }) {
                   }}
                   className={`p-4 rounded-2xl border transition-all cursor-pointer flex items-start gap-3.5 relative group ${
                     n.isRead
-                      ? "bg-background border-border/50 opacity-80 hover:opacity-100 hover:border-border"
-                      : "bg-pink-500/5 dark:bg-pink-500/10 border-pink-500/30 shadow-sm"
+  ? "bg-white dark:bg-background border-violet-200 dark:border-border/50 opacity-80 hover:opacity-100 hover:border-violet-300 dark:hover:border-border"
+  : "bg-pink-50 dark:bg-pink-500/10 border-pink-300 dark:border-pink-500/30 shadow-sm"
                   }`}
                 >
                   {/* Status indicator dot */}
@@ -267,7 +267,7 @@ export function NotificationsModal({ isOpen, onClose, onNavigate }) {
                     <span className="absolute top-4 right-4 w-2 h-2 rounded-full bg-pink-500" />
                   )}
 
-                  <div className="p-2.5 rounded-xl bg-muted/60 border border-border/40 shrink-0 mt-0.5">
+                  <div className="p-2.5 rounded-xl bg-violet-50 border border-violet-200 shrink-0 mt-0.5 dark:bg-muted/60 dark:border-border/40">
                     {getCategoryIcon(n.category)}
                   </div>
 
@@ -326,7 +326,7 @@ export function NotificationsModal({ isOpen, onClose, onNavigate }) {
         </div>
 
         {/* Footer */}
-        <div className="p-4 border-t border-border/60 bg-muted/20 flex items-center justify-between text-xs text-muted-foreground">
+        <div className="p-4 border-t border-border/60 bg-violet-50 dark:bg-muted/20 flex items-center justify-between text-xs text-muted-foreground">
           <span>Total Notifications: {notifications.length}</span>
           <span>Click any item to open or mark read</span>
         </div>

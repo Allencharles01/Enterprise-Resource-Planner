@@ -499,13 +499,13 @@ const toggleTheme = () =>
                 </button>
 
                 {isNotificationsOpen && (
-                  <div className="absolute right-0 top-full mt-4 w-[390px] overflow-hidden rounded-2xl border border-slate-700/70 bg-[#070b1a] shadow-2xl shadow-black/60 z-[120]">
-                    <div className="flex items-start justify-between border-b border-slate-700/60 px-5 py-4">
+                  <div className="absolute right-0 top-full mt-4 w-[390px] overflow-hidden rounded-2xl border border-violet-200 bg-white shadow-xl shadow-violet-100 z-[120] dark:border-slate-700/70 dark:bg-[#070b1a] dark:shadow-2xl dark:shadow-black/60">
+                    <div className="flex items-start justify-between border-b border-violet-200 bg-violet-50 px-5 py-4 dark:border-slate-700/60 dark:bg-transparent">
                       <div>
-                        <h2 className="text-lg font-bold text-white">
+                        <h2 className="text-lg font-bold text-[#24123B] dark:text-white">
                           Notifications
                         </h2>
-                        <p className="text-xs text-slate-400">
+                        <p className="text-xs text-slate-600 dark:text-slate-400">
                           Unread reminders and lead messages
                         </p>
                       </div>
@@ -534,8 +534,8 @@ const toggleTheme = () =>
                           onClick={() => openNotificationDetails(reminder)}
                           className={`w-full rounded-xl border px-4 py-3 text-left transition ${
                             reminder.isRead
-                              ? "border-slate-700/50 bg-slate-900/40"
-                              : "border-amber-500/30 bg-amber-500/10 hover:bg-amber-500/15"
+  ? "border-violet-200 bg-slate-100 dark:border-slate-700/50 dark:bg-slate-900/40"
+  : "border-amber-300 bg-amber-50 hover:bg-amber-100 dark:border-amber-500/30 dark:bg-amber-500/10 dark:hover:bg-amber-500/15"
                           }`}
                         >
                           <div className="flex items-start gap-3">
@@ -546,7 +546,7 @@ const toggleTheme = () =>
 
                             <div className="min-w-0 flex-1">
                               <div className="flex items-center gap-2">
-                                <h3 className="text-sm font-bold text-white">
+                                <h3 className="text-sm font-bold text-[#24123B] dark:text-white">
                                   {reminder.title}
                                 </h3>
 
@@ -555,11 +555,11 @@ const toggleTheme = () =>
                                 )}
                               </div>
 
-                              <p className="mt-1 line-clamp-2 text-sm text-slate-300">
+                              <p className="mt-1 line-clamp-2 text-sm text-slate-600 dark:text-slate-300">
                                 {reminder.description}
                               </p>
 
-                              <p className="mt-2 text-xs font-semibold text-amber-300">
+                              <p className="mt-2 text-xs font-semibold text-amber-700 dark:text-amber-300">
                                 {reminder.dateTime}
                               </p>
                             </div>
