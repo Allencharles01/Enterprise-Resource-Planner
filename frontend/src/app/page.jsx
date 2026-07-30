@@ -218,7 +218,11 @@ export default function AdminDashboard() {
                         {project.status}
                       </span>
 
+<<<<<<< HEAD
                       <div className="w-10 h-10 rounded-full bg-violet-600 text-white dark:bg-slate-800/80 dark:text-muted-foreground group-hover:scale-105 transition-all flex items-center justify-center shadow-md shadow-violet-300/30 dark:shadow-none">
+=======
+                      <div className="w-10 h-10 rounded-full bg-violet-600 text-white group-hover:scale-105 transition-all flex items-center justify-center shadow-md shadow-violet-300/30">
+>>>>>>> Newfrontend-kanak
                         <ChevronRight
                           size={18}
                           className="group-hover:translate-x-0.5 transition-transform"

@@ -4,6 +4,7 @@ import { useState } from "react";
 import { X } from "lucide-react";
 
 const CALL_STATUSES = [
+<<<<<<< HEAD
   "Interested",
   "Not Interested",
   "Call Later",
@@ -11,6 +12,14 @@ const CALL_STATUSES = [
   "No Answer",
   "Wrong Number",
   "Follow Up Required",
+=======
+  "Answered",
+  "Unanswered",
+  "Rejected",
+  "Call Later",
+  "Busy",
+  "Wrong Number",
+>>>>>>> Newfrontend-kanak
 ];
 
 export default function CallStatusModal({
@@ -90,7 +99,12 @@ export default function CallStatusModal({
   </p>
 
   <p className="text-sm text-gray-500">
+<<<<<<< HEAD
     Duration: {durationSeconds}s
+=======
+    Duration: {Math.floor(durationSeconds / 60)}:
+{String(durationSeconds % 60).padStart(2, "0")}
+>>>>>>> Newfrontend-kanak
   </p>
 </div>
           <div>
@@ -119,8 +133,15 @@ export default function CallStatusModal({
               <option value="">Choose Status</option>
 
               {CALL_STATUSES.map((item) => (
+<<<<<<< HEAD
                 <option key={item}>{item}</option>
               ))}
+=======
+  <option key={item} value={item}>
+    {item}
+  </option>
+))}
+>>>>>>> Newfrontend-kanak
             </select>
           </div>
 

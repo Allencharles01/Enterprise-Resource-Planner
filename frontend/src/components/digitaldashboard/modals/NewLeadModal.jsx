@@ -18,11 +18,9 @@ const initialForm = {
 };
 
 const campaignTypes = [
-  "Product Launch Campaign",
-  "Creator Campaign",
-  "Heavy Advertisement",
-  "Product Awareness Campaign",
-  "Festival Campaign",
+  "Advertising",
+  "Content Creators",
+  "Heavy Ads",
 ];
 
 export default function NewLeadModal({ open, onClose }) {

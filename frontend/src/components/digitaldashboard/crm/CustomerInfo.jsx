@@ -235,7 +235,11 @@ export default function CustomerInfo({
                 <div>
 
                   <p className="dark:text-white">
+<<<<<<< HEAD
                     Outgoing Call
+=======
+                    {call.status}
+>>>>>>> Newfrontend-kanak
                   </p>
 
                   <p className="text-xs text-gray-400">

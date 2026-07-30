@@ -19,6 +19,11 @@ import ContactListModal from "./ContactListModal";
 import NotificationModal from "./NotificationModal";
 import ReviewSheetModal from "./ReviewSheetModal";
 import SyncSuccessModal from "./SyncSuccessModal";
+<<<<<<< HEAD
+=======
+import AssignedContactsTable from "./AssignedContactsTable";
+import CustomerDetailsModal from "./CustomerDetailsModal";
+>>>>>>> Newfrontend-kanak
 
 export default function CallingWorkspace({ open, onClose }) {
   if (!open) return null;
@@ -300,6 +305,33 @@ export default function CallingWorkspace({ open, onClose }) {
     setDurationSeconds(0);
   };
 
+<<<<<<< HEAD
+=======
+  const handleContactSelect = (contact) => {
+  const index = contacts.findIndex((c) => c.id === contact.id);
+
+  if (index !== -1) {
+    setSelectedIndex(index);
+    setPhoneNumber(contact.phoneNumber);
+    setCallState("ready");
+    setDurationSeconds(0);
+  }
+};
+  const [showCustomerDetails, setShowCustomerDetails] = useState(false);
+
+const handleViewDetails = (contact) => {
+  const index = contacts.findIndex((c) => c.id === contact.id);
+
+  if (index !== -1) {
+    setSelectedIndex(index);
+  }
+
+  setShowCustomerDetails(true);
+};
+
+
+
+>>>>>>> Newfrontend-kanak
   /* ===================================================
       JSX
   ==================================================== */
@@ -437,6 +469,7 @@ dark:hover:bg-violet-500/10
                   durationSeconds={durationSeconds}
                 />
 
+<<<<<<< HEAD
                 <LeadCategory
                   value={leadCategory}
                   onChange={setLeadCategory}
@@ -449,6 +482,8 @@ dark:hover:bg-violet-500/10
                   Next Contact
                   <ArrowRight size={18} />
                 </button>
+=======
+>>>>>>> Newfrontend-kanak
 
               </div>
 
@@ -456,6 +491,7 @@ dark:hover:bg-violet-500/10
 
               <div className="lg:col-span-2">
 
+<<<<<<< HEAD
                 <CustomerInfo
                   contact={selectedContact}
                   recentCalls={recentCalls}
@@ -464,6 +500,14 @@ dark:hover:bg-violet-500/10
                   onViewAllHistory={handleViewHistory}
                   onAddNote={handleAddNote}
                 />
+=======
+                <AssignedContactsTable
+  contacts={contacts}
+  selectedContact={selectedContact}
+  onSelect={handleContactSelect}
+  onViewDetails={handleViewDetails}
+/>
+>>>>>>> Newfrontend-kanak
 
               </div>
 
@@ -498,6 +542,7 @@ dark:hover:bg-violet-500/10
 
           {/* Call Status */}
           <CallStatusModal
+<<<<<<< HEAD
             open={showCallStatus}
             onClose={() => {
               setShowCallStatus(false);
@@ -507,6 +552,40 @@ dark:hover:bg-violet-500/10
             durationSeconds={durationSeconds}
             contact={selectedContact}
           />
+=======
+    open={showCallStatus}
+    onClose={() => setShowCallStatus(false)}
+    contact={selectedContact}
+    durationSeconds={durationSeconds}
+    onSave={(data) => {
+
+        setRecentCalls((prev) => [
+
+            {
+                id: Date.now(),
+
+                type: "Outgoing Call",
+
+                callStartTime: new Date(),
+
+                callDurationSeconds: durationSeconds,
+
+                status: data.status,
+
+                remarks: data.remarks,
+            },
+
+            ...prev,
+
+        ]);
+
+        setShowCallStatus(false);
+
+        setShowReviewSheet(true);
+
+    }}
+/>
+>>>>>>> Newfrontend-kanak
 
           {/* Review Sheet */}
           <ReviewSheetModal
@@ -531,6 +610,19 @@ dark:hover:bg-violet-500/10
               nextContact();
             }}
           />
+<<<<<<< HEAD
+=======
+          <CustomerDetailsModal
+  open={showCustomerDetails}
+  onClose={() => setShowCustomerDetails(false)}
+  contact={selectedContact}
+  recentCalls={recentCalls}
+  onPhoneClick={handlePhoneClick}
+  onEmailClick={handleEmailClick}
+  onViewAllHistory={() => {}}
+  onAddNote={handleAddNote}
+/>
+>>>>>>> Newfrontend-kanak
 
         </div>
       </div>

@@ -1,5 +1,8 @@
-@import "tailwindcss";
 
+@import "tailwindcss";
+@custom-variant dark (&:where(.dark, .dark *));
+
+<<<<<<< HEAD
 :root {
   /* Light Theme - White Background + Lavender Cards */
   --background: #ffffff;
@@ -73,8 +76,76 @@
   }
 
   body {
+=======
+/* ==========================================================================
+   PREMIUM ERP THEME
+   Linear + Clerk + Remotely Inspired
+   Drop-in replacement for globals.css
+   ========================================================================== */
+
+:root{
+  --background:#F4F0FF;
+  --foreground:#1E1B35;
+  --primary:#7C3AED;
+  --primary-foreground:#fff;
+  --secondary:#DDD6FE;
+  --secondary-foreground:#5B21B6;
+  --accent:#A855F7;
+  --accent-foreground:#fff;
+  --muted:#FAF8FF;
+  --muted-foreground:#6B7280;
+  --border:#E8DDFC;
+  --input:#fff;
+  --ring:#8B5CF6;
+  --radius:1rem;
+}
+
+.dark{
+  --background:#020617;
+  --foreground:#f8fafc;
+  --primary:#6366f1;
+  --primary-foreground:#fff;
+  --secondary:#f472b6;
+  --secondary-foreground:#fff;
+  --accent:#22d3ee;
+  --accent-foreground:#020617;
+  --muted:#0f172a;
+  --muted-foreground:#94a3b8;
+  --border:#1e293b;
+  --input:#1e293b;
+  --ring:#6366f1;
+}
+
+@theme inline{
+  --color-background:var(--background);
+  --color-foreground:var(--foreground);
+  --color-primary:var(--primary);
+  --color-primary-foreground:var(--primary-foreground);
+  --color-secondary:var(--secondary);
+  --color-secondary-foreground:var(--secondary-foreground);
+  --color-accent:var(--accent);
+  --color-accent-foreground:var(--accent-foreground);
+  --color-muted:var(--muted);
+  --color-muted-foreground:var(--muted-foreground);
+  --color-border:var(--border);
+  --color-input:var(--input);
+  --color-ring:var(--ring);
+  --radius-lg:var(--radius);
+  --radius-md:calc(var(--radius) - 2px);
+  --radius-sm:calc(var(--radius) - 4px);
+}
+
+@layer base{
+  *{@apply border-border;}
+  html{scroll-behavior:smooth;}
+  body{
+>>>>>>> Newfrontend-kanak
     @apply bg-background text-foreground antialiased selection:bg-primary/20 selection:text-primary;
-    font-feature-settings: "rlig" 1, "calt" 1;
+    font-feature-settings:"rlig" 1,"calt" 1;
+    background-image:
+      radial-gradient(circle at top left,rgba(168,85,247,.06),transparent 30%),
+      radial-gradient(circle at bottom right,rgba(99,102,241,.05),transparent 35%);
+    transition:background-color .35s,color .35s;
   }
 
   html:not(.dark) body {
@@ -87,6 +158,7 @@
   }
 }
 
+<<<<<<< HEAD
 @layer utilities {
   /* ---------- Glass ---------- */
   .glass {
@@ -306,6 +378,173 @@
     background: linear-gradient(135deg, #9333ea, #7e22ce);
     box-shadow: 0 14px 28px rgba(168, 85, 247, 0.28);
   }
+=======
+@layer utilities{
+
+.glass{
+  background:rgba(255,255,255,.72);
+  backdrop-filter:blur(20px);
+  border:1px solid rgba(139,92,246,.12);
+  box-shadow:0 12px 40px rgba(124,58,237,.08);
+}
+.dark .glass{
+  background:rgba(2,6,23,.55);
+  border-color:rgba(255,255,255,.08);
+}
+
+.glass-card{
+  position:relative;
+  overflow:hidden;
+  background:rgba(255,255,255,.88);
+  backdrop-filter:blur(24px);
+  border:1px solid rgba(139,92,246,.08);
+  border-radius:22px;
+  box-shadow:0 15px 45px rgba(124,58,237,.08);
+  transition:all .35s ease;
+}
+.glass-card:hover{
+  transform:translateY(-5px);
+  box-shadow:0 25px 60px rgba(124,58,237,.15);
+}
+.dark .glass-card{
+  background:rgba(15,23,42,.72);
+  border-color:rgba(255,255,255,.08);
+}
+
+.module-card{
+  position:relative;
+  overflow:hidden;
+  border-radius:22px;
+  border:1px solid var(--border);
+  background:
+    linear-gradient(90deg,color-mix(in srgb,var(--module-color) 8%,transparent),transparent 36%),
+    rgba(255,255,255,.88);
+  backdrop-filter:blur(22px);
+  box-shadow:0 12px 40px rgba(124,58,237,.08);
+  transition:transform .35s ease, box-shadow .35s ease, border-color .35s ease;
+}
+
+.module-card:hover{
+  transform:translateY(-6px) scale(1.01);
+  box-shadow:0 25px 60px rgba(124,58,237,.15);
+  border-color:color-mix(in srgb,var(--module-color) 25%,var(--border));
+}
+
+.module-card::before{
+  content:"";
+  position:absolute;
+  top:0;
+  left:-120%;
+  width:50%;
+  height:100%;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,.4),transparent);
+  transition:left .8s ease;
+}
+
+.module-card:hover::before{
+  left:150%;
+}
+
+.module-card::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  opacity:0;
+  background:radial-gradient(circle at var(--x,50%) var(--y,50%),color-mix(in srgb,var(--module-color) 12%,transparent),transparent 45%);
+  transition:opacity .3s;
+  pointer-events:none;
+}
+
+.module-card:hover::after{opacity:1;}
+
+.dark .module-card{
+  background:
+  linear-gradient(90deg,color-mix(in srgb,var(--module-color) 10%,transparent),transparent 36%),
+  linear-gradient(145deg,rgba(15,23,42,.82),rgba(2,6,23,.92));
+  border-color:color-mix(in srgb,var(--module-color) 55%,#1e293b);
+}
+
+.module-icon{
+  transition:all .35s ease;
+  box-shadow:0 12px 30px color-mix(in srgb,var(--module-color) 30%,transparent);
+}
+
+.module-card:hover .module-icon{
+  transform:rotate(-8deg) scale(1.1);
+}
+
+.module-action{
+  transition:all .25s ease;
+  overflow:hidden;
+  position:relative;
+}
+
+.module-action:hover{
+  transform:translateY(-2px);
+}
+
+.module-action::after{
+  content:"";
+  position:absolute;
+  width:220px;
+  height:220px;
+  border-radius:50%;
+  background:rgba(255,255,255,.35);
+  top:50%;
+  left:50%;
+  transform:translate(-50%,-50%) scale(0);
+  transition:.55s;
+}
+
+.module-action:hover::after{
+  transform:translate(-50%,-50%) scale(3);
+  opacity:0;
+}
+
+.text-gradient{
+  @apply bg-clip-text text-transparent;
+  background-image:linear-gradient(135deg,#7C3AED,#A855F7,#C084FC);
+}
+
+@keyframes blob{
+  0%{transform:translate(0,0) scale(1);}
+  33%{transform:translate(30px,-45px) scale(1.08);}
+  66%{transform:translate(-20px,20px) scale(.95);}
+  100%{transform:translate(0,0) scale(1);}
+}
+
+@keyframes fadeUp{
+  from{opacity:0;transform:translateY(20px);}
+  to{opacity:1;transform:none;}
+}
+
+.animate-blob{animation:blob 8s infinite;}
+.fade-up{animation:fadeUp .6s ease both;}
+.animation-delay-200{animation-delay:.2s;}
+.animation-delay-400{animation-delay:.4s;}
+.animation-delay-600{animation-delay:.6s;}
+
+.hover-lift{transition:.3s;}
+.hover-lift:hover{transform:translateY(-4px);}
+
+.soft-shadow{box-shadow:0 10px 35px rgba(124,58,237,.08);}
+.premium-card{
+  border-radius:22px;
+  background:rgba(255,255,255,.88);
+  border:1px solid rgba(139,92,246,.08);
+  backdrop-filter:blur(22px);
+}
+
+::-webkit-scrollbar{width:10px;height:10px;}
+::-webkit-scrollbar-thumb{
+  background:#c4b5fd;
+  border-radius:999px;
+}
+.dark ::-webkit-scrollbar-thumb{
+  background:#334155;
+}
+
+>>>>>>> Newfrontend-kanak
 }
 
 /* ---------- Sales Dashboard Tabs ---------- */

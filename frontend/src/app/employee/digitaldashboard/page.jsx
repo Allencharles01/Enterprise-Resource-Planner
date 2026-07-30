@@ -82,7 +82,7 @@ export default function DigitalDashboardPage({ clientProject = null }) {
       }
 
       try {
-        const apiUrl = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:4001";
+        const apiUrl = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:4000";
         // Verify token/me
         if (token) {
           const res = await fetch(`${apiUrl}/api/auth/me`, {
@@ -330,7 +330,11 @@ export default function DigitalDashboardPage({ clientProject = null }) {
   }
 
   return (
+<<<<<<< HEAD
       <div className="sales-employee-light-page min-h-screen bg-[#FAF7FF] text-gray-900 dark:bg-[#050816] dark:text-white">
+=======
+      <div className="min-h-screen bg-[#FAF7FF] text-gray-900 dark:bg-[#050816] dark:text-white">
+>>>>>>> Newfrontend-kanak
       <Navbar />
 
       <main className="mx-auto max-w-7xl px-4 py-6 sm:px-6 sm:py-8">

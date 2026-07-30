@@ -473,7 +473,16 @@ export function MessagesModal({ isOpen, onClose }) {
   const markItemAsRead = async (item) => {
     setItems((prev) =>
       prev.map((i) =>
+<<<<<<< HEAD
         isSameItem(i, item) ? { ...i, isRead: true, unreadCount: 0 } : i
+=======
+        i._id === item._id ||
+          (item.rawPartner &&
+            i.rawPartner &&
+            (i.rawPartner._id === item.rawPartner._id || i.rawPartner.id === item.rawPartner.id))
+          ? { ...i, isRead: true, unreadCount: 0 }
+          : i
+>>>>>>> Newfrontend-kanak
       )
     );
 
@@ -481,6 +490,7 @@ export function MessagesModal({ isOpen, onClose }) {
 
     if (item.isChatConversation) {
       try {
+<<<<<<< HEAD
         const recipient = buildChatRecipient(item);
 
         const senderCode =
@@ -520,6 +530,36 @@ export function MessagesModal({ isOpen, onClose }) {
       } catch (e) {
         console.error("Failed to mark email/message as read:", e);
       }
+=======
+        if (currentUser && item.rawPartner) {
+          const senderCode =
+            item.rawPartner.code ||
+            item.rawPartner.empCode ||
+            item.rawPartner.employeeCode ||
+            item.rawPartner.id;
+          const recipientCode =
+            currentUser.code ||
+            currentUser.employeeCode ||
+            (currentUser.role === "admin" ? "ADMIN" : "EMP001");
+          const senderId = item.rawPartner.id || item.rawPartner._id;
+          const recipientId =
+            currentUser.id ||
+            currentUser._id ||
+            (currentUser.role === "admin" ? "ADMIN_ID" : "");
+          await api.patch("/api/internalChat/read", {
+            senderId,
+            recipientId,
+            senderCode,
+            recipientCode,
+          }).catch(() => { });
+        }
+      } catch (e) { }
+    } else {
+      setSelectedItem(item);
+      try {
+        await api.put(`/api/emails/${item._id}`, { isRead: true }).catch(() => { });
+      } catch (e) { }
+>>>>>>> Newfrontend-kanak
     }
   };
 
@@ -1015,12 +1055,20 @@ export function MessagesModal({ isOpen, onClose }) {
                 <div className="flex rounded-xl border border-border/60 bg-muted p-1">
                   <button
                     type="button"
+<<<<<<< HEAD
                     onClick={() => handleTopTabClick("email")}
                     className={`flex cursor-pointer items-center gap-2 rounded-lg px-4 py-2 text-xs font-bold transition-all ${
                       activeTab === "email"
                         ? "bg-background text-foreground shadow-sm"
                         : "text-muted-foreground hover:text-foreground"
                     }`}
+=======
+                    onClick={() => setActiveTab("email")}
+                    className={`px-4 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-2 cursor-pointer ${activeTab === "email"
+                      ? "bg-background text-foreground shadow-sm"
+                      : "text-muted-foreground hover:text-foreground"
+                      }`}
+>>>>>>> Newfrontend-kanak
                   >
                     <Mail size={14} />
                     Email Box
@@ -1041,12 +1089,20 @@ export function MessagesModal({ isOpen, onClose }) {
 
                   <button
                     type="button"
+<<<<<<< HEAD
                     onClick={() => handleTopTabClick("message")}
                     className={`flex cursor-pointer items-center gap-2 rounded-lg px-4 py-2 text-xs font-bold transition-all ${
                       activeTab === "message"
                         ? "bg-background text-foreground shadow-sm"
                         : "text-muted-foreground hover:text-foreground"
                     }`}
+=======
+                    onClick={() => setActiveTab("message")}
+                    className={`px-4 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-2 cursor-pointer ${activeTab === "message"
+                      ? "bg-background text-foreground shadow-sm"
+                      : "text-muted-foreground hover:text-foreground"
+                      }`}
+>>>>>>> Newfrontend-kanak
                   >
                     <MessageSquare size={14} />
                     Messages
@@ -1105,10 +1161,332 @@ export function MessagesModal({ isOpen, onClose }) {
               </button>
             </div>
 
+<<<<<<< HEAD
             <div className="flex min-h-0 flex-1 overflow-hidden">
               {viewMode === "inbox"
                 ? renderInboxLayout(activeTab)
                 : renderConversationLayout(activeTab)}
+=======
+            {/* Content Area */}
+            <div className="flex flex-1 overflow-hidden">
+              {/* Left/Main List Table */}
+              <div
+                className={`overflow-y-auto p-6 ${selectedItem
+                  ? "hidden md:block md:w-[38%] border-r border-border"
+                  : "w-full"
+                  }`}
+              >
+                {isLoading ? (
+                  <div className="flex justify-center items-center h-64">
+                    <Loader2 className="animate-spin text-primary" size={40} />
+                  </div>
+                ) : items.length === 0 ? (
+                  <div className="text-center py-20 text-muted-foreground space-y-3">
+                    <Inbox size={48} className="mx-auto opacity-40" />
+                    <p className="font-semibold">No {activeTab} history recorded yet.</p>
+                    {activeTab === "email" ? (
+                      <button
+                        onClick={handleComposeNew}
+                        className="text-xs text-blue-500 font-bold hover:underline"
+                      >
+                        Click here to send your first email &rarr;
+                      </button>
+                    ) : (
+                      <button
+                        onClick={() => setIsStartChatOpen(true)}
+                        className="text-xs text-purple-500 font-bold hover:underline"
+                      >
+                        Click here to start a chat &rarr;
+                      </button>
+                    )}
+                  </div>
+                ) : (
+                  <div className="rounded-xl border border-border overflow-hidden bg-background">
+
+                    {/* Search */}
+                    <div className="p-4 border-b border-border">
+                      <input
+                        type="text"
+                        placeholder="🔍 Search emails..."
+                        className="
+        w-full
+        rounded-xl
+        border
+        border-border
+        bg-muted/20
+        px-4
+        py-3
+        text-sm
+        outline-none
+        focus:ring-2
+        focus:ring-primary
+      "
+                      />
+                    </div>
+
+                    {/* Inbox */}
+                    <div className="max-h-[600px] overflow-y-auto">
+
+                      {items.map((item) => (
+
+                        <button
+                          key={item._id}
+                          onClick={() => handleOpenItem(item)}
+                          className={`
+          w-full
+          text-left
+          px-5
+          py-4
+          border-b
+          border-border
+          transition-all
+          duration-200
+
+          hover:bg-primary/5
+hover:shadow-lg
+hover:shadow-primary/10
+hover:scale-[1.01]
+
+          ${selectedItem?._id === item._id
+                              ? "bg-primary/10 border-l-4 border-l-primary"
+                              : ""
+                            }
+        `}
+                        >
+
+                          <div className="flex items-start justify-between">
+
+                            <div className="flex gap-3 flex-1 items-start">
+                              {/* Avatar */}
+                              <div className="h-9 w-9 rounded-full bg-primary/10 flex items-center justify-center font-bold text-primary shrink-0">
+                                {(item.from || item.to || "?")
+                                  .charAt(0)
+                                  .toUpperCase()}
+                              </div>
+
+                              <div className="flex-1 min-w-0">
+
+                                {/* Sender */}
+                                <div className="flex items-start justify-between">
+
+  <div className="min-w-0 flex-1">
+
+    {(() => {
+      const sender = item.from || item.to || "";
+      const match = sender.match(/^(.*?)\s*<(.*)>$/);
+
+      return (
+        <>
+          <h4 className="font-semibold text-[15px] leading-tight text-foreground truncate">
+            {match ? match[1] : sender}
+          </h4>
+
+          {match && (
+            <p className="text-[11px] text-muted-foreground truncate">
+              {match[2]}
+            </p>
+          )}
+        </>
+      );
+    })()}
+
+  </div>
+
+  {(item.unreadCount > 0 ||
+    (!item.isRead && item.direction === "inbound")) && (
+    <span className="ml-2 mt-1 h-2 w-2 rounded-full bg-red-500 animate-pulse shrink-0" />
+  )}
+
+</div>
+
+                                {/* Subject */}
+
+                                <p className="font-medium text-sm text-foreground mt-1 truncate">
+
+                                  {item.subject || "No Subject"}
+
+                                </p>
+
+                                {/* Message Preview */}
+
+                                <p className="text-xs text-muted-foreground mt-1 line-clamp-2">
+
+                                  {item.body
+                                    ?.replace(/<[^>]+>/g, "")
+                                    ?.substring(0, 80)}
+
+                                </p>
+
+                              </div>
+
+                            </div>
+
+                            {/* Time */}
+
+                            <div className="text-xs text-muted-foreground whitespace-nowrap ml-4">
+
+                              {new Date(item.createdAt).toLocaleDateString(
+                                "en-US",
+                                {
+                                  month: "short",
+                                  day: "numeric",
+                                }
+                              )}
+
+                            </div>
+
+                          </div>
+
+                        </button>
+
+                      ))}
+
+                    </div>
+
+                  </div>
+                )}
+              </div>
+
+              {/* Right/Reading Panel if an item is selected */}
+              {selectedItem && (
+                <div className="w-full md:w-1/2 p-6 flex flex-col bg-muted/10 overflow-y-auto">
+                  <div className="flex items-center justify-between border-b border-border/60 pb-4 mb-4">
+                    <div>
+                      <div className="text-sm font-medium text-primary mb-1">
+                        {selectedItem.from || "NovaNectar ERP"}
+                      </div>
+                      <h3 className="text-3xl font-bold text-foreground leading-tight">
+                        {selectedItem.subject}
+                      </h3>
+                    </div>
+                    <button
+                      onClick={() => setSelectedItem(null)}
+                      className="p-1.5 rounded-full hover:bg-muted text-muted-foreground transition-colors"
+                      title="Close preview"
+                    >
+                      <X size={18} />
+                    </button>
+                  </div>
+
+                  <div className="mb-6 rounded-2xl border border-border bg-muted/20 p-5">
+
+                    <div className="flex items-start gap-4">
+
+                      <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-lg">
+                        {(selectedItem.from || "N").charAt(0).toUpperCase()}
+                      </div>
+
+                      <div className="flex-1">
+
+                        {(() => {
+                          const sender = selectedItem.from || "";
+                          const match = sender.match(/^(.*?)\s*<(.*)>$/);
+
+                          return (
+                            <>
+                              <h4 className="font-bold text-xl text-foreground">
+                                {match ? match[1] : sender}
+                              </h4>
+
+                              {match && (
+                                <p className="text-sm text-muted-foreground mt-1">
+                                  {match[2]}
+                                </p>
+                              )}
+                            </>
+                          );
+                        })()}
+
+                        <p className="text-sm text-muted-foreground mt-1">
+                          To: {selectedItem.to}
+                        </p>
+
+                        <p className="text-xs text-muted-foreground mt-2">
+                          {new Date(selectedItem.createdAt).toLocaleString("en-US", {
+                            month: "short",
+                            day: "numeric",
+                            year: "numeric",
+                            hour: "numeric",
+                            minute: "2-digit",
+                          })}
+                        </p>
+
+                      </div>
+
+                    </div>
+
+                  </div>
+
+                  {/* Body Content */}
+                  <div
+                    className="
+    flex-1
+    rounded-2xl
+    bg-muted/10
+    p-8
+    text-[15px]
+    leading-8
+    text-foreground
+    overflow-y-auto
+    whitespace-pre-wrap
+  "
+                  >
+                    <div
+                      dangerouslySetInnerHTML={{
+                        __html: selectedItem.body?.includes("<")
+                          ? selectedItem.body
+                          : selectedItem.body?.replace(/\n/g, "<br/>"),
+                      }}
+                    />
+                  </div>
+
+                  {/* Attachments if any */}
+                  {selectedItem.attachments && selectedItem.attachments.length > 0 && (
+                    <div className="mt-4 pt-4 border-t border-border/60">
+                      <span className="text-xs font-bold text-muted-foreground uppercase block mb-2">
+                        Attached Files ({selectedItem.attachments.length})
+                      </span>
+                      <div className="flex flex-wrap gap-2">
+                        {selectedItem.attachments.map((att, idx) => (
+                          <div
+                            key={idx}
+                            className="flex items-center gap-2 bg-background border border-border px-3 py-2 rounded-lg text-xs font-semibold"
+                          >
+                            <FileText size={15} className="text-blue-500" />
+                            <span>{att.name || "Attachment"}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Reply Bar */}
+                  <div className="mt-6 flex items-center justify-end gap-3 pt-3 border-t border-border/60">
+                    <button
+                      onClick={() => handleDelete(selectedItem)}
+                      className="px-4 py-2 rounded-xl border border-red-500/30 text-red-500 hover:bg-red-500 hover:text-white font-semibold text-xs transition-colors flex items-center gap-1.5"
+                    >
+                      <Trash2 size={14} /> Delete
+                    </button>
+                    {selectedItem.isChatConversation ? (
+                      <button
+                        onClick={() => handleOpenItem(selectedItem)}
+                        className="px-5 py-2 rounded-xl bg-purple-600 hover:bg-purple-700 text-white font-bold text-xs transition-colors flex items-center gap-2 shadow-md cursor-pointer"
+                      >
+                        <MessageSquare size={14} /> Continue Chat with {selectedItem.partnerName || selectedItem.to}
+                      </button>
+                    ) : (
+                      <button
+                        onClick={() => handleReply(selectedItem)}
+                        className="px-5 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs transition-colors flex items-center gap-2 shadow-md cursor-pointer"
+                      >
+                        <Reply size={14} /> Reply to {selectedItem.to}
+                      </button>
+                    )}
+                  </div>
+                </div>
+              )}
+>>>>>>> Newfrontend-kanak
             </div>
           </motion.div>
         </div>
