@@ -3,8 +3,7 @@
 import { useEffect, useState } from "react";
 import { X, CalendarClock, Trash2, CheckCircle2, PlusCircle, ListTodo } from "lucide-react";
 
-const inputClass =
-  "w-full rounded-2xl bg-[#1b2333] border border-slate-700/70 px-4 py-3 text-sm text-slate-100 placeholder:text-slate-500 outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/40 transition";
+const inputClass = "w-full rounded-2xl bg-white border border-violet-200 px-4 py-3 text-sm text-[#24123B] placeholder:text-slate-400 outline-none focus:border-violet-500 focus:ring-2 focus:ring-violet-200 transition dark:bg-[#1b2333] dark:border-slate-700/70 dark:text-slate-100 dark:placeholder:text-slate-500 dark:focus:border-indigo-500 dark:focus:ring-indigo-500/40";
 
 export default function EmployeeRemindersModal({ isOpen, onClose }) {
   const [activeTab, setActiveTab] = useState("create"); // "create" | "view"
@@ -111,12 +110,24 @@ export default function EmployeeRemindersModal({ isOpen, onClose }) {
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/70 backdrop-blur-md px-4">
-      <div className="w-full max-w-xl overflow-hidden rounded-2xl border border-slate-700/60 bg-[#111827] shadow-2xl shadow-black/60 flex flex-col max-h-[85vh]">
+      <div className="w-full max-w-xl overflow-hidden rounded-2xl
+  bg-white
+  border border-violet-200
+  shadow-xl shadow-violet-100
+  dark:bg-[#111827]
+  dark:border-slate-700/60
+  dark:shadow-2xl dark:shadow-black/60
+  flex flex-col max-h-[85vh]">
         {/* Header */}
-        <div className="flex items-start justify-between border-b border-slate-700/60 px-6 py-5">
+        <div className="flex items-start justify-between
+  border-b border-violet-200
+  bg-violet-50
+  px-6 py-5
+  dark:border-slate-700/60
+  dark:bg-transparent">
           <div>
-            <h2 className="text-xl font-bold text-white">Employee Reminders</h2>
-            <p className="mt-1 text-xs text-slate-400">
+            <h2 className="text-xl font-bold text-[#24123B] dark:text-white">Employee Reminders</h2>
+            <p className="mt-1 text-xs text-slate-600 dark:text-slate-400">
               Schedule notifications and view upcoming deadlines
             </p>
           </div>
@@ -130,13 +141,18 @@ export default function EmployeeRemindersModal({ isOpen, onClose }) {
         </div>
 
         {/* Top Tabs */}
-        <div className="flex border-b border-slate-700/60 bg-slate-900/60 px-6 pt-3 gap-3">
+        <div className="flex
+  border-b border-violet-200
+  bg-violet-50
+  px-6 pt-3 gap-3
+  dark:border-slate-700/60
+  dark:bg-slate-900/60">
           <button
             onClick={() => setActiveTab("create")}
             className={`flex items-center gap-2 pb-3 px-2 border-b-2 font-bold text-sm transition ${
               activeTab === "create"
                 ? "border-indigo-500 text-indigo-400"
-                : "border-transparent text-slate-400 hover:text-slate-200"
+                : "border-transparent text-slate-500 hover:text-[#24123B] dark:text-slate-400 dark:hover:text-slate-200"
             }`}
           >
             <PlusCircle size={17} />
@@ -161,7 +177,7 @@ export default function EmployeeRemindersModal({ isOpen, onClose }) {
           {activeTab === "create" ? (
             <div className="space-y-5">
               <div>
-                <label className="mb-2 block text-sm font-semibold text-slate-200">
+                <label className="mb-2 block text-sm font-semibold text-[#24123B] dark:text-slate-200">
                   Title
                 </label>
                 <input
@@ -174,7 +190,7 @@ export default function EmployeeRemindersModal({ isOpen, onClose }) {
               </div>
 
               <div>
-                <label className="mb-2 block text-sm font-semibold text-slate-200">
+                <label className="mb-2 block text-sm font-semibold text-[#24123B] dark:text-slate-200">
                   Description
                 </label>
                 <textarea
@@ -188,7 +204,7 @@ export default function EmployeeRemindersModal({ isOpen, onClose }) {
               </div>
 
               <div>
-                <label className="mb-2 block text-sm font-semibold text-slate-200">
+                <label className="mb-2 block text-sm font-semibold text-[#24123B] dark:text-slate-200">
                   Date & Time
                 </label>
                 <input
@@ -203,7 +219,7 @@ export default function EmployeeRemindersModal({ isOpen, onClose }) {
           ) : (
             <div className="space-y-3">
               {remindersList.length === 0 ? (
-                <div className="py-12 text-center text-sm text-slate-500">
+                <div className="mb-2 block text-sm font-semibold text-[#24123B] dark:text-slate-200">
                   No scheduled reminders found. Click &quot;Create New Reminder&quot; to add one.
                 </div>
               ) : (
@@ -231,7 +247,11 @@ export default function EmployeeRemindersModal({ isOpen, onClose }) {
                         </div>
                         <div className="min-w-0 flex-1">
                           <div className="flex items-center gap-2">
-                            <h3 className={`text-sm font-bold truncate ${reminder.isRead ? "line-through text-slate-400" : "text-white"}`}>
+                            <h3 className={`text-sm font-bold truncate ${
+  reminder.isRead
+    ? "line-through text-slate-500 dark:text-slate-400"
+    : "text-[#24123B] dark:text-white"
+}`}>
                               {reminder.title}
                             </h3>
                             {!reminder.isRead && (
@@ -240,7 +260,7 @@ export default function EmployeeRemindersModal({ isOpen, onClose }) {
                               </span>
                             )}
                           </div>
-                          <p className="text-xs text-slate-300 mt-1 line-clamp-2">
+                          <p className="text-xs text-slate-600 dark:text-slate-300 mt-1 line-clamp-2">
                             {reminder.description}
                           </p>
                           <p className="text-xs font-semibold text-indigo-300 mt-2 flex items-center gap-1.5">
@@ -279,13 +299,18 @@ export default function EmployeeRemindersModal({ isOpen, onClose }) {
 
         {/* Footer */}
         {activeTab === "create" && (
-          <div className="grid grid-cols-2 gap-3 border-t border-slate-700/60 px-6 py-4 bg-slate-900/40">
+          <div className="grid grid-cols-2 gap-3
+  border-t border-violet-200
+  bg-violet-50
+  px-6 py-4
+  dark:border-slate-700/60
+  dark:bg-slate-900/40">
             <button
-              onClick={onClose}
-              className="rounded-2xl border border-slate-700 px-5 py-3 text-sm font-bold text-white hover:bg-slate-800 transition"
-            >
-              Cancel
-            </button>
+  onClick={onClose}
+  className="rounded-2xl border border-violet-200 px-5 py-3 text-sm font-bold text-[#24123B] hover:bg-violet-100 transition dark:border-slate-700 dark:text-white dark:hover:bg-slate-800"
+>
+  Cancel
+</button>
 
             <button
               onClick={handleScheduleReminder}

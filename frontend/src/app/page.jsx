@@ -218,7 +218,7 @@ export default function AdminDashboard() {
                         {project.status}
                       </span>
 
-                      <div className="w-9 h-9 rounded-full bg-slate-800/80 group-hover:bg-primary group-hover:text-white transition-colors flex items-center justify-center text-muted-foreground shadow-sm">
+                      <div className="w-10 h-10 rounded-full bg-violet-600 text-white group-hover:scale-105 transition-all flex items-center justify-center shadow-md shadow-violet-300/30">
                         <ChevronRight
                           size={18}
                           className="group-hover:translate-x-0.5 transition-transform"

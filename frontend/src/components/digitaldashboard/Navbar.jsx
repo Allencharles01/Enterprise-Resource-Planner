@@ -19,16 +19,20 @@ import {
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { useTheme } from "./context/ThemeContext";
+import { useTheme } from "next-themes";
 import { motion, AnimatePresence } from "framer-motion";
 import { MessagesModal } from "@/components/MessagesModal";
 import EmployeeRemindersModal from "@/components/employee/sales/EmployeeRemindersModal";
 import { EmployeeSelfProfileModal } from "@/components/EmployeeSelfProfileModal";
 import { api } from "@/lib/api";
+import CSVPreviewModal from "@/components/digitaldashboard/modals/CSVPreviewModal";
 
 export default function Navbar() {
   const router = useRouter();
-  const { theme, toggleTheme } = useTheme();
+  const { theme, setTheme } = useTheme();
+
+const toggleTheme = () =>
+  setTheme(theme === "dark" ? "light" : "dark");
 
   const [isMessagesOpen, setIsMessagesOpen] = useState(false);
   const [isRemindersOpen, setIsRemindersOpen] = useState(false);
@@ -41,6 +45,7 @@ export default function Navbar() {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [reminders, setReminders] = useState([]);
   const [selectedNotification, setSelectedNotification] = useState(null);
+  const [isCSVPreviewOpen, setIsCSVPreviewOpen] = useState(false);
 
   const [leadMessages, setLeadMessages] = useState([]);
   const [apiNotifications, setApiNotifications] = useState([]);
@@ -92,7 +97,7 @@ export default function Navbar() {
       const token = localStorage.getItem("token");
       if (!token) return;
       try {
-        const apiUrl = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:4001";
+        const apiUrl = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:4000";
         const res = await fetch(`${apiUrl}/api/auth/me`, {
           headers: { Authorization: `Bearer ${token}` },
         });
@@ -129,7 +134,7 @@ export default function Navbar() {
 
     const fetchChatCount = async () => {
       try {
-        const apiUrl = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:4001";
+        const apiUrl = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:4000";
         const empCode = localStorage.getItem("userEmployeeCode") || "EMP002";
         const res = await fetch(`${apiUrl}/api/internalChat/unread?code=${empCode}`);
         if (res.ok) {
@@ -246,23 +251,36 @@ export default function Navbar() {
   };
 
   const openNotificationDetails = async (notification) => {
-    setSelectedNotification(notification);
+  // 👇 This will print the complete notification object in the browser console
+  console.log("Notification Clicked:", notification);
 
-    if (notification.type === "reminder") {
-      markReminderAsRead(notification.id);
-    } else if (notification.type === "message") {
-      markMessageAsRead(notification.id);
-    } else {
-      // It is an API notification from the database
-      try {
-        await api.patch(`/api/notifications/${notification._id}/read`);
-        fetchNotifications();
-      } catch (err) {
-        console.error("Failed to mark API notification as read:", err);
-      }
+  setSelectedNotification(notification);
+
+  // Open CSV Preview if admin sends a sheet
+  if (
+    notification.title?.toLowerCase().includes("sheet") ||
+    notification.message?.toLowerCase().includes("sheet") ||
+    notification.message?.toLowerCase().includes("csv")
+  ) {
+    setIsNotificationsOpen(false);
+    setIsCSVPreviewOpen(true);
+    return;
+  }
+
+  // Existing functionality
+  if (notification.type === "reminder") {
+    markReminderAsRead(notification.id);
+  } else if (notification.type === "message") {
+    markMessageAsRead(notification.id);
+  } else {
+    try {
+      await api.patch(`/api/notifications/${notification._id}/read`);
+      fetchNotifications();
+    } catch (err) {
+      console.error("Failed to mark API notification as read:", err);
     }
-  };
-
+  }
+};
   const getInitials = (name) => {
     if (!name) return "DM";
 
@@ -481,13 +499,13 @@ export default function Navbar() {
                 </button>
 
                 {isNotificationsOpen && (
-                  <div className="absolute right-0 top-full mt-4 w-[390px] overflow-hidden rounded-2xl border border-slate-700/70 bg-[#070b1a] shadow-2xl shadow-black/60 z-[120]">
-                    <div className="flex items-start justify-between border-b border-slate-700/60 px-5 py-4">
+                  <div className="absolute right-0 top-full mt-4 w-[390px] overflow-hidden rounded-2xl border border-violet-200 bg-white shadow-xl shadow-violet-100 z-[120] dark:border-slate-700/70 dark:bg-[#070b1a] dark:shadow-2xl dark:shadow-black/60">
+                    <div className="flex items-start justify-between border-b border-violet-200 bg-violet-50 px-5 py-4 dark:border-slate-700/60 dark:bg-transparent">
                       <div>
-                        <h2 className="text-lg font-bold text-white">
+                        <h2 className="text-lg font-bold text-[#24123B] dark:text-white">
                           Notifications
                         </h2>
-                        <p className="text-xs text-slate-400">
+                        <p className="text-xs text-slate-600 dark:text-slate-400">
                           Unread reminders and lead messages
                         </p>
                       </div>
@@ -516,8 +534,8 @@ export default function Navbar() {
                           onClick={() => openNotificationDetails(reminder)}
                           className={`w-full rounded-xl border px-4 py-3 text-left transition ${
                             reminder.isRead
-                              ? "border-slate-700/50 bg-slate-900/40"
-                              : "border-amber-500/30 bg-amber-500/10 hover:bg-amber-500/15"
+  ? "border-violet-200 bg-slate-100 dark:border-slate-700/50 dark:bg-slate-900/40"
+  : "border-amber-300 bg-amber-50 hover:bg-amber-100 dark:border-amber-500/30 dark:bg-amber-500/10 dark:hover:bg-amber-500/15"
                           }`}
                         >
                           <div className="flex items-start gap-3">
@@ -528,7 +546,7 @@ export default function Navbar() {
 
                             <div className="min-w-0 flex-1">
                               <div className="flex items-center gap-2">
-                                <h3 className="text-sm font-bold text-white">
+                                <h3 className="text-sm font-bold text-[#24123B] dark:text-white">
                                   {reminder.title}
                                 </h3>
 
@@ -537,11 +555,11 @@ export default function Navbar() {
                                 )}
                               </div>
 
-                              <p className="mt-1 line-clamp-2 text-sm text-slate-300">
+                              <p className="mt-1 line-clamp-2 text-sm text-slate-600 dark:text-slate-300">
                                 {reminder.description}
                               </p>
 
-                              <p className="mt-2 text-xs font-semibold text-amber-300">
+                              <p className="mt-2 text-xs font-semibold text-amber-700 dark:text-amber-300">
                                 {reminder.dateTime}
                               </p>
                             </div>
@@ -734,6 +752,13 @@ export default function Navbar() {
         userInfo={userInfo}
         onUpdate={(newInfo) => setUserInfo({ ...userInfo, ...newInfo })}
       />
+      <CSVPreviewModal
+  open={isCSVPreviewOpen}
+  onClose={() => setIsCSVPreviewOpen(false)}
+  fileName={selectedNotification?.fileName || "Employee_Leads_July_2026.csv"}
+  uploadedBy={selectedNotification?.uploadedBy || "Admin"}
+  rows={selectedNotification?.rows}
+/>
     </>
   );
 }

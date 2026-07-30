@@ -16,5 +16,8 @@
   "devDependencies": {
     "concurrently": "^9.2.1",
     "detype": "^2.0.8"
+  },
+  "dependencies": {
+    "qrcode.react": "^4.2.0"
   }
 }
