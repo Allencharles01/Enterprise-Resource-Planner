@@ -93,10 +93,10 @@ export default function AdminDashboard() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <motion.div
             whileHover={{ scale: 1.02, y: -5 }}
-            className="glass-card bg-violet-50/70 dark:bg-gradient-to-br dark:from-amber-500/20 dark:to-amber-600/5 border border-violet-100 dark:border-amber-500/30 rounded-2xl p-6 shadow-lg shadow-violet-100/40 dark:shadow-amber-500/10 flex flex-col cursor-pointer"
+            className="glass-card stat-card-amber rounded-2xl p-6 border shadow-lg flex flex-col cursor-pointer transition-all duration-300"
           >
             <div className="flex justify-between items-start mb-4">
-              <div className="p-3 bg-violet-100 text-violet-600 dark:bg-amber-500/20 dark:text-amber-400 rounded-xl">
+              <div className="p-3 bg-amber-500/20 text-amber-600 dark:text-amber-400 rounded-xl">
                 <FolderOpen size={24} />
               </div>
 
@@ -116,10 +116,10 @@ export default function AdminDashboard() {
 
           <motion.div
             whileHover={{ scale: 1.02, y: -5 }}
-            className="glass-card bg-violet-50/60 dark:bg-gradient-to-br dark:from-emerald-500/20 dark:to-emerald-600/5 border border-violet-100 dark:border-emerald-500/30 rounded-2xl p-6 shadow-lg shadow-violet-100/40 dark:shadow-emerald-500/10 flex flex-col cursor-pointer"
+            className="glass-card stat-card-emerald rounded-2xl p-6 border shadow-lg flex flex-col cursor-pointer transition-all duration-300"
           >
             <div className="flex justify-between items-start mb-4">
-              <div className="p-3 bg-violet-100 text-violet-600 dark:bg-emerald-500/20 dark:text-emerald-400 rounded-xl">
+              <div className="p-3 bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 rounded-xl">
                 <FolderCheck size={24} />
               </div>
 
@@ -139,10 +139,10 @@ export default function AdminDashboard() {
 
           <motion.div
             whileHover={{ scale: 1.02, y: -5 }}
-            className="glass-card bg-rose-50/70 dark:bg-gradient-to-br dark:from-rose-500/20 dark:to-rose-600/5 border border-rose-100 dark:border-rose-500/30 rounded-2xl p-6 shadow-lg shadow-rose-100/40 dark:shadow-rose-500/10 flex flex-col cursor-pointer"
+            className="glass-card stat-card-rose rounded-2xl p-6 border shadow-lg flex flex-col cursor-pointer transition-all duration-300"
           >
             <div className="flex justify-between items-start mb-4">
-              <div className="p-3 bg-rose-100 text-rose-600 dark:bg-rose-500/20 dark:text-rose-400 rounded-xl">
+              <div className="p-3 bg-rose-500/20 text-rose-600 dark:text-rose-400 rounded-xl">
                 <CalendarClock size={24} />
               </div>
 
@@ -218,11 +218,7 @@ export default function AdminDashboard() {
                         {project.status}
                       </span>
 
-<<<<<<< HEAD
                       <div className="w-10 h-10 rounded-full bg-violet-600 text-white dark:bg-slate-800/80 dark:text-muted-foreground group-hover:scale-105 transition-all flex items-center justify-center shadow-md shadow-violet-300/30 dark:shadow-none">
-=======
-                      <div className="w-10 h-10 rounded-full bg-violet-600 text-white group-hover:scale-105 transition-all flex items-center justify-center shadow-md shadow-violet-300/30">
->>>>>>> Newfrontend-kanak
                         <ChevronRight
                           size={18}
                           className="group-hover:translate-x-0.5 transition-transform"

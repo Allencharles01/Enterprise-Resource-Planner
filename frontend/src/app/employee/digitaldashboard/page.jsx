@@ -330,11 +330,7 @@ export default function DigitalDashboardPage({ clientProject = null }) {
   }
 
   return (
-<<<<<<< HEAD
-      <div className="sales-employee-light-page min-h-screen bg-[#FAF7FF] text-gray-900 dark:bg-[#050816] dark:text-white">
-=======
-      <div className="min-h-screen bg-[#FAF7FF] text-gray-900 dark:bg-[#050816] dark:text-white">
->>>>>>> Newfrontend-kanak
+      <div className="sales-employee-light-page min-h-screen bg-[#FAF7FF] text-[#1E1B35] dark:bg-[#050816] dark:text-white">
       <Navbar />
 
       <main className="mx-auto max-w-7xl px-4 py-6 sm:px-6 sm:py-8">

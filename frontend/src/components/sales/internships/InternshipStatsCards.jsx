@@ -96,13 +96,14 @@ export default function InternshipStatsCards() {
               p-6
               border
               shadow-lg
-
+              transition-all
+              duration-300
               ${
                 item.color === "emerald"
-                  ? "bg-gradient-to-br from-emerald-500/20 to-emerald-600/5 border-emerald-500/30 shadow-emerald-500/10"
+                  ? "stat-card-emerald"
                   : item.color === "blue"
-                  ? "bg-gradient-to-br from-blue-500/20 to-blue-600/5 border-blue-500/30 shadow-blue-500/10"
-                  : "bg-gradient-to-br from-purple-500/20 to-purple-600/5 border-purple-500/30 shadow-purple-500/10"
+                  ? "stat-card-blue"
+                  : "stat-card-purple"
               }
             `}
           >

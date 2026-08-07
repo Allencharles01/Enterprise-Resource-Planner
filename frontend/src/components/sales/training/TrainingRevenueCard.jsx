@@ -32,15 +32,13 @@ export default function TrainingRevenueCard() {
       }}
       className="
         glass-card
+        stat-card-emerald
         rounded-2xl
         p-6
         border
         shadow-lg
-        bg-gradient-to-br
-        from-emerald-500/20
-        to-emerald-600/5
-        border-emerald-500/30
-        shadow-emerald-500/10
+        transition-all
+        duration-300
       "
     >
       <div className="flex justify-between items-start mb-4">

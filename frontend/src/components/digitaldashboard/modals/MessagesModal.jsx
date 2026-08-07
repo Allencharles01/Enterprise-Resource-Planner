@@ -153,23 +153,23 @@ export function MessagesModal({ isOpen, onClose }) {
     if (!isOpen) return;
 
     if (activeTab === "email") {
-      const selectedStillExists = items.some(
-        (item) => item._id === selectedItem?._id
-      );
+      if (selectedItem) {
+        const selectedStillExists = selectedItem.isGroupedConversation
+          ? items.some(
+              (item) => getPartnerEmailKey(item) === selectedItem.partnerKey
+            )
+          : items.some((item) => item._id === selectedItem?._id);
 
-      if (items.length > 0 && (!selectedItem || !selectedStillExists)) {
-        setSelectedItem(items[0]);
-      }
-
-      if (items.length === 0 && selectedItem) {
-        setSelectedItem(null);
+        if (!selectedStillExists) {
+          setSelectedItem(null);
+        }
       }
     }
 
     if (activeTab === "message" && selectedItem) {
       setSelectedItem(null);
     }
-  }, [items, activeTab, isOpen]);
+  }, [items, activeTab, isOpen, selectedItem]);
 
   useEffect(() => {
     const handleKeyDown = (e) => {
@@ -265,8 +265,39 @@ export function MessagesModal({ isOpen, onClose }) {
     }
   };
 
+  const getReplyRecipientEmail = (item) => {
+    if (!item) return "";
+
+    if (item.isGroupedConversation) {
+      if (item.partnerEmail) {
+        return item.partnerEmail;
+      }
+      if (item.latestEmail) {
+        const myEmail = String(currentUser?.email || "").toLowerCase().trim();
+        const myCode = String(currentUser?.code || "").toLowerCase().trim();
+        const fromStr = String(item.latestEmail.from || "").toLowerCase().trim();
+        const sentByMe = (myEmail && fromStr.includes(myEmail)) || (myCode && fromStr.includes(myCode));
+        return sentByMe
+          ? item.latestEmail.to || ""
+          : item.latestEmail.from || item.latestEmail.to || "";
+      }
+    }
+
+    const myEmail = String(currentUser?.email || "").toLowerCase().trim();
+    const myCode = String(currentUser?.code || "").toLowerCase().trim();
+    const fromStr = String(item.from || "").toLowerCase().trim();
+    const sentByMe = (myEmail && fromStr.includes(myEmail)) || (myCode && fromStr.includes(myCode));
+
+    if (sentByMe) {
+      return item.to || item.from || "";
+    } else {
+      return item.from || item.to || "";
+    }
+  };
+
   const handleReply = (item) => {
-    setComposerTo(item.to || item.from || "");
+    const replyTo = getReplyRecipientEmail(item);
+    setComposerTo(replyTo);
 
     const sub = item.subject?.startsWith("Re:")
       ? item.subject

@@ -19,11 +19,8 @@ import ContactListModal from "./ContactListModal";
 import NotificationModal from "./NotificationModal";
 import ReviewSheetModal from "./ReviewSheetModal";
 import SyncSuccessModal from "./SyncSuccessModal";
-<<<<<<< HEAD
-=======
 import AssignedContactsTable from "./AssignedContactsTable";
 import CustomerDetailsModal from "./CustomerDetailsModal";
->>>>>>> Newfrontend-kanak
 
 export default function CallingWorkspace({ open, onClose }) {
   if (!open) return null;
@@ -132,17 +129,9 @@ export default function CallingWorkspace({ open, onClose }) {
 
   /* ===================================================
       CALL STATE
-
-      ready
-      calling
-      connected
-      ended
-      failed
-      missed
   ==================================================== */
 
   const [callState, setCallState] = useState("ready");
-
   const [durationSeconds, setDurationSeconds] = useState(0);
 
   useEffect(() => {
@@ -172,18 +161,36 @@ export default function CallingWorkspace({ open, onClose }) {
   ==================================================== */
 
   const [showContacts, setShowContacts] = useState(false);
+  const [showNotifications, setShowNotifications] = useState(false);
+  const [showCallStatus, setShowCallStatus] = useState(false);
+  const [showReviewSheet, setShowReviewSheet] = useState(false);
+  const [showSyncSuccess, setShowSyncSuccess] = useState(false);
+  const [showCustomerDetails, setShowCustomerDetails] = useState(false);
 
-  const [showNotifications, setShowNotifications] =
-    useState(false);
-
-  const [showCallStatus, setShowCallStatus] =
-    useState(false);
-
-  const [showReviewSheet, setShowReviewSheet] =
-    useState(false);
-
-  const [showSyncSuccess, setShowSyncSuccess] =
-    useState(false);
+  /* Escape Key Handler */
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === "Escape") {
+        if (showCustomerDetails) setShowCustomerDetails(false);
+        else if (showSyncSuccess) setShowSyncSuccess(false);
+        else if (showReviewSheet) setShowReviewSheet(false);
+        else if (showCallStatus) setShowCallStatus(false);
+        else if (showNotifications) setShowNotifications(false);
+        else if (showContacts) setShowContacts(false);
+        else if (onClose) onClose();
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [
+    showCustomerDetails,
+    showSyncSuccess,
+    showReviewSheet,
+    showCallStatus,
+    showNotifications,
+    showContacts,
+    onClose,
+  ]);
 
   /* ===================================================
       NOTIFICATIONS
@@ -206,9 +213,6 @@ export default function CallingWorkspace({ open, onClose }) {
   ]);
 
   /* ===================================================
-      PART 2 STARTS BELOW
-  ==================================================== */
-    /* ===================================================
       DIALPAD FUNCTIONS
   ==================================================== */
 
@@ -281,73 +285,50 @@ export default function CallingWorkspace({ open, onClose }) {
 
   const nextContact = () => {
     const next =
-      selectedIndex === contacts.length - 1
-        ? 0
-        : selectedIndex + 1;
+      selectedIndex === contacts.length - 1 ? 0 : selectedIndex + 1;
 
     setSelectedIndex(next);
-
     setCallState("ready");
-
     setDurationSeconds(0);
   };
 
   const previousContact = () => {
     const previous =
-      selectedIndex === 0
-        ? contacts.length - 1
-        : selectedIndex - 1;
+      selectedIndex === 0 ? contacts.length - 1 : selectedIndex - 1;
 
     setSelectedIndex(previous);
-
     setCallState("ready");
-
     setDurationSeconds(0);
   };
 
-<<<<<<< HEAD
-=======
   const handleContactSelect = (contact) => {
-  const index = contacts.findIndex((c) => c.id === contact.id);
+    const index = contacts.findIndex((c) => c.id === contact.id);
 
-  if (index !== -1) {
-    setSelectedIndex(index);
-    setPhoneNumber(contact.phoneNumber);
-    setCallState("ready");
-    setDurationSeconds(0);
-  }
-};
-  const [showCustomerDetails, setShowCustomerDetails] = useState(false);
+    if (index !== -1) {
+      setSelectedIndex(index);
+      setPhoneNumber(contact.phoneNumber);
+      setCallState("ready");
+      setDurationSeconds(0);
+    }
+  };
 
-const handleViewDetails = (contact) => {
-  const index = contacts.findIndex((c) => c.id === contact.id);
+  const handleViewDetails = (contact) => {
+    const index = contacts.findIndex((c) => c.id === contact.id);
 
-  if (index !== -1) {
-    setSelectedIndex(index);
-  }
+    if (index !== -1) {
+      setSelectedIndex(index);
+    }
 
-  setShowCustomerDetails(true);
-};
-
-
-
->>>>>>> Newfrontend-kanak
-  /* ===================================================
-      JSX
-  ==================================================== */
+    setShowCustomerDetails(true);
+  };
 
   return (
     <>
       <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex items-center justify-center p-6">
-
         <div className="w-full max-w-7xl h-[92vh] overflow-hidden rounded-3xl bg-white dark:bg-[#0B1224] shadow-2xl flex flex-col">
-
           {/* Header */}
-
           <div className="border-b border-violet-100 dark:border-white/10 px-8 py-5 flex items-center justify-between">
-
             <div>
-
               <h2 className="text-2xl font-bold text-[#24123B] dark:text-white">
                 CRM Calling Workspace
               </h2>
@@ -355,33 +336,31 @@ const handleViewDetails = (contact) => {
               <p className="text-sm text-gray-500">
                 Manage customer calls and follow-ups
               </p>
-
             </div>
 
             <div className="flex items-center gap-3">
-
               <button
                 onClick={() => setShowContacts(true)}
                 className="
-h-10
-w-10
-rounded-xl
-border
-border-violet-300
-bg-white
-text-violet-600
-hover:bg-violet-100
-hover:text-violet-700
-transition-all
-duration-200
-flex
-items-center
-justify-center
-dark:bg-[#1B1B2D]
-dark:border-white/10
-dark:text-violet-300
-dark:hover:bg-violet-500/10
-"
+                  h-10
+                  w-10
+                  rounded-xl
+                  border
+                  border-violet-300
+                  bg-white
+                  text-violet-600
+                  hover:bg-violet-100
+                  hover:text-violet-700
+                  transition-all
+                  duration-200
+                  flex
+                  items-center
+                  justify-center
+                  dark:bg-[#1B1B2D]
+                  dark:border-white/10
+                  dark:text-violet-300
+                  dark:hover:bg-violet-500/10
+                "
               >
                 <Users size={20} />
               </button>
@@ -389,52 +368,27 @@ dark:hover:bg-violet-500/10
               <button
                 onClick={() => setShowNotifications(true)}
                 className="
-h-10
-w-10
-rounded-xl
-border
-border-violet-300
-bg-white
-text-violet-600
-hover:bg-violet-100
-hover:text-violet-700
-transition-all
-duration-200
-flex
-items-center
-justify-center
-dark:bg-[#1B1B2D]
-dark:border-white/10
-dark:text-violet-300
-dark:hover:bg-violet-500/10
-"
+                  h-10
+                  w-10
+                  rounded-xl
+                  border
+                  border-violet-300
+                  bg-white
+                  text-violet-600
+                  hover:bg-violet-100
+                  hover:text-violet-700
+                  transition-all
+                  duration-200
+                  flex
+                  items-center
+                  justify-center
+                  dark:bg-[#1B1B2D]
+                  dark:border-white/10
+                  dark:text-violet-300
+                  dark:hover:bg-violet-500/10
+                "
               >
                 <Bell size={20} />
-              </button>
-
-              <button
-                className="
-h-10
-w-10
-rounded-xl
-border
-border-violet-300
-bg-white
-text-violet-600
-hover:bg-violet-100
-hover:text-violet-700
-transition-all
-duration-200
-flex
-items-center
-justify-center
-dark:bg-[#1B1B2D]
-dark:border-white/10
-dark:text-violet-300
-dark:hover:bg-violet-500/10
-"
-              >
-                <Upload size={20} />
               </button>
 
               <button
@@ -443,21 +397,14 @@ dark:hover:bg-violet-500/10
               >
                 <X size={20} />
               </button>
-
             </div>
-
           </div>
 
           {/* Body */}
-
           <div className="flex-1 overflow-y-auto p-8">
-
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-
               {/* LEFT */}
-
-              <div className="space-y-6">
-
+              <div>
                 <Dialpad
                   phoneNumber={phoneNumber}
                   onChange={setPhoneNumber}
@@ -468,67 +415,33 @@ dark:hover:bg-violet-500/10
                   callState={callState}
                   durationSeconds={durationSeconds}
                 />
-
-<<<<<<< HEAD
-                <LeadCategory
-                  value={leadCategory}
-                  onChange={setLeadCategory}
-                />
-
-                <button
-                  onClick={nextContact}
-                  className="w-full h-12 rounded-xl bg-violet-600 hover:bg-violet-700 text-white flex items-center justify-center gap-2"
-                >
-                  Next Contact
-                  <ArrowRight size={18} />
-                </button>
-=======
->>>>>>> Newfrontend-kanak
-
               </div>
 
               {/* RIGHT */}
-
               <div className="lg:col-span-2">
-
-<<<<<<< HEAD
-                <CustomerInfo
-                  contact={selectedContact}
-                  recentCalls={recentCalls}
-                  onPhoneClick={handlePhoneClick}
-                  onEmailClick={handleEmailClick}
-                  onViewAllHistory={handleViewHistory}
-                  onAddNote={handleAddNote}
-                />
-=======
                 <AssignedContactsTable
-  contacts={contacts}
-  selectedContact={selectedContact}
-  onSelect={handleContactSelect}
-  onViewDetails={handleViewDetails}
-/>
->>>>>>> Newfrontend-kanak
-
+                  contacts={contacts}
+                  selectedContact={selectedContact}
+                  onSelect={handleContactSelect}
+                  onViewDetails={handleViewDetails}
+                  leadCategory={leadCategory}
+                  onLeadCategoryChange={setLeadCategory}
+                />
               </div>
-
             </div>
-
           </div>
-                    {/* Contact List Modal */}
+
+          {/* Contact List Modal */}
           <ContactListModal
             open={showContacts}
             onClose={() => setShowContacts(false)}
             contacts={contacts}
             selectedContactId={selectedContact?.id}
             onSelect={(contact) => {
-              const index = contacts.findIndex(
-                (c) => c.id === contact.id
-              );
-
+              const index = contacts.findIndex((c) => c.id === contact.id);
               if (index !== -1) {
                 setSelectedIndex(index);
               }
-
               setShowContacts(false);
             }}
           />
@@ -542,50 +455,26 @@ dark:hover:bg-violet-500/10
 
           {/* Call Status */}
           <CallStatusModal
-<<<<<<< HEAD
             open={showCallStatus}
-            onClose={() => {
+            onClose={() => setShowCallStatus(false)}
+            contact={selectedContact}
+            durationSeconds={durationSeconds}
+            onSave={(data) => {
+              setRecentCalls((prev) => [
+                {
+                  id: Date.now(),
+                  type: "Outgoing Call",
+                  callStartTime: new Date(),
+                  callDurationSeconds: durationSeconds,
+                  status: data.status,
+                  remarks: data.remarks,
+                },
+                ...prev,
+              ]);
               setShowCallStatus(false);
               setShowReviewSheet(true);
             }}
-            callState={callState}
-            durationSeconds={durationSeconds}
-            contact={selectedContact}
           />
-=======
-    open={showCallStatus}
-    onClose={() => setShowCallStatus(false)}
-    contact={selectedContact}
-    durationSeconds={durationSeconds}
-    onSave={(data) => {
-
-        setRecentCalls((prev) => [
-
-            {
-                id: Date.now(),
-
-                type: "Outgoing Call",
-
-                callStartTime: new Date(),
-
-                callDurationSeconds: durationSeconds,
-
-                status: data.status,
-
-                remarks: data.remarks,
-            },
-
-            ...prev,
-
-        ]);
-
-        setShowCallStatus(false);
-
-        setShowReviewSheet(true);
-
-    }}
-/>
->>>>>>> Newfrontend-kanak
 
           {/* Review Sheet */}
           <ReviewSheetModal
@@ -603,27 +492,24 @@ dark:hover:bg-violet-500/10
             open={showSyncSuccess}
             onClose={() => {
               setShowSyncSuccess(false);
-
               setCallState("ready");
               setDurationSeconds(0);
-
               nextContact();
             }}
           />
-<<<<<<< HEAD
-=======
-          <CustomerDetailsModal
-  open={showCustomerDetails}
-  onClose={() => setShowCustomerDetails(false)}
-  contact={selectedContact}
-  recentCalls={recentCalls}
-  onPhoneClick={handlePhoneClick}
-  onEmailClick={handleEmailClick}
-  onViewAllHistory={() => {}}
-  onAddNote={handleAddNote}
-/>
->>>>>>> Newfrontend-kanak
 
+          {CustomerDetailsModal && (
+            <CustomerDetailsModal
+              open={showCustomerDetails}
+              onClose={() => setShowCustomerDetails(false)}
+              contact={selectedContact}
+              recentCalls={recentCalls}
+              onPhoneClick={handlePhoneClick}
+              onEmailClick={handleEmailClick}
+              onViewAllHistory={() => {}}
+              onAddNote={handleAddNote}
+            />
+          )}
         </div>
       </div>
     </>

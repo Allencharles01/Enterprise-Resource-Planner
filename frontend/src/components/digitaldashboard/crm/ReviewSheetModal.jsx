@@ -23,21 +23,12 @@ export default function ReviewSheetModal({
     }
 
     onSubmit?.({
-<<<<<<< HEAD
-      customerId: customer.id,
+      customerId: contact?.id,
       summary,
       followUpDate,
       followUpTime,
       priority,
     });
-=======
-  customerId: contact?.id,
-  summary,
-  followUpDate,
-  followUpTime,
-  priority,
-});
->>>>>>> Newfrontend-kanak
 
     setSummary("");
     setFollowUpDate("");
@@ -78,29 +69,16 @@ export default function ReviewSheetModal({
         <div className="p-5 border-b border-violet-100 dark:border-white/10">
 
           <h3 className="font-semibold text-lg">
-<<<<<<< HEAD
-            {customer.name || "Customer"}
+            {contact?.name || "Customer"}
           </h3>
 
           <p className="text-sm text-gray-500">
-            {customer.phone}
+            {contact?.phoneNumber}
           </p>
 
           <p className="text-sm text-gray-500">
-            {customer.company}
+            {contact?.company}
           </p>
-=======
-  {contact?.name || "Customer"}
-</h3>
-
-<p className="text-sm text-gray-500">
-  {contact?.phoneNumber}
-</p>
-
-<p className="text-sm text-gray-500">
-  {contact?.company}
-</p>
->>>>>>> Newfrontend-kanak
 
         </div>
 

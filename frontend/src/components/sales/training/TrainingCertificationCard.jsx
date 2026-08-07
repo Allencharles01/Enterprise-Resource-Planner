@@ -17,17 +17,15 @@ export default function TrainingCertificationCard() {
         duration: 0.2,
       }}
       className="
-  glass-card
-  rounded-2xl
-  p-6
-  border
-  shadow-lg
-  bg-gradient-to-br
-  from-violet-500/20
-  to-violet-600/5
-  border-violet-500/30
-  shadow-violet-500/10
-"
+        glass-card
+        stat-card-violet
+        rounded-2xl
+        p-6
+        border
+        shadow-lg
+        transition-all
+        duration-300
+      "
     >
       <div className="flex justify-between items-start mb-4">
         <div

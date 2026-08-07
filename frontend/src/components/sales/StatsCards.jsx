@@ -22,13 +22,14 @@ export default function StatsCards() {
             p-6
             border
             shadow-lg
-
+            transition-all
+            duration-300
             ${
               item.color === "amber"
-                ? "bg-gradient-to-br from-amber-500/20 to-amber-600/5 border-amber-500/30 shadow-amber-500/10"
+                ? "stat-card-amber"
                 : item.color === "emerald"
-                ? "bg-gradient-to-br from-emerald-500/20 to-emerald-600/5 border-emerald-500/30 shadow-emerald-500/10"
-                : "bg-gradient-to-br from-rose-500/20 to-rose-600/5 border-rose-500/30 shadow-rose-500/10"
+                ? "stat-card-emerald"
+                : "stat-card-rose"
             }
           `}
         >

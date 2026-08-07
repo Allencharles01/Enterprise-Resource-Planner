@@ -26,12 +26,12 @@ export default function TopStatCard({
   return (
     <motion.section
       whileHover={{ scale: 1.008, y: -1 }}
-      className={`glass ${glow} h-[136px] overflow-hidden rounded-[13px] p-6`}
+      className={`glass ${glow} min-h-[144px] overflow-hidden rounded-[16px] p-5 sm:p-6 flex flex-col justify-center`}
     >
-      <div className="grid h-full grid-cols-[1fr_280px] gap-5 max-md:grid-cols-1">
-        <div className="flex min-w-0 items-center gap-6">
+      <div className="grid h-full grid-cols-[1fr_260px] gap-4 max-md:grid-cols-1 items-center">
+        <div className="flex min-w-0 items-center gap-4 sm:gap-5">
           <span
-            className="flex h-[74px] w-[74px] shrink-0 items-center justify-center rounded-[13px]"
+            className="flex h-[68px] w-[68px] sm:h-[72px] sm:w-[72px] shrink-0 items-center justify-center rounded-[13px]"
             style={{
               background: `linear-gradient(145deg, ${color}55, ${color}1f)`,
               color,
@@ -40,28 +40,30 @@ export default function TopStatCard({
           >
             <Icon size={32} strokeWidth={2.4} />
           </span>
-          <div>
-            <p className="text-[14px] font-semibold text-muted-foreground">
+          <div className="min-w-0 flex-1">
+            <p className="text-[13px] sm:text-[14px] font-semibold text-muted-foreground leading-snug">
               {title}
             </p>
-            <h2 className="mt-2 text-[30px] font-bold leading-none tracking-[-0.03em] text-foreground">
+            <h2 className="mt-1 text-[26px] sm:text-[28px] lg:text-[30px] font-bold leading-none tracking-[-0.03em] text-foreground">
               {inr(amount)}
             </h2>
             <p
-              className="mt-3 flex items-center gap-1 text-[13px]"
+              className="mt-1.5 flex flex-wrap items-center gap-1 text-[12px] sm:text-[13px] leading-tight"
               style={{ color: positive ? "#22c55e" : "#f87171" }}
             >
-              {positive ? (
-                <ArrowUpRight size={15} />
-              ) : (
-                <ArrowDownRight size={15} />
-              )}
-              <span className="font-semibold">{Math.abs(change)}%</span>
-              <span className="text-muted-foreground">from last month</span>
+              <span className="flex items-center gap-0.5 font-semibold shrink-0">
+                {positive ? (
+                  <ArrowUpRight size={15} />
+                ) : (
+                  <ArrowDownRight size={15} />
+                )}
+                {Math.abs(change)}%
+              </span>
+              <span className="text-muted-foreground whitespace-nowrap">from last month</span>
             </p>
           </div>
         </div>
-        <div className="h-[92px] self-center max-md:hidden">
+        <div className="h-[80px] sm:h-[88px] self-center max-md:hidden">
           <ResponsiveContainer width="100%" height="100%">
             {variant === "pink" ? (
               <BarChart data={chartData}>
