@@ -3,12 +3,15 @@
 import { useEffect, useMemo, useState } from "react";
 import {
   Phone,
+  PhoneCall,
+  QrCode,
   Users,
   Bell,
   Upload,
   ArrowRight,
   X,
 } from "lucide-react";
+import { QRCodeCanvas } from "qrcode.react";
 
 import Dialpad from "./Dialpad";
 import CustomerInfo from "./CustomerInfo";
@@ -21,6 +24,7 @@ import ReviewSheetModal from "./ReviewSheetModal";
 import SyncSuccessModal from "./SyncSuccessModal";
 import AssignedContactsTable from "./AssignedContactsTable";
 import CustomerDetailsModal from "./CustomerDetailsModal";
+import { GmailComposerModal } from "@/components/GmailComposerModal";
 
 export default function CallingWorkspace({ open, onClose }) {
   if (!open) return null;
@@ -40,9 +44,7 @@ export default function CallingWorkspace({ open, onClose }) {
       education: "MBA",
       location: "Delhi",
       employmentStatus: "Working",
-
       leadCategory: "Advertising",
-
       notes: [
         {
           id: 1,
@@ -52,7 +54,6 @@ export default function CallingWorkspace({ open, onClose }) {
         },
       ],
     },
-
     {
       id: 2,
       name: "Priya Gupta",
@@ -63,28 +64,87 @@ export default function CallingWorkspace({ open, onClose }) {
       education: "B.Tech",
       location: "Noida",
       employmentStatus: "Self Employed",
-
       leadCategory: "Content Creator",
-
       notes: [],
     },
-
     {
       id: 3,
       name: "Aman Singh",
       phoneNumber: "9988776655",
       email: "aman@gmail.com",
       company: "Digital Media",
-
       designation: "CEO",
       education: "MBA",
       location: "Jaipur",
       employmentStatus: "Working",
-
       leadCategory: "Heavy Ads",
-
       notes: [],
     },
+    {
+      id: 4,
+      name: "Sneha Patel",
+      phoneNumber: "9876123450",
+      email: "sneha.patel@novanectar.demo",
+      company: "Growth Boosters",
+      designation: "Growth Analyst",
+      education: "B.Sc",
+      location: "Mumbai",
+      employmentStatus: "Working",
+      leadCategory: "Advertising",
+      notes: [],
+    },
+    {
+      id: 5,
+      name: "Vikram Malhotra",
+      phoneNumber: "9560123478",
+      email: "vikram.m@novanectar.demo",
+      company: "Tech Creators",
+      designation: "Creative Director",
+      education: "BFA",
+      location: "Bangalore",
+      employmentStatus: "Working",
+      leadCategory: "Content Creator",
+      notes: [],
+    },
+    {
+      id: 6,
+      name: "Ananya Roy",
+      phoneNumber: "9004567812",
+      email: "ananya.roy@novanectar.demo",
+      company: "Apex Media",
+      designation: "Campaign Specialist",
+      education: "MA",
+      location: "Kolkata",
+      employmentStatus: "Working",
+      leadCategory: "Heavy Ads",
+      notes: [],
+    },
+    {
+      id: 7,
+      name: "Kabir Mehta",
+      phoneNumber: "9812345607",
+      email: "kabir.mehta@novanectar.demo",
+      company: "Scale Ventures",
+      designation: "Marketing Specialist",
+      education: "BBA",
+      location: "Gurgaon",
+      employmentStatus: "Working",
+      leadCategory: "Advertising",
+      notes: [],
+    },
+    {
+      id: 8,
+      name: "Diya Sen",
+      phoneNumber: "9899123456",
+      email: "diya.sen@novanectar.demo",
+      company: "Visual Creators",
+      designation: "Content Producer",
+      education: "B.Com",
+      location: "Pune",
+      employmentStatus: "Self Employed",
+      leadCategory: "Content Creator",
+      notes: [],
+    }
   ]);
 
   /* ===================================================
@@ -166,12 +226,26 @@ export default function CallingWorkspace({ open, onClose }) {
   const [showReviewSheet, setShowReviewSheet] = useState(false);
   const [showSyncSuccess, setShowSyncSuccess] = useState(false);
   const [showCustomerDetails, setShowCustomerDetails] = useState(false);
+  const [isMobileDialerOpen, setIsMobileDialerOpen] = useState(false);
+  const [isQrModalOpen, setIsQrModalOpen] = useState(false);
+  const [qrCodeNumber, setQrCodeNumber] = useState("");
+  const [emailComposerOpen, setEmailComposerOpen] = useState(false);
+  const [composerInitialTo, setComposerInitialTo] = useState("");
+
+  const handleGenerateQr = (number) => {
+    if (number) {
+      setQrCodeNumber(number);
+      setIsQrModalOpen(true);
+    }
+  };
 
   /* Escape Key Handler */
   useEffect(() => {
     const handleKeyDown = (e) => {
       if (e.key === "Escape") {
-        if (showCustomerDetails) setShowCustomerDetails(false);
+        if (emailComposerOpen) setEmailComposerOpen(false);
+        else if (isQrModalOpen) setIsQrModalOpen(false);
+        else if (showCustomerDetails) setShowCustomerDetails(false);
         else if (showSyncSuccess) setShowSyncSuccess(false);
         else if (showReviewSheet) setShowReviewSheet(false);
         else if (showCallStatus) setShowCallStatus(false);
@@ -183,6 +257,8 @@ export default function CallingWorkspace({ open, onClose }) {
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [
+    emailComposerOpen,
+    isQrModalOpen,
     showCustomerDetails,
     showSyncSuccess,
     showReviewSheet,
@@ -251,7 +327,8 @@ export default function CallingWorkspace({ open, onClose }) {
   };
 
   const handleEmailClick = (email) => {
-    window.open(`mailto:${email}`);
+    setComposerInitialTo(email);
+    setEmailComposerOpen(true);
   };
 
   const handleViewHistory = () => {
@@ -309,6 +386,7 @@ export default function CallingWorkspace({ open, onClose }) {
       setPhoneNumber(contact.phoneNumber);
       setCallState("ready");
       setDurationSeconds(0);
+      setIsMobileDialerOpen(true);
     }
   };
 
@@ -339,6 +417,19 @@ export default function CallingWorkspace({ open, onClose }) {
             </div>
 
             <div className="flex items-center gap-3">
+              {/* Dialer Pad Toggle (mobile-only) */}
+              <button
+                onClick={() => setIsMobileDialerOpen((prev) => !prev)}
+                className={`flex lg:hidden h-10 w-10 items-center justify-center rounded-xl border shadow-sm transition-all duration-200 ${
+                  isMobileDialerOpen
+                    ? "bg-violet-600 border-violet-600 text-white shadow-lg shadow-violet-500/25"
+                    : "border-violet-300 bg-white text-violet-600 hover:bg-violet-100 hover:text-violet-700 dark:bg-[#1B1B2D] dark:border-white/10 dark:text-violet-300 dark:hover:bg-violet-500/10"
+                }`}
+                title="Toggle Dialer Pad"
+              >
+                <PhoneCall size={20} />
+              </button>
+
               <button
                 onClick={() => setShowContacts(true)}
                 className="
@@ -404,7 +495,7 @@ export default function CallingWorkspace({ open, onClose }) {
           <div className="flex-1 overflow-y-auto p-8">
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               {/* LEFT */}
-              <div>
+              <div className={`lg:block ${isMobileDialerOpen ? "block" : "hidden"}`}>
                 <Dialpad
                   phoneNumber={phoneNumber}
                   onChange={setPhoneNumber}
@@ -418,7 +509,7 @@ export default function CallingWorkspace({ open, onClose }) {
               </div>
 
               {/* RIGHT */}
-              <div className="lg:col-span-2">
+              <div className={`lg:col-span-2 ${isMobileDialerOpen ? "hidden lg:block" : "block"}`}>
                 <AssignedContactsTable
                   contacts={contacts}
                   selectedContact={selectedContact}
@@ -426,6 +517,8 @@ export default function CallingWorkspace({ open, onClose }) {
                   onViewDetails={handleViewDetails}
                   leadCategory={leadCategory}
                   onLeadCategoryChange={setLeadCategory}
+                  onGenerateQr={handleGenerateQr}
+                  onEmailClick={handleEmailClick}
                 />
               </div>
             </div>
@@ -510,6 +603,57 @@ export default function CallingWorkspace({ open, onClose }) {
               onAddNote={handleAddNote}
             />
           )}
+
+          {isQrModalOpen && (
+            <div className="fixed inset-0 z-[160] flex items-center justify-center bg-black/70 backdrop-blur-sm p-4">
+              <div className="relative w-[360px] rounded-2xl bg-white dark:bg-[#12121b] border border-violet-200 dark:border-white/10 p-6 shadow-2xl animate-in fade-in zoom-in-95 duration-200">
+                <button
+                  onClick={() => setIsQrModalOpen(false)}
+                  className="absolute right-4 top-4 text-gray-400 hover:text-red-500 transition-colors"
+                >
+                  <X size={18} />
+                </button>
+
+                <h2 className="text-xl font-bold text-center text-[#24123B] dark:text-white">
+                  Scan to Call
+                </h2>
+
+                <p className="text-center text-sm text-gray-500 mt-2 mb-5">
+                  Scan this QR using your phone
+                </p>
+
+                {qrCodeNumber ? (
+                  <div className="flex flex-col items-center gap-4">
+                    <div className="bg-white p-4 rounded-xl shadow-sm">
+                      <QRCodeCanvas value={`tel:${qrCodeNumber}`} size={220} />
+                    </div>
+
+                    <p className="font-semibold text-[#24123B] dark:text-white">
+                      {qrCodeNumber}
+                    </p>
+                  </div>
+                ) : (
+                  <div className="py-10 text-center">
+                    <div className="text-2xl mb-3">😕</div>
+
+                    <h3 className="font-bold text-red-500">
+                      Oops! Something went wrong.
+                    </h3>
+
+                    <p className="text-gray-500 mt-2">
+                      Please select a phone number first.
+                    </p>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
+          <GmailComposerModal
+            isOpen={emailComposerOpen}
+            onClose={() => setEmailComposerOpen(false)}
+            initialTo={composerInitialTo}
+          />
         </div>
       </div>
     </>

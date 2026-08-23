@@ -354,32 +354,27 @@ export default function DigitalDashboardPage({ clientProject = null }) {
               {dashboardSubtitle}
             </p>
           </div>
-          <div className="flex items-center gap-3">
-            <div className="flex items-center gap-3">
-              <FilterDropdown
-                value={chartFilter}
-                onChange={setChartFilter}
-              />
-            </div>
-            <div className="flex items-center gap-3">
+          <div className="flex flex-wrap items-center justify-end gap-2 w-full sm:w-auto">
+            <FilterDropdown
+              value={chartFilter}
+              onChange={setChartFilter}
+            />
 
-  <button
-    onClick={() => setModal("newLead")}
-    className="flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-medium text-white hover:bg-blue-500 cursor-pointer shadow-md shadow-blue-500/20"
-  >
-    <Plus size={16} />
-    New Lead
-  </button>
+            <button
+              onClick={() => setModal("newLead")}
+              className="flex items-center gap-1.5 rounded-xl bg-blue-600 px-3.5 py-2 text-xs font-semibold text-white hover:bg-blue-500 transition hover:scale-[1.02] cursor-pointer shadow-md shadow-blue-500/20"
+            >
+              <Plus size={14} />
+              New Lead
+            </button>
 
-  <button
-    onClick={() => setShowCallingWorkspace(true)}
-    className="flex items-center gap-2 rounded-lg bg-violet-600 px-4 py-2.5 text-sm font-medium text-white hover:bg-violet-500 cursor-pointer shadow-md shadow-violet-500/20"
-  >
-    <PhoneCall size={16} />
-    Calling
-  </button>
-
-</div>
+            <button
+              onClick={() => setShowCallingWorkspace(true)}
+              title="Open Calling Workspace"
+              className="flex h-[34px] w-[34px] items-center justify-center rounded-xl bg-violet-600 text-white hover:bg-violet-500 transition hover:scale-[1.02] cursor-pointer shadow-md shadow-violet-500/20 shrink-0"
+            >
+              <PhoneCall size={14} />
+            </button>
           </div>
         </div>
 

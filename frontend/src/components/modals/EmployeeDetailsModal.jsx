@@ -15,16 +15,26 @@ import {
   Building2,
   Users,
   Loader2,
+  Copy,
+  MessageSquare,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { api } from "@/lib/api";
 import { ManagerDetailsModal } from "./ManagerDetailsModal";
+import { ChatWindowModal } from "./ChatWindowModal";
+import { GmailComposerModal } from "./GmailComposerModal";
 
 export function EmployeeDetailsModal({ employee, isOpen, onClose, onUpdated }) {
   const [isEditing, setIsEditing] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [selectedManager, setSelectedManager] = useState(null);
+
+  // Custom states for Copy, Message and Email functionality
+  const [currentUser, setCurrentUser] = useState(null);
+  const [chatRecipient, setChatRecipient] = useState(null);
+  const [emailComposerTo, setEmailComposerTo] = useState("");
+  const [copied, setCopied] = useState(false);
 
   const [form, setForm] = useState({
     firstName: "",
@@ -94,6 +104,46 @@ export function EmployeeDetailsModal({ employee, isOpen, onClose, onUpdated }) {
       setShowPassword(false);
     }
   }, [employee]);
+
+  useEffect(() => {
+    if (isOpen) {
+      api
+        .get("/api/auth/me")
+        .then((res) => {
+          const u = res.data?.user || res.data;
+          if (u) {
+            setCurrentUser({
+              id: u.id || u._id || (u.role === "admin" ? "ADMIN_ID" : "EMP_ID"),
+              name: u.name || "System Admin",
+              code: u.employeeCode || u.username || (u.role === "admin" ? "allchar" : "EMP"),
+              role: u.role || "admin",
+              email: u.email || u.workEmail || u.username || (u.role === "admin" ? "allchar" : ""),
+            });
+          }
+        })
+        .catch(() => {});
+    }
+  }, [isOpen]);
+
+  const handleCopyId = () => {
+    navigator.clipboard.writeText(form.employeeCode || "");
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  const handleOpenChat = () => {
+    const recipient = {
+      id: employee.id || employee._id,
+      _id: employee.id || employee._id,
+      employeeId: employee.id || employee._id,
+      employeeCode: employee.employeeCode || employee.employeeNumber,
+      code: employee.employeeCode || employee.employeeNumber,
+      name: `${employee.personal?.firstName || ""} ${employee.personal?.lastName !== "Emp" ? employee.personal?.lastName || "" : ""}`.trim(),
+      designation: employee.work?.designation || "",
+      department: employee.work?.department || "",
+    };
+    setChatRecipient(recipient);
+  };
 
   useEffect(() => {
     const handleKeyDown = (e) => {
@@ -259,9 +309,29 @@ export function EmployeeDetailsModal({ employee, isOpen, onClose, onUpdated }) {
                     required
                   />
                 ) : (
-                  <p className="text-base font-mono font-bold text-blue-400">
-                    {form.employeeCode}
-                  </p>
+                  <div className="flex items-center justify-between">
+                    <p className="text-base font-mono font-bold text-blue-400">
+                      {form.employeeCode}
+                    </p>
+                    <div className="flex items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={handleCopyId}
+                        className="p-1.5 rounded-lg bg-slate-805 hover:bg-slate-700 text-slate-400 hover:text-slate-200 transition-colors cursor-pointer"
+                        title={copied ? "Copied!" : "Copy Employee ID"}
+                      >
+                        {copied ? <Check size={14} className="text-emerald-400" /> : <Copy size={14} />}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={handleOpenChat}
+                        className="p-1.5 rounded-lg bg-slate-805 hover:bg-slate-700 text-slate-400 hover:text-slate-200 transition-colors cursor-pointer"
+                        title="Message Employee"
+                      >
+                        <MessageSquare size={14} />
+                      </button>
+                    </div>
+                  </div>
                 )}
               </div>
 
@@ -281,9 +351,21 @@ export function EmployeeDetailsModal({ employee, isOpen, onClose, onUpdated }) {
                     className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-1.5 text-white focus:border-blue-500 focus:outline-none"
                   />
                 ) : (
-                  <p className="text-sm font-medium text-slate-200 break-all">
-                    {form.companyEmail}
-                  </p>
+                  <div className="flex items-center justify-between gap-2">
+                    <p className="text-sm font-medium text-slate-200 break-all">
+                      {form.companyEmail}
+                    </p>
+                    {form.companyEmail && form.companyEmail !== "NA" && (
+                      <button
+                        type="button"
+                        onClick={() => setEmailComposerTo(form.companyEmail)}
+                        className="p-1.5 rounded-lg bg-slate-805 hover:bg-slate-700 text-slate-400 hover:text-slate-200 transition-colors cursor-pointer shrink-0"
+                        title="Open Company Email Composer"
+                      >
+                        <Mail size={14} />
+                      </button>
+                    )}
+                  </div>
                 )}
               </div>
 
@@ -303,9 +385,21 @@ export function EmployeeDetailsModal({ employee, isOpen, onClose, onUpdated }) {
                     className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-1.5 text-white focus:border-blue-500 focus:outline-none"
                   />
                 ) : (
-                  <p className="text-sm font-medium text-slate-200 break-all">
-                    {form.contactEmail}
-                  </p>
+                  <div className="flex items-center justify-between gap-2">
+                    <p className="text-sm font-medium text-slate-200 break-all">
+                      {form.contactEmail}
+                    </p>
+                    {form.contactEmail && form.contactEmail !== "NA" && (
+                      <button
+                        type="button"
+                        onClick={() => setEmailComposerTo(form.contactEmail)}
+                        className="p-1.5 rounded-lg bg-slate-805 hover:bg-slate-700 text-emerald-400 hover:text-emerald-300 transition-colors cursor-pointer shrink-0"
+                        title="Open Company Email Composer"
+                      >
+                        <Mail size={14} />
+                      </button>
+                    )}
+                  </div>
                 )}
               </div>
 
@@ -465,6 +559,26 @@ export function EmployeeDetailsModal({ employee, isOpen, onClose, onUpdated }) {
         isOpen={Boolean(selectedManager)}
         managerName={selectedManager}
         onClose={() => setSelectedManager(null)}
+      />
+
+      {/* Direct Chat Window Modal */}
+      <ChatWindowModal
+        isOpen={Boolean(chatRecipient)}
+        onClose={() => setChatRecipient(null)}
+        currentUser={currentUser}
+        recipientUser={chatRecipient}
+      />
+
+      {/* Gmail Composer Modal */}
+      <GmailComposerModal
+        isOpen={Boolean(emailComposerTo)}
+        onClose={() => setEmailComposerTo("")}
+        initialTo={emailComposerTo}
+        initialSubject=""
+        currentUser={currentUser}
+        onSuccess={() => {
+          setEmailComposerTo("");
+        }}
       />
     </AnimatePresence>
   );

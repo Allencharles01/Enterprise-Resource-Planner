@@ -172,250 +172,308 @@ export function NewRequestsModal({ isOpen, onClose }) {
             className="relative w-full max-w-6xl max-h-[90vh] bg-background border border-border shadow-2xl rounded-2xl overflow-hidden flex flex-col"
           >
             {/* Header & Tabs */}
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between p-6 border-b border-border/50 bg-muted/20 gap-4">
-              <div className="flex items-center gap-3">
-                <div className="p-2.5 bg-primary/10 text-primary rounded-xl">
-                  <UserPlus size={24} />
+            <div className="relative p-5 sm:p-6 border-b border-border/50 bg-muted/20">
+              <div className="flex flex-col gap-4 pr-10">
+                <div className="flex items-center gap-3">
+                  <div className="p-2.5 bg-primary/10 text-primary rounded-xl">
+                    <UserPlus size={22} className="sm:w-6 sm:h-6" />
+                  </div>
+                  <div>
+                    <h2 className="text-lg sm:text-2xl font-bold text-foreground leading-none">
+                      Active Requests Panel
+                    </h2>
+                    <p className="text-[11px] sm:text-xs text-muted-foreground mt-1.5">
+                      Review and manage submitted inquiries and account applications
+                    </p>
+                  </div>
                 </div>
-                <div>
-                  <h2 className="text-2xl font-bold text-foreground">
-                    Active Requests Panel
-                  </h2>
-                  <p className="text-xs text-muted-foreground mt-0.5">
-                    Review and manage submitted inquiries and account applications
-                  </p>
-                </div>
-              </div>
 
-              {/* Tabs */}
-              <div className="flex bg-muted p-1 rounded-xl border border-border/60">
-                <button
-                  type="button"
-                  onClick={() => setActiveTab("inquiries")}
-                  className={`px-4 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-2 cursor-pointer ${
-                    activeTab === "inquiries"
-                      ? "bg-background text-foreground shadow-sm"
-                      : "text-muted-foreground hover:text-foreground"
-                  }`}
-                >
-                  <Briefcase size={14} />
-                  Customer Inquiries
-                  <span className="px-1.5 py-0.5 rounded-full bg-primary/10 text-primary text-[10px]">
-                    {inquiries.length}
-                  </span>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setActiveTab("accounts")}
-                  className={`px-4 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-2 cursor-pointer ${
-                    activeTab === "accounts"
-                      ? "bg-background text-foreground shadow-sm"
-                      : "text-muted-foreground hover:text-foreground"
-                  }`}
-                >
-                  <User size={14} />
-                  Account Requests
-                  <span className="px-1.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-500 text-[10px]">
-                    {accountRequests.length}
-                  </span>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setActiveTab("profiles")}
-                  className={`px-4 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-2 cursor-pointer ${
-                    activeTab === "profiles"
-                      ? "bg-background text-foreground shadow-sm"
-                      : "text-muted-foreground hover:text-foreground"
-                  }`}
-                >
-                  <FileText size={14} />
-                  Profile Change Requests
-                  <span className="px-1.5 py-0.5 rounded-full bg-amber-500/10 text-amber-500 text-[10px]">
-                    {profileRequests.filter((p) => p.status === "pending").length}
-                  </span>
-                </button>
+                {/* Tabs */}
+                <div className="flex flex-col sm:flex-row bg-muted/65 p-1 rounded-2xl sm:rounded-xl border border-border/60 w-full gap-1">
+                  <button
+                    type="button"
+                    onClick={() => setActiveTab("inquiries")}
+                    className={`px-3 py-2 sm:py-1.5 rounded-xl sm:rounded-lg text-[11px] font-bold transition-all flex items-center justify-between sm:justify-center gap-2 cursor-pointer flex-1 ${
+                      activeTab === "inquiries"
+                        ? "bg-background text-foreground shadow-sm"
+                        : "text-slate-400 hover:text-foreground hover:bg-background/25"
+                    }`}
+                  >
+                    <span className="flex items-center gap-1.5">
+                      <Briefcase size={13} />
+                      Customer Inquiries
+                    </span>
+                    <span className="px-1.5 py-0.5 rounded-full bg-primary/10 text-primary text-[10px]">
+                      {inquiries.length}
+                    </span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setActiveTab("accounts")}
+                    className={`px-3 py-2 sm:py-1.5 rounded-xl sm:rounded-lg text-[11px] font-bold transition-all flex items-center justify-between sm:justify-center gap-2 cursor-pointer flex-1 ${
+                      activeTab === "accounts"
+                        ? "bg-background text-foreground shadow-sm"
+                        : "text-slate-400 hover:text-foreground hover:bg-background/25"
+                    }`}
+                  >
+                    <span className="flex items-center gap-1.5">
+                      <User size={13} />
+                      Account Requests
+                    </span>
+                    <span className="px-1.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-500 text-[10px]">
+                      {accountRequests.length}
+                    </span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setActiveTab("profiles")}
+                    className={`px-3 py-2 sm:py-1.5 rounded-xl sm:rounded-lg text-[11px] font-bold transition-all flex items-center justify-between sm:justify-center gap-2 cursor-pointer flex-1 ${
+                      activeTab === "profiles"
+                        ? "bg-background text-foreground shadow-sm"
+                        : "text-slate-400 hover:text-foreground hover:bg-background/25"
+                    }`}
+                  >
+                    <span className="flex items-center gap-1.5">
+                      <FileText size={13} />
+                      Profile Change Requests
+                    </span>
+                    <span className="px-1.5 py-0.5 rounded-full bg-amber-500/10 text-amber-500 text-[10px]">
+                      {profileRequests.filter((p) => p.status === "pending").length}
+                    </span>
+                  </button>
+                </div>
               </div>
 
               <button
                 onClick={onClose}
-                className="p-2 text-muted-foreground hover:text-foreground hover:bg-muted rounded-full transition-colors absolute top-4 right-4 sm:static"
+                className="absolute top-5 right-5 p-2 text-slate-400 hover:text-red-500 hover:bg-red-500/10 rounded-full transition-colors cursor-pointer"
+                title="Close (Esc)"
               >
-                <X size={24} />
+                <X size={20} />
               </button>
             </div>
 
             {/* Content Area */}
-            <div className="flex-1 overflow-y-auto p-6">
+            <div className="flex-1 overflow-y-auto p-5 sm:p-6">
               {isLoading ? (
                 <div className="flex justify-center items-center h-64">
                   <Loader2 className="animate-spin text-primary" size={40} />
                 </div>
               ) : activeTab === "inquiries" ? (
-                /* Customer Inquiries Table */
-                <div className="overflow-x-auto rounded-xl border border-border">
-                  <table className="w-full text-sm text-left">
-                    <thead className="text-xs text-muted-foreground uppercase bg-muted/50 border-b border-border">
-                      <tr>
-                        <th className="px-6 py-4 font-semibold w-20">S.no</th>
-                        <th className="px-6 py-4 font-semibold">Name</th>
-                        <th className="px-6 py-4 font-semibold">Email ID</th>
-                        <th className="px-6 py-4 font-semibold">Project Name</th>
-                        <th className="px-6 py-4 font-semibold">Applied Date</th>
-                        <th className="px-6 py-4 font-semibold text-right">
-                          Actions
-                        </th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {inquiries.map((inq, idx) => (
-                        <tr
-                          key={inq._id}
-                          className="border-b border-border/50 hover:bg-muted/20 transition-colors"
-                        >
-                          <td className="px-6 py-4 font-bold text-muted-foreground">
-                            {idx + 1}
-                          </td>
-                          <td className="px-6 py-4 font-bold text-foreground">
-                            {inq.name}
-                          </td>
-                          <td className="px-6 py-4 text-muted-foreground">
-                            {inq.email}
-                          </td>
-                          <td className="px-6 py-4 font-medium text-primary">
-                            {inq.projectName}
-                          </td>
-                          <td className="px-6 py-4 text-muted-foreground text-xs">
+                <>
+                  {/* Mobile Grid View */}
+                  <div className="grid grid-cols-1 gap-3 sm:hidden animate-fade-in">
+                    {inquiries.map((inq, idx) => (
+                      <div
+                        key={inq._id}
+                        className="rounded-xl border border-slate-800 bg-slate-900/40 p-4 flex flex-col gap-3.5 hover:border-slate-700 transition"
+                      >
+                        <div className="flex items-start justify-between">
+                          <div>
+                            <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">
+                              No. {idx + 1}
+                            </span>
+                            <h4 className="font-bold text-slate-200 mt-0.5 text-sm leading-snug">
+                              {inq.name}
+                            </h4>
+                          </div>
+                          <span className="text-[10px] text-slate-500 font-medium">
                             {new Date(inq.createdAt).toLocaleDateString("en-US", {
                               month: "short",
                               day: "numeric",
                               year: "numeric",
                             })}
-                          </td>
-                          <td className="px-6 py-4 text-right">
-                            <div className="flex items-center justify-end gap-2">
-                              <button
-                                onClick={() => {
-                                  if (!inq.isRead) {
-                                    api.patch(`/api/customerInquiries/${inq._id}/read`).then(() => fetchData()).catch(console.error);
-                                  }
-                                  setSelectedInquiry(inq);
-                                  setIsViewOpen(true);
-                                }}
-                                className="p-2 bg-blue-500/10 text-blue-500 hover:bg-blue-500 hover:text-white rounded-lg transition-colors border border-blue-500/20 shadow-sm flex items-center gap-1 text-xs font-semibold px-3 cursor-pointer"
-                                title="View details & Call/Message options"
-                              >
-                                <Eye size={16} />
-                                <span>View</span>
-                              </button>
-                              <button
-                                onClick={() => handleDeleteInquiry(inq)}
-                                className="p-2 bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white rounded-lg transition-colors border border-red-500/20 shadow-sm cursor-pointer"
-                                title="Delete Inquiry"
-                              >
-                                <Trash2 size={16} />
-                              </button>
-                            </div>
-                          </td>
-                        </tr>
-                      ))}
-                      {inquiries.length === 0 && (
-                        <tr>
-                          <td
-                            colSpan={6}
-                            className="px-6 py-12 text-center text-muted-foreground font-medium"
+                          </span>
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-3 pt-3 border-t border-slate-800/60 text-xs">
+                          <div>
+                            <p className="text-slate-500 font-medium">Email ID</p>
+                            <p className="font-semibold text-slate-300 mt-0.5 break-all">{inq.email}</p>
+                          </div>
+                          <div>
+                            <p className="text-slate-500 font-medium">Project Name</p>
+                            <p className="font-semibold text-primary mt-0.5">{inq.projectName}</p>
+                          </div>
+                        </div>
+
+                        <div className="flex justify-end gap-2 pt-3 border-t border-slate-800/60">
+                          <button
+                            onClick={() => {
+                              if (!inq.isRead) {
+                                api.patch(`/api/customerInquiries/${inq._id}/read`).then(() => fetchData()).catch(console.error);
+                              }
+                              setSelectedInquiry(inq);
+                              setIsViewOpen(true);
+                            }}
+                            className="flex h-8 items-center gap-1.5 rounded-lg border border-blue-500/20 px-3 text-xs hover:bg-blue-500/10 text-blue-400 font-bold transition cursor-pointer"
                           >
-                            No customer inquiries received at the moment.
-                          </td>
+                            <Eye size={14} /> View
+                          </button>
+                          <button
+                            onClick={() => handleDeleteInquiry(inq)}
+                            className="flex h-8 w-8 items-center justify-center rounded-lg border border-red-500/20 bg-red-500/10 hover:bg-red-500 hover:text-white text-red-500 transition cursor-pointer"
+                          >
+                            <Trash2 size={14} />
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                    {inquiries.length === 0 && (
+                      <div className="py-8 text-center text-muted-foreground text-sm font-medium">
+                        No customer inquiries received at the moment.
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Desktop Table View */}
+                  <div className="hidden sm:block overflow-x-auto rounded-xl border border-border">
+                    <table className="w-full text-sm text-left">
+                      <thead className="text-xs text-muted-foreground uppercase bg-muted/50 border-b border-border">
+                        <tr>
+                          <th className="px-6 py-4 font-semibold w-20">S.no</th>
+                          <th className="px-6 py-4 font-semibold">Name</th>
+                          <th className="px-6 py-4 font-semibold">Email ID</th>
+                          <th className="px-6 py-4 font-semibold">Project Name</th>
+                          <th className="px-6 py-4 font-semibold">Applied Date</th>
+                          <th className="px-6 py-4 font-semibold text-right">
+                            Actions
+                          </th>
                         </tr>
-                      )}
-                    </tbody>
-                  </table>
-                </div>
+                      </thead>
+                      <tbody>
+                        {inquiries.map((inq, idx) => (
+                          <tr
+                            key={inq._id}
+                            className="border-b border-border/50 hover:bg-muted/20 transition-colors"
+                          >
+                            <td className="px-6 py-4 font-bold text-muted-foreground">
+                              {idx + 1}
+                            </td>
+                            <td className="px-6 py-4 font-bold text-foreground">
+                              {inq.name}
+                            </td>
+                            <td className="px-6 py-4 text-muted-foreground">
+                              {inq.email}
+                            </td>
+                            <td className="px-6 py-4 font-medium text-primary">
+                              {inq.projectName}
+                            </td>
+                            <td className="px-6 py-4 text-muted-foreground text-xs">
+                              {new Date(inq.createdAt).toLocaleDateString("en-US", {
+                                month: "short",
+                                day: "numeric",
+                                year: "numeric",
+                              })}
+                            </td>
+                            <td className="px-6 py-4 text-right">
+                              <div className="flex items-center justify-end gap-2">
+                                <button
+                                  onClick={() => {
+                                    if (!inq.isRead) {
+                                      api.patch(`/api/customerInquiries/${inq._id}/read`).then(() => fetchData()).catch(console.error);
+                                    }
+                                    setSelectedInquiry(inq);
+                                    setIsViewOpen(true);
+                                  }}
+                                  className="p-2 bg-blue-500/10 text-blue-500 hover:bg-blue-500 hover:text-white rounded-lg transition-colors border border-blue-500/20 shadow-sm flex items-center gap-1 text-xs font-semibold px-3 cursor-pointer"
+                                  title="View details & Call/Message options"
+                                >
+                                  <Eye size={16} />
+                                  <span>View</span>
+                                </button>
+                                <button
+                                  onClick={() => handleDeleteInquiry(inq)}
+                                  className="p-2 bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white rounded-lg transition-colors border border-red-500/20 shadow-sm cursor-pointer"
+                                  title="Delete Inquiry"
+                                >
+                                  <Trash2 size={16} />
+                                </button>
+                              </div>
+                            </td>
+                          </tr>
+                        ))}
+                        {inquiries.length === 0 && (
+                          <tr>
+                            <td
+                              colSpan={6}
+                              className="px-6 py-12 text-center text-muted-foreground font-medium"
+                            >
+                              No customer inquiries received at the moment.
+                            </td>
+                          </tr>
+                        )}
+                      </tbody>
+                    </table>
+                  </div>
+                </>
               ) : activeTab === "accounts" ? (
-                /* Account Requests Table */
-                <div className="overflow-x-auto rounded-xl border border-border">
-                  <table className="w-full text-sm text-left">
-                    <thead className="text-xs text-muted-foreground uppercase bg-muted/50 border-b border-border">
-                      <tr>
-                        <th className="px-6 py-4 font-semibold w-20">S.no</th>
-                        <th className="px-6 py-4 font-semibold">Name</th>
-                        <th className="px-6 py-4 font-semibold">Email ID</th>
-                        <th className="px-6 py-4 font-semibold">Applied Date</th>
-                        <th className="px-6 py-4 font-semibold text-right">
-                          Actions
-                        </th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {accountRequests.map((req, idx) => (
-                        <tr
-                          key={req._id}
-                          className="border-b border-border/50 hover:bg-muted/20 transition-colors"
-                        >
-                          <td className="px-6 py-4 font-bold text-muted-foreground">
-                            {idx + 1}
-                          </td>
-                          <td className="px-6 py-4 font-bold text-foreground">
-                            {req.name}
-                          </td>
-                          <td className="px-6 py-4 text-muted-foreground">
-                            {req.email}
-                          </td>
-                          <td className="px-6 py-4 text-muted-foreground text-xs">
+                <>
+                  {/* Mobile Grid View */}
+                  <div className="grid grid-cols-1 gap-3 sm:hidden animate-fade-in">
+                    {accountRequests.map((req, idx) => (
+                      <div
+                        key={req._id}
+                        className="rounded-xl border border-slate-800 bg-slate-900/40 p-4 flex flex-col gap-3.5 hover:border-slate-700 transition"
+                      >
+                        <div className="flex items-start justify-between">
+                          <div>
+                            <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">
+                              No. {idx + 1}
+                            </span>
+                            <h4 className="font-bold text-slate-200 mt-0.5 text-sm leading-snug">
+                              {req.name}
+                            </h4>
+                          </div>
+                          <span className="text-[10px] text-slate-500 font-medium">
                             {new Date(req.createdAt).toLocaleDateString()}
-                          </td>
-                          <td className="px-6 py-4 text-right">
-                            <div className="flex items-center justify-end gap-2">
-                              <button
-                                onClick={() => handleApproveClick(req)}
-                                className="p-2 bg-green-500/10 text-green-500 hover:bg-green-500 hover:text-white rounded-lg transition-colors border border-green-500/20 shadow-sm cursor-pointer"
-                                title="Approve Request"
-                              >
-                                <Check size={18} />
-                              </button>
-                              <button
-                                onClick={() => handleRejectClick(req)}
-                                className="p-2 bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white rounded-lg transition-colors border border-red-500/20 shadow-sm cursor-pointer"
-                                title="Reject Request"
-                              >
-                                <RejectIcon size={18} />
-                              </button>
-                            </div>
-                          </td>
-                        </tr>
-                      ))}
-                      {accountRequests.length === 0 && (
-                        <tr>
-                          <td
-                            colSpan={5}
-                            className="px-6 py-12 text-center text-muted-foreground font-medium"
+                          </span>
+                        </div>
+
+                        <div className="pt-3 border-t border-slate-800/60 text-xs">
+                          <p className="text-slate-500 font-medium">Email ID</p>
+                          <p className="font-semibold text-slate-300 mt-0.5 break-all">{req.email}</p>
+                        </div>
+
+                        <div className="flex justify-end gap-2 pt-3 border-t border-slate-800/60">
+                          <button
+                            onClick={() => handleApproveClick(req)}
+                            className="flex h-8 items-center gap-1.5 rounded-lg border border-green-500/20 bg-green-500/10 hover:bg-green-500 hover:text-white text-green-500 px-3 text-xs font-bold transition cursor-pointer"
                           >
-                            No pending account requests at the moment.
-                          </td>
+                            <Check size={14} /> Approve
+                          </button>
+                          <button
+                            onClick={() => handleRejectClick(req)}
+                            className="flex h-8 items-center gap-1.5 rounded-lg border border-red-500/20 bg-red-500/10 hover:bg-red-500 hover:text-white text-red-500 px-3 text-xs font-bold transition cursor-pointer"
+                          >
+                            <RejectIcon size={14} /> Reject
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                    {accountRequests.length === 0 && (
+                      <div className="py-8 text-center text-muted-foreground text-sm font-medium">
+                        No pending account requests at the moment.
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Desktop Table View */}
+                  <div className="hidden sm:block overflow-x-auto rounded-xl border border-border">
+                    <table className="w-full text-sm text-left">
+                      <thead className="text-xs text-muted-foreground uppercase bg-muted/50 border-b border-border">
+                        <tr>
+                          <th className="px-6 py-4 font-semibold w-20">S.no</th>
+                          <th className="px-6 py-4 font-semibold">Name</th>
+                          <th className="px-6 py-4 font-semibold">Email ID</th>
+                          <th className="px-6 py-4 font-semibold">Applied Date</th>
+                          <th className="px-6 py-4 font-semibold text-right">
+                            Actions
+                          </th>
                         </tr>
-                      )}
-                    </tbody>
-                  </table>
-                </div>
-              ) : activeTab === "profiles" ? (
-                /* Profile Change Requests Table */
-                <div className="overflow-x-auto rounded-xl border border-border">
-                  <table className="w-full text-sm text-left">
-                    <thead className="text-xs text-muted-foreground uppercase bg-muted/50 border-b border-border">
-                      <tr>
-                        <th className="px-6 py-4 font-semibold w-20">S.no</th>
-                        <th className="px-6 py-4 font-semibold">Employee Name & ID</th>
-                        <th className="px-6 py-4 font-semibold">Requested Changes</th>
-                        <th className="px-6 py-4 font-semibold">Status</th>
-                        <th className="px-6 py-4 font-semibold text-right">
-                          Actions
-                        </th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {profileRequests.map((req, idx) => {
-                        const changes = Object.entries(req.requestedData || {}).filter(([k, v]) => v && v !== req.currentData?.[k]);
-                        return (
+                      </thead>
+                      <tbody>
+                        {accountRequests.map((req, idx) => (
                           <tr
                             key={req._id}
                             className="border-b border-border/50 hover:bg-muted/20 transition-colors"
@@ -423,65 +481,204 @@ export function NewRequestsModal({ isOpen, onClose }) {
                             <td className="px-6 py-4 font-bold text-muted-foreground">
                               {idx + 1}
                             </td>
-                            <td className="px-6 py-4">
-                              <div className="font-bold text-foreground">{req.name}</div>
-                              <div className="text-xs text-muted-foreground font-mono">{req.employeeCode || req.employeeId}</div>
+                            <td className="px-6 py-4 font-bold text-foreground">
+                              {req.name}
                             </td>
-                            <td className="px-6 py-4">
-                              <div className="space-y-1 text-xs">
-                                {changes.map(([k, v]) => (
-                                  <div key={k} className="bg-primary/5 border border-primary/10 px-2 py-1 rounded text-foreground">
-                                    <span className="font-semibold text-muted-foreground capitalize">{k}:</span> {v}
-                                  </div>
-                                ))}
-                                {changes.length === 0 && <span className="text-muted-foreground">No field changes</span>}
-                              </div>
+                            <td className="px-6 py-4 text-muted-foreground">
+                              {req.email}
                             </td>
-                            <td className="px-6 py-4">
-                              <span className={`px-2.5 py-1 rounded-full text-xs font-semibold uppercase ${
-                                req.status === "pending" ? "bg-amber-500/10 text-amber-500 border border-amber-500/20" :
-                                req.status === "approved" ? "bg-green-500/10 text-green-500 border border-green-500/20" :
-                                "bg-red-500/10 text-red-500 border border-red-500/20"
-                              }`}>
-                                {req.status}
-                              </span>
+                            <td className="px-6 py-4 text-muted-foreground text-xs">
+                              {new Date(req.createdAt).toLocaleDateString()}
                             </td>
                             <td className="px-6 py-4 text-right">
-                              {req.status === "pending" && (
-                                <div className="flex items-center justify-end gap-2">
-                                  <button
-                                    onClick={() => handleApproveProfileChange(req)}
-                                    className="p-2 bg-green-500/10 text-green-500 hover:bg-green-500 hover:text-white rounded-lg transition-colors border border-green-500/20 shadow-sm cursor-pointer"
-                                    title="Approve Changes"
-                                  >
-                                    <Check size={18} />
-                                  </button>
-                                  <button
-                                    onClick={() => handleRejectProfileChange(req)}
-                                    className="p-2 bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white rounded-lg transition-colors border border-red-500/20 shadow-sm cursor-pointer"
-                                    title="Reject Changes"
-                                  >
-                                    <RejectIcon size={18} />
-                                  </button>
-                                </div>
-                              )}
+                              <div className="flex items-center justify-end gap-2">
+                                <button
+                                  onClick={() => handleApproveClick(req)}
+                                  className="p-2 bg-green-500/10 text-green-500 hover:bg-green-500 hover:text-white rounded-lg transition-colors border border-green-500/20 shadow-sm cursor-pointer"
+                                  title="Approve Request"
+                                >
+                                  <Check size={18} />
+                                </button>
+                                <button
+                                  onClick={() => handleRejectClick(req)}
+                                  className="p-2 bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white rounded-lg transition-colors border border-red-500/20 shadow-sm cursor-pointer"
+                                  title="Reject Request"
+                                >
+                                  <RejectIcon size={18} />
+                                </button>
+                              </div>
                             </td>
                           </tr>
-                        );
-                      })}
-                      {profileRequests.length === 0 && (
+                        ))}
+                        {accountRequests.length === 0 && (
+                          <tr>
+                            <td
+                              colSpan={5}
+                              className="px-6 py-12 text-center text-muted-foreground font-medium"
+                            >
+                              No pending account requests at the moment.
+                            </td>
+                          </tr>
+                        )}
+                      </tbody>
+                    </table>
+                  </div>
+                </>
+              ) : activeTab === "profiles" ? (
+                <>
+                  {/* Mobile Grid View */}
+                  <div className="grid grid-cols-1 gap-3 sm:hidden animate-fade-in">
+                    {profileRequests.map((req, idx) => {
+                      const changes = Object.entries(req.requestedData || {}).filter(([k, v]) => v && v !== req.currentData?.[k]);
+                      return (
+                        <div
+                          key={req._id}
+                          className="rounded-xl border border-slate-800 bg-slate-900/40 p-4 flex flex-col gap-3.5 hover:border-slate-700 transition"
+                        >
+                          <div className="flex items-start justify-between gap-3">
+                            <div>
+                              <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">
+                                No. {idx + 1}
+                              </span>
+                              <h4 className="font-bold text-slate-200 mt-0.5 text-sm leading-snug">
+                                {req.name}
+                              </h4>
+                              <p className="text-[10px] text-slate-500 font-mono mt-0.5">
+                                {req.employeeCode || req.employeeId}
+                              </p>
+                            </div>
+                            <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider shrink-0 ${
+                              req.status === "pending" ? "bg-amber-500/10 text-amber-500 border border-amber-500/20" :
+                              req.status === "approved" ? "bg-green-500/10 text-green-500 border border-green-500/20" :
+                              "bg-red-500/10 text-red-500 border border-red-500/20"
+                            }`}>
+                              {req.status}
+                            </span>
+                          </div>
+
+                          <div className="pt-3 border-t border-slate-800/60">
+                            <p className="text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-2">Requested Changes</p>
+                            <div className="space-y-1.5 text-xs">
+                              {changes.map(([k, v]) => (
+                                <div key={k} className="bg-primary/5 border border-primary/10 px-2 py-1 rounded text-foreground">
+                                  <span className="font-semibold text-muted-foreground capitalize">{k}:</span> {v}
+                                </div>
+                              ))}
+                              {changes.length === 0 && <span className="text-muted-foreground italic">No field changes</span>}
+                            </div>
+                          </div>
+
+                          {req.status === "pending" && (
+                            <div className="flex justify-end gap-2 pt-3 border-t border-slate-800/60">
+                              <button
+                                onClick={() => handleApproveProfileChange(req)}
+                                className="flex h-8 items-center gap-1.5 rounded-lg border border-green-500/20 bg-green-500/10 hover:bg-green-500 hover:text-white text-green-500 px-3 text-xs font-bold transition cursor-pointer"
+                              >
+                                <Check size={14} /> Approve
+                              </button>
+                              <button
+                                onClick={() => handleRejectProfileChange(req)}
+                                className="flex h-8 items-center gap-1.5 rounded-lg border border-red-500/20 bg-red-500/10 hover:bg-red-500 hover:text-white text-red-500 px-3 text-xs font-bold transition cursor-pointer"
+                              >
+                                <RejectIcon size={14} /> Reject
+                              </button>
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
+                    {profileRequests.length === 0 && (
+                      <div className="py-8 text-center text-muted-foreground text-sm font-medium">
+                        No pending profile change requests.
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Desktop Table View */}
+                  <div className="hidden sm:block overflow-x-auto rounded-xl border border-border">
+                    <table className="w-full text-sm text-left">
+                      <thead className="text-xs text-muted-foreground uppercase bg-muted/50 border-b border-border">
                         <tr>
-                          <td
-                            colSpan={5}
-                            className="px-6 py-12 text-center text-muted-foreground font-medium"
-                          >
-                            No pending profile change requests right now.
-                          </td>
+                          <th className="px-6 py-4 font-semibold w-20">S.no</th>
+                          <th className="px-6 py-4 font-semibold">Employee Name & ID</th>
+                          <th className="px-6 py-4 font-semibold">Requested Changes</th>
+                          <th className="px-6 py-4 font-semibold">Status</th>
+                          <th className="px-6 py-4 font-semibold text-right">
+                            Actions
+                          </th>
                         </tr>
-                      )}
-                    </tbody>
-                  </table>
-                </div>
+                      </thead>
+                      <tbody>
+                        {profileRequests.map((req, idx) => {
+                          const changes = Object.entries(req.requestedData || {}).filter(([k, v]) => v && v !== req.currentData?.[k]);
+                          return (
+                            <tr
+                              key={req._id}
+                              className="border-b border-border/50 hover:bg-muted/20 transition-colors"
+                            >
+                              <td className="px-6 py-4 font-bold text-muted-foreground">
+                                {idx + 1}
+                              </td>
+                              <td className="px-6 py-4">
+                                <div className="font-bold text-foreground">{req.name}</div>
+                                <div className="text-xs text-muted-foreground font-mono">{req.employeeCode || req.employeeId}</div>
+                              </td>
+                              <td className="px-6 py-4">
+                                <div className="space-y-1 text-xs">
+                                  {changes.map(([k, v]) => (
+                                    <div key={k} className="bg-primary/5 border border-primary/10 px-2 py-1 rounded text-foreground">
+                                      <span className="font-semibold text-muted-foreground capitalize">{k}:</span> {v}
+                                    </div>
+                                  ))}
+                                  {changes.length === 0 && <span className="text-muted-foreground">No field changes</span>}
+                                </div>
+                              </td>
+                              <td className="px-6 py-4">
+                                <span className={`px-2.5 py-1 rounded-full text-xs font-semibold uppercase ${
+                                  req.status === "pending" ? "bg-amber-500/10 text-amber-500 border border-amber-500/20" :
+                                  req.status === "approved" ? "bg-green-500/10 text-green-500 border border-green-500/20" :
+                                  "bg-red-500/10 text-red-500 border border-red-500/20"
+                                }`}>
+                                  {req.status}
+                                </span>
+                              </td>
+                              <td className="px-6 py-4 text-right">
+                                {req.status === "pending" && (
+                                  <div className="flex items-center justify-end gap-2">
+                                    <button
+                                      onClick={() => handleApproveProfileChange(req)}
+                                      className="p-2 bg-green-500/10 text-green-500 hover:bg-green-500 hover:text-white rounded-lg transition-colors border border-green-500/20 shadow-sm cursor-pointer"
+                                      title="Approve Changes"
+                                    >
+                                      <Check size={18} />
+                                    </button>
+                                    <button
+                                      onClick={() => handleRejectProfileChange(req)}
+                                      className="p-2 bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white rounded-lg transition-colors border border-red-500/20 shadow-sm cursor-pointer"
+                                      title="Reject Changes"
+                                    >
+                                      <RejectIcon size={18} />
+                                    </button>
+                                  </div>
+                                )}
+                              </td>
+                            </tr>
+                          );
+                        })}
+                        {profileRequests.length === 0 && (
+                          <tr>
+                            <td
+                              colSpan={5}
+                              className="px-6 py-12 text-center text-muted-foreground font-medium"
+                            >
+                              No pending profile change requests right now.
+                            </td>
+                          </tr>
+                        )}
+                      </tbody>
+                    </table>
+                  </div>
+                </>
               ) : null}
             </div>
           </motion.div>

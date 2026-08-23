@@ -4,9 +4,9 @@ import { useEffect, useState } from "react";
 import { X, Upload, Pencil, CheckCircle } from "lucide-react";
 import { api } from "@/lib/api";
 
-const labelClass = "new-lead-label";
+const labelClass = "text-[11px] font-extrabold uppercase tracking-wider text-purple-700 dark:text-slate-400 mb-1.5 block";
 
-const inputClass = "new-lead-input";
+const inputClass = "w-full bg-white/50 dark:bg-slate-950/45 border border-purple-100 dark:border-slate-800 focus:border-purple-500 dark:focus:border-indigo-500 focus:ring-2 focus:ring-purple-200 dark:focus:ring-indigo-500/20 rounded-xl px-4 py-3 text-sm outline-none transition-all placeholder:text-slate-400 dark:placeholder:text-slate-600 text-slate-800 dark:text-slate-200";
 
 const getInitialFormData = (activeTab) => {
   if (activeTab === "Internships") {
@@ -307,7 +307,7 @@ export default function NewLeadModal({
     <div>
       <label className={labelClass}>{getUploadLabel()}</label>
 
-      <label className="new-lead-upload-box">
+      <label className="flex cursor-pointer items-center justify-center gap-3 rounded-xl border border-dashed border-purple-300 dark:border-slate-700 bg-purple-50/50 dark:bg-slate-950/30 hover:bg-purple-100/40 dark:hover:bg-slate-900/50 p-4 text-xs text-purple-600 dark:text-slate-400 transition-all font-bold">
         <Upload size={18} />
         <span>{getUploadText()}</span>
 
@@ -323,10 +323,10 @@ export default function NewLeadModal({
       {files.length > 0 && (
         <div className="mt-3 space-y-2">
           {files.map((file, index) => (
-            <div key={`${file.name}-${index}`} className="new-lead-file-row">
+            <div key={`${file.name}-${index}`} className="flex items-center justify-between gap-3 rounded-xl border border-purple-100 dark:border-slate-800 bg-white dark:bg-slate-900/60 p-2 px-4 shadow-sm">
               <span
                 title={file.name}
-                className="new-lead-preview-value min-w-0 flex-1 break-all text-sm font-medium"
+                className="text-sm font-semibold text-slate-800 dark:text-slate-200 truncate min-w-0 flex-1"
               >
                 {file.name}
               </span>
@@ -825,27 +825,27 @@ export default function NewLeadModal({
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 px-4 backdrop-blur-md">
       {step === "form" && (
-        <div className="new-lead-modal-card w-full max-w-xl max-h-[88vh] overflow-hidden rounded-2xl">
-          <div className="new-lead-modal-header flex items-start justify-between px-6 py-5">
+        <div className="w-full max-w-xl max-h-[88vh] overflow-hidden rounded-2xl bg-white dark:bg-slate-900 border border-purple-100 dark:border-slate-800/80 shadow-[0_20px_50px_rgba(139,92,246,0.15)] dark:shadow-[0_20px_50px_rgba(0,0,0,0.5)] flex flex-col">
+          <div className="flex items-start justify-between px-6 py-5 border-b border-purple-100 dark:border-slate-800/80 bg-white dark:bg-slate-900">
             <div>
-              <h2 className="new-lead-title text-lg font-bold">
+              <h2 className="text-lg font-bold text-purple-950 dark:text-white">
                 {getModalTitle()}
               </h2>
 
-              <p className="new-lead-subtitle mt-1 text-sm">
+              <p className="mt-1 text-sm text-purple-700/70 dark:text-slate-400">
                 {getModalDescription()}
               </p>
             </div>
 
             <button
               onClick={handleClose}
-              className="flex h-12 w-12 items-center justify-center rounded-full bg-red-500 text-white shadow-lg shadow-red-500/30 transition hover:scale-105 hover:bg-red-400 active:scale-95"
+              className="flex h-10 w-10 items-center justify-center rounded-full bg-rose-500/10 text-rose-500 hover:bg-rose-500 hover:text-white transition active:scale-95 shrink-0"
             >
-              <X size={22} />
+              <X size={20} />
             </button>
           </div>
 
-          <div className="new-lead-modal-body max-h-[65vh] overflow-y-auto px-6 py-5">
+          <div className="max-h-[65vh] overflow-y-auto px-6 py-5 bg-purple-50/30 dark:bg-slate-950/20">
             <div className="space-y-5">
               {activeTab === "Internships"
                 ? renderInternshipForm()
@@ -855,17 +855,17 @@ export default function NewLeadModal({
             </div>
           </div>
 
-          <div className="new-lead-modal-footer grid grid-cols-2 gap-3 px-6 py-5">
+          <div className="flex items-center justify-end gap-3 px-6 py-5 border-t border-purple-100 dark:border-slate-800/80 bg-white dark:bg-slate-900">
             <button
               onClick={handleClose}
-              className="new-lead-secondary-btn rounded-2xl px-5 py-3 text-sm font-bold transition"
+              className="px-5 py-2.5 rounded-xl border border-purple-200 dark:border-slate-800 bg-white dark:bg-transparent text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-850 transition font-bold text-sm"
             >
               Cancel
             </button>
 
             <button
               onClick={handlePreview}
-              className="rounded-2xl bg-primary px-5 py-3 text-sm font-bold text-white shadow-lg shadow-primary/25 transition hover:opacity-90 dark:bg-indigo-600 dark:shadow-indigo-500/25 dark:hover:bg-indigo-500"
+              className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-bold text-sm shadow-md shadow-indigo-500/20 transition active:scale-98"
             >
               Preview
             </button>
@@ -874,46 +874,46 @@ export default function NewLeadModal({
       )}
 
       {step === "preview" && (
-        <div className="new-lead-modal-card w-full max-w-xl overflow-hidden rounded-2xl">
-          <div className="new-lead-modal-header flex items-start justify-between px-6 py-5">
+        <div className="w-full max-w-xl overflow-hidden rounded-2xl bg-white dark:bg-slate-900 border border-purple-100 dark:border-slate-800/80 shadow-[0_20px_50px_rgba(139,92,246,0.15)] dark:shadow-[0_20px_50px_rgba(0,0,0,0.5)] flex flex-col">
+          <div className="flex items-start justify-between px-6 py-5 border-b border-purple-100 dark:border-slate-800/80 bg-white dark:bg-slate-900">
             <div>
-              <h2 className="new-lead-title text-2xl font-bold">
+              <h2 className="text-xl font-bold text-purple-950 dark:text-white">
                 Preview Lead Details
               </h2>
 
-              <p className="new-lead-subtitle mt-1 text-sm">
+              <p className="mt-1 text-sm text-purple-700/70 dark:text-slate-400">
                 Review before submitting for approval
               </p>
             </div>
 
             <button
               onClick={handleClose}
-              className="flex h-12 w-12 items-center justify-center rounded-full bg-red-500 text-white shadow-lg shadow-red-500/30 transition hover:scale-105 hover:bg-red-400 active:scale-95"
+              className="flex h-10 w-10 items-center justify-center rounded-full bg-rose-500/10 text-rose-500 hover:bg-rose-500 hover:text-white transition active:scale-95 shrink-0"
             >
-              <X size={22} />
+              <X size={20} />
             </button>
           </div>
 
-          <div className="new-lead-modal-body px-6 py-7">
-            <div className="new-lead-preview-card">
+          <div className="max-h-[65vh] overflow-y-auto px-6 py-7 bg-purple-50/30 dark:bg-slate-950/20">
+            <div className="rounded-xl border border-purple-100 dark:border-slate-800/60 bg-white dark:bg-slate-900/60 p-5 shadow-sm">
               <div className="space-y-4 text-sm">
                 {getPreviewRows().map(([label, value]) => (
                   <div
                     key={label}
-                    className="grid grid-cols-[150px_minmax(0,1fr)] items-start gap-4"
+                    className="grid grid-cols-[140px_minmax(0,1fr)] items-start gap-4 py-2 border-b border-purple-100/30 dark:border-slate-800/30 last:border-b-0"
                   >
-                    <span className="new-lead-preview-label font-bold">
+                    <span className="text-xs font-extrabold uppercase tracking-wider text-purple-700 dark:text-slate-400">
                       {label}
                     </span>
 
-                    <span className="new-lead-preview-value min-w-0 break-words font-semibold">
+                    <span className="text-sm font-semibold text-slate-800 dark:text-slate-200 break-words">
                       {value || "none"}
                     </span>
                   </div>
                 ))}
 
-                <div className="grid grid-cols-[150px_minmax(0,1fr)] items-start gap-4">
-                  <span className="new-lead-preview-label font-bold">
+                <div className="grid grid-cols-[140px_minmax(0,1fr)] items-start gap-4 py-2 border-b border-purple-100/30 dark:border-slate-800/30 last:border-b-0">
+                  <span className="text-xs font-extrabold uppercase tracking-wider text-purple-700 dark:text-slate-400">
                     Uploaded Files
                   </span>
 
@@ -922,11 +922,11 @@ export default function NewLeadModal({
                       files.map((file, index) => (
                         <div
                           key={`${file.name}-preview-${index}`}
-                          className="new-lead-file-row"
+                          className="flex items-center justify-between gap-3 rounded-xl border border-purple-100 dark:border-slate-800 bg-white dark:bg-slate-900/60 p-2 px-4 shadow-sm"
                         >
                           <span
                             title={file.name}
-                            className="new-lead-preview-value min-w-0 flex-1 break-all font-semibold"
+                            className="text-sm font-semibold text-slate-800 dark:text-slate-200 truncate min-w-0 flex-1"
                           >
                             {file.name}
                           </span>
@@ -941,7 +941,7 @@ export default function NewLeadModal({
                         </div>
                       ))
                     ) : (
-                      <span className="new-lead-preview-value font-semibold">
+                      <span className="text-sm font-semibold text-slate-800 dark:text-slate-200">
                         none
                       </span>
                     )}
@@ -951,10 +951,10 @@ export default function NewLeadModal({
             </div>
           </div>
 
-          <div className="new-lead-modal-footer grid grid-cols-2 gap-3 px-6 pb-7 pt-5">
+          <div className="flex items-center justify-end gap-3 px-6 py-5 border-t border-purple-100 dark:border-slate-800/80 bg-white dark:bg-slate-900">
             <button
               onClick={() => setStep("form")}
-              className="new-lead-secondary-btn flex items-center justify-center gap-2 rounded-2xl px-5 py-3 text-sm font-bold transition"
+              className="flex items-center justify-center gap-2 rounded-xl border border-purple-200 dark:border-slate-800 bg-white dark:bg-transparent px-5 py-2.5 text-sm font-bold text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-850 transition"
             >
               <Pencil size={17} />
               Edit
@@ -962,7 +962,7 @@ export default function NewLeadModal({
 
             <button
               onClick={handleSubmit}
-              className="flex items-center justify-center gap-2 rounded-2xl bg-primary px-5 py-3 text-sm font-bold text-white shadow-lg shadow-primary/25 transition hover:opacity-90 dark:bg-indigo-600 dark:shadow-indigo-500/25 dark:hover:bg-indigo-500"
+              className="flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 px-5 py-2.5 text-sm font-bold text-white shadow-lg shadow-indigo-500/20 transition hover:opacity-90 dark:shadow-indigo-500/25"
             >
               <CheckCircle size={17} />
               Submit for Approval

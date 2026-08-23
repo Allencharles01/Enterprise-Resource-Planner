@@ -22,10 +22,12 @@ import {
   Sparkles,
   ArrowUpRight,
   FileText,
+  Radiation,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { EditProfileRequestsModal } from "@/components/EditProfileRequestsModal";
+import { MasterDeleteModal } from "@/components/modals/MasterDeleteModal";
 
 export default function ControlPanelPage() {
   const router = useRouter();
@@ -38,6 +40,16 @@ export default function ControlPanelPage() {
   const [pendingCount, setPendingCount] = useState(0);
   const [adminRecord, setAdminRecord] = useState(null);
   const [isCsvExplorerOpen, setIsCsvExplorerOpen] = useState(false);
+  const [isMasterDeleteOpen, setIsMasterDeleteOpen] = useState(false);
+
+  const handleMasterDeleteSuccess = (target) => {
+    setActiveToast(`Successfully deleted ${target} data!`);
+    setTimeout(() => setActiveToast(null), 4000);
+    fetchAdminData();
+    if (target === "all") {
+      router.refresh();
+    }
+  };
 
   const fetchAdminData = () => {
     api
@@ -99,9 +111,9 @@ export default function ControlPanelPage() {
 
   return (
     <DashboardLayout adminName="Admin">
-      <div className="max-w-7xl mx-auto pb-24">
-        {/* Page Banner */}
-        <div className="relative mb-12 p-8 sm:p-12 rounded-3xl overflow-hidden glass border border-border/80 shadow-2xl shadow-indigo-500/10">
+      <div className="max-w-7xl mx-auto pb-24 px-4 md:px-0">
+        {/* Desktop Banner View */}
+        <div className="hidden md:block relative mb-12 p-8 sm:p-12 rounded-3xl overflow-hidden glass border border-border/80 shadow-2xl shadow-indigo-500/10">
           <div className="absolute top-0 right-0 -mt-12 -mr-12 w-96 h-96 bg-gradient-to-br from-violet-600/20 via-indigo-500/20 to-purple-500/10 rounded-full blur-3xl pointer-events-none"></div>
           <div className="relative z-10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
             <div>
@@ -118,17 +130,29 @@ export default function ControlPanelPage() {
           </div>
         </div>
 
+        {/* Mobile Banner View */}
+        <div className="block md:hidden mb-6">
+          <div className="flex items-center gap-2 mb-1.5">
+            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-primary/10 text-primary text-[10px] font-bold uppercase tracking-wider border border-primary/15">
+              <Sparkles size={10} /> Executive
+            </span>
+          </div>
+          <h1 className="text-2xl font-extrabold text-foreground tracking-tight">
+            Control Panel
+          </h1>
+        </div>
+
         {/* Grid Sections */}
         <motion.div
           variants={containerVariants}
           initial="hidden"
           animate="show"
-          className="grid grid-cols-1 lg:grid-cols-2 gap-8"
+          className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-8"
         >
           {/* Section 1: Clients Projects */}
           <motion.div
             variants={itemVariants}
-            className="glass-card rounded-3xl p-8 border border-indigo-500/30 shadow-xl relative overflow-hidden flex flex-col group hover:border-indigo-500/50 transition-all"
+            className="glass-card rounded-3xl p-5 md:p-8 border border-indigo-500/30 shadow-xl relative overflow-hidden flex flex-col group hover:border-indigo-500/50 transition-all"
           >
             <div className="flex items-center gap-4 mb-6 pb-6 border-b border-border/60">
               <div className="p-3 bg-indigo-500/10 text-indigo-500 rounded-2xl border border-indigo-500/20 shadow-inner">
@@ -180,7 +204,7 @@ export default function ControlPanelPage() {
           {/* Section 2: Internships */}
           <motion.div
             variants={itemVariants}
-            className="glass-card rounded-3xl p-8 border border-emerald-500/30 shadow-xl relative overflow-hidden flex flex-col group hover:border-emerald-500/50 transition-all"
+            className="glass-card rounded-3xl p-5 md:p-8 border border-emerald-500/30 shadow-xl relative overflow-hidden flex flex-col group hover:border-emerald-500/50 transition-all"
           >
             <div className="flex items-center gap-4 mb-6 pb-6 border-b border-border/60">
               <div className="p-3 bg-emerald-500/10 text-emerald-500 rounded-2xl border border-emerald-500/20 shadow-inner">
@@ -224,7 +248,7 @@ export default function ControlPanelPage() {
           {/* Section 3: Training */}
           <motion.div
             variants={itemVariants}
-            className="glass-card rounded-3xl p-8 border border-amber-500/30 shadow-xl relative overflow-hidden flex flex-col group hover:border-amber-500/50 transition-all"
+            className="glass-card rounded-3xl p-5 md:p-8 border border-amber-500/30 shadow-xl relative overflow-hidden flex flex-col group hover:border-amber-500/50 transition-all"
           >
             <div className="flex items-center gap-4 mb-6 pb-6 border-b border-border/60">
               <div className="p-3 bg-amber-500/10 text-amber-500 rounded-2xl border border-amber-500/20 shadow-inner">
@@ -268,7 +292,7 @@ export default function ControlPanelPage() {
           {/* Section 4: Accounts */}
           <motion.div
             variants={itemVariants}
-            className="glass-card rounded-3xl p-8 border border-purple-500/30 shadow-xl relative overflow-hidden flex flex-col group hover:border-purple-500/50 transition-all justify-between"
+            className="glass-card rounded-3xl p-5 md:p-8 border border-purple-500/30 shadow-xl relative overflow-hidden flex flex-col group hover:border-purple-500/50 transition-all justify-between"
           >
             <div className="flex items-center gap-4 mb-6 pb-6 border-b border-border/60">
               <div className="p-3 bg-purple-500/10 text-purple-500 rounded-2xl border border-purple-500/20 shadow-inner">
@@ -284,7 +308,7 @@ export default function ControlPanelPage() {
               </div>
             </div>
 
-            <div className="flex-1 grid grid-cols-1 sm:grid-cols-3 gap-4 items-center justify-center my-auto pt-2">
+            <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 gap-4 items-center justify-center my-auto pt-2">
               <button
                 onClick={() => setIsProfileModalOpen(true)}
                 className="w-full min-h-[120px] rounded-2xl bg-gradient-to-br from-purple-600 via-indigo-600 to-violet-700 text-white font-extrabold shadow-lg shadow-purple-500/20 hover:scale-105 active:scale-95 transition-all flex flex-col items-center justify-center gap-2 p-5 text-center cursor-pointer border border-purple-400/30 group"
@@ -318,6 +342,16 @@ export default function ControlPanelPage() {
                   <FolderKanban size={24} />
                 </div>
                 <span className="text-xs sm:text-sm leading-tight">CSV Docs Explorer</span>
+              </button>
+
+              <button
+                onClick={() => setIsMasterDeleteOpen(true)}
+                className="w-full min-h-[120px] rounded-2xl bg-gradient-to-br from-red-600 via-orange-600 to-amber-700 text-white font-extrabold shadow-lg shadow-red-500/20 hover:scale-105 active:scale-95 transition-all flex flex-col items-center justify-center gap-2 p-5 text-center cursor-pointer border border-red-400/30 group"
+              >
+                <div className="p-2.5 rounded-xl bg-white/10 group-hover:bg-white/20 transition-colors shadow-inner">
+                  <Radiation size={24} className="animate-[spin_12s_linear_infinite] group-hover:animate-[spin_3s_linear_infinite]" />
+                </div>
+                <span className="text-xs sm:text-sm leading-tight">Master Delete</span>
               </button>
             </div>
           </motion.div>
@@ -359,6 +393,12 @@ export default function ControlPanelPage() {
       <CsvDocsExplorerModal
         isOpen={isCsvExplorerOpen}
         onClose={() => setIsCsvExplorerOpen(false)}
+      />
+
+      <MasterDeleteModal
+        isOpen={isMasterDeleteOpen}
+        onClose={() => setIsMasterDeleteOpen(false)}
+        onSuccess={handleMasterDeleteSuccess}
       />
 
       {/* Toast Notification */}

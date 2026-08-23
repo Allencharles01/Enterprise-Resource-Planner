@@ -10,7 +10,7 @@ import ContactCallingWorkspace from "./ContactCallingWorkspace";
 import NewLeadModal from "./NewLeadModal";
 import { api } from "@/lib/api";
 import { formatAmount } from "@/lib/formatAmount";
-import { Target, IndianRupee, TrendingUp, PhoneCall } from "lucide-react";
+import { Target, IndianRupee, TrendingUp, PhoneCall, Ticket } from "lucide-react";
 
 import { employeeInfo, tabs } from "./salesEmployeeData";
 
@@ -560,18 +560,18 @@ export default function SalesEmployeeDashboard() {
           ) : (
             <div className="px-6 py-8 space-y-8">
               {/* Header */}
-              <div className="flex items-start justify-between gap-6">
+              <div className="flex flex-col md:flex-row md:items-start justify-between gap-6">
                 <div>
-                  <h1 className="text-3xl font-bold text-foreground">
+                  <h1 className="text-2xl sm:text-3xl font-bold text-foreground">
                     Sales Employee Dashboard
                   </h1>
 
-                  <p className="text-muted-foreground mt-2">
+                  <p className="text-muted-foreground mt-2 text-sm sm:text-base">
                     Monitor your leads, revenue, and personal sales performance.
                   </p>
                 </div>
 
-                <div className="flex items-center gap-3">
+                <div className="flex flex-wrap items-center justify-end gap-3 w-full md:w-auto">
                   <button
                     onClick={() => setIsContactCallingOpen(true)}
                     title="Open Contact Calling Workspace"
@@ -599,8 +599,16 @@ export default function SalesEmployeeDashboard() {
                   </button>
 
                   <button
+                    onClick={() => window.location.href = "/employee/raise-ticket"}
+                    title="Raise a Ticket"
+                    className="h-12 w-12 rounded-xl bg-cyan-500/10 text-cyan-600 dark:text-cyan-400 border border-cyan-500/30 hover:bg-cyan-500/20 hover:scale-105 transition flex items-center justify-center cursor-pointer shadow-sm shrink-0 animate-in fade-in"
+                  >
+                    <Ticket size={20} />
+                  </button>
+
+                  <button
                     onClick={() => setIsNewLeadOpen(true)}
-                    className="px-6 py-3 rounded-xl bg-primary text-primary-foreground font-semibold shadow-lg shadow-primary/20 hover:scale-105 transition"
+                    className="px-6 py-3 rounded-xl bg-primary text-primary-foreground font-semibold shadow-lg shadow-primary/20 hover:scale-105 transition cursor-pointer"
                   >
                     + New Lead
                   </button>
@@ -610,22 +618,31 @@ export default function SalesEmployeeDashboard() {
               {/* Employee Profile Card */}
               <div className="glass-card w-full max-w-lg rounded-2xl p-5 border border-border">
                 <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 rounded-full bg-gradient-to-tr from-violet-600 via-indigo-600 to-purple-500 text-white flex items-center justify-center font-bold shadow-lg shadow-indigo-500/30">
-                    {userInfo.initials}
+                  {/* Circular initials icon with status dot */}
+                  <div className="relative shrink-0">
+                    <div className="w-12 h-12 rounded-full bg-gradient-to-tr from-violet-600 via-indigo-600 to-purple-500 text-white flex items-center justify-center font-bold shadow-lg shadow-indigo-500/30 text-base">
+                      {userInfo.initials}
+                    </div>
+                    {userInfo.status === "Active" && (
+                      <span className="absolute bottom-0 right-0 block h-3.5 w-3.5 rounded-full bg-emerald-500 border-2 border-white dark:border-slate-900 shadow-sm" />
+                    )}
                   </div>
 
-                  <div>
-                    <h2 className="font-bold text-foreground">
+                  <div className="min-w-0 flex-1">
+                    <h2 className="font-bold text-foreground truncate">
                       {userInfo.name}
                     </h2>
 
-                    <p className="text-sm text-muted-foreground">
+                    <p className="text-xs sm:text-sm text-muted-foreground truncate">
                       {userInfo.role} · {userInfo.id}
                     </p>
                   </div>
 
-                  <div className="ml-auto px-4 py-2 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 text-sm font-semibold">
-                    {userInfo.status} · {userInfo.month}
+                  {/* Optimized Date Pill */}
+                  <div className="shrink-0 ml-auto">
+                    <span className="px-3.5 py-1.5 rounded-full bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border border-indigo-500/20 text-xs font-semibold shadow-sm whitespace-nowrap">
+                      {userInfo.month}
+                    </span>
                   </div>
                 </div>
               </div>

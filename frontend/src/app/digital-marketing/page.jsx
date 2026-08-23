@@ -116,44 +116,112 @@ function ActionButtons() {
 }
 
 function DataTable({ columns, rows }) {
+  const primaryCol = columns[0];
+  const statusCol = columns.find((c) => c.status);
+  const actionCol = columns.find((c) => c.key === "actions");
+
+  // Filter columns for details display
+  const detailCols = columns.filter(
+    (c) => c !== primaryCol && !c.status && c.key !== "actions"
+  );
+
   return (
-    <div className="overflow-x-auto rounded-[16px] border border-border">
-      <table className="w-full min-w-[860px] border-collapse text-left text-[13px]">
-        <thead className="bg-muted/50 text-muted-foreground">
-          <tr>
-            {columns.map((column) => (
-              <th key={column.key} className="px-4 py-3 font-semibold uppercase tracking-wider text-xs">
-                {column.label}
-              </th>
-            ))}
-          </tr>
-        </thead>
-        <tbody className="divide-y divide-border/50">
-          {rows.map((row, index) => (
-            <tr
-              key={`${row.platform || row.campaignName || row.creator || row.documentName}-${index}`}
-              className="hover:bg-muted/20 transition-colors"
+    <>
+      {/* Mobile Grid View */}
+      <div className="grid grid-cols-1 gap-4 sm:hidden">
+        {rows.map((row, index) => {
+          const title = row[primaryCol.key];
+          const statusVal = statusCol ? row[statusCol.key] : null;
+
+          return (
+            <div
+              key={`${title}-${index}`}
+              className="rounded-2xl border border-slate-800 bg-slate-900/40 p-4 flex flex-col gap-4 hover:border-slate-700 transition animate-fade-in"
             >
+              {/* Header */}
+              <div className="flex items-start justify-between gap-3">
+                <div>
+                  <p className="text-xs text-slate-500 font-semibold uppercase tracking-wider">
+                    {primaryCol.label}
+                  </p>
+                  <h4 className="font-bold text-slate-200 mt-0.5 text-sm sm:text-base leading-snug">
+                    {title}
+                  </h4>
+                </div>
+                {statusVal && <Status value={statusVal} />}
+              </div>
+
+              {/* Metrics Grid */}
+              <div className="grid grid-cols-2 gap-3 pt-3 border-t border-slate-800/60">
+                {detailCols.map((col) => {
+                  const val = row[col.key];
+                  return (
+                    <div key={col.key} className="text-xs">
+                      <p className="text-slate-500 font-medium">{col.label}</p>
+                      <p className="font-semibold text-slate-200 mt-0.5">
+                        {col.money ? (
+                          <span className="font-mono text-emerald-500 font-bold">{inr(val)}</span>
+                        ) : col.compact ? (
+                          compact(val)
+                        ) : (
+                          val
+                        )}
+                      </p>
+                    </div>
+                  );
+                })}
+              </div>
+
+              {/* Action Buttons */}
+              {actionCol && (
+                <div className="flex justify-end pt-3 border-t border-slate-800/60">
+                  <ActionButtons />
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Desktop Table View */}
+      <div className="hidden sm:block overflow-x-auto rounded-[16px] border border-border">
+        <table className="w-full min-w-[860px] border-collapse text-left text-[13px]">
+          <thead className="bg-muted/50 text-muted-foreground">
+            <tr>
               {columns.map((column) => (
-                <td key={column.key} className="px-4 py-3 text-foreground font-medium">
-                  {column.key === "actions" ? (
-                    <ActionButtons />
-                  ) : column.money ? (
-                    <span className="font-mono text-emerald-500 font-bold">{inr(row[column.key])}</span>
-                  ) : column.compact ? (
-                    compact(row[column.key])
-                  ) : column.status ? (
-                    <Status value={row[column.key]} />
-                  ) : (
-                    row[column.key]
-                  )}
-                </td>
+                <th key={column.key} className="px-4 py-3 font-semibold uppercase tracking-wider text-xs">
+                  {column.label}
+                </th>
               ))}
             </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
+          </thead>
+          <tbody className="divide-y divide-border/50">
+            {rows.map((row, index) => (
+              <tr
+                key={`${row.platform || row.campaignName || row.creator || row.documentName}-${index}`}
+                className="hover:bg-muted/20 transition-colors"
+              >
+                {columns.map((column) => (
+                  <td key={column.key} className="px-4 py-3 text-foreground font-medium">
+                    {column.key === "actions" ? (
+                      <ActionButtons />
+                    ) : column.money ? (
+                      <span className="font-mono text-emerald-500 font-bold">{inr(row[column.key])}</span>
+                    ) : column.compact ? (
+                      compact(row[column.key])
+                    ) : column.status ? (
+                      <Status value={row[column.key]} />
+                    ) : (
+                      row[column.key]
+                    )}
+                  </td>
+                ))}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </>
   );
 }
 
@@ -378,7 +446,63 @@ function DocumentsModal({ data }) {
           <Filter size={16} /> Filter
         </button>
       </div>
-      <div className="overflow-x-auto rounded-[16px] border border-border">
+      {/* Mobile Grid View */}
+      <div className="grid grid-cols-1 gap-4 sm:hidden">
+        {rows.map((row) => (
+          <div
+            key={row.documentName}
+            className="rounded-2xl border border-slate-800 bg-slate-900/40 p-4 flex flex-col gap-4 hover:border-slate-700 transition animate-fade-in"
+          >
+            {/* Header */}
+            <div className="flex items-start justify-between gap-3">
+              <div>
+                <p className="text-xs text-slate-500 font-semibold uppercase tracking-wider">
+                  Document Name
+                </p>
+                <h4 className="font-bold text-slate-200 mt-0.5 text-sm sm:text-base leading-snug">
+                  {row.documentName}
+                </h4>
+              </div>
+              <Status value={row.status} />
+            </div>
+
+            {/* Details */}
+            <div className="grid grid-cols-2 gap-3 pt-3 border-t border-slate-800/60">
+              <div className="text-xs">
+                <p className="text-slate-500 font-medium">Type</p>
+                <p className="font-semibold text-slate-200 mt-0.5">{row.type}</p>
+              </div>
+              <div className="text-xs">
+                <p className="text-slate-500 font-medium">Related To</p>
+                <p className="font-semibold text-slate-200 mt-0.5 font-mono">{row.relatedTo}</p>
+              </div>
+              <div className="text-xs">
+                <p className="text-slate-500 font-medium">Date</p>
+                <p className="font-semibold text-slate-200 mt-0.5">{row.date}</p>
+              </div>
+            </div>
+
+            {/* Action Buttons */}
+            <div className="flex justify-end gap-2 pt-3 border-t border-slate-800/60">
+              <button
+                className="flex h-8 items-center gap-1 rounded-[10px] border border-slate-700 px-3 text-xs hover:bg-slate-800 transition text-slate-300 cursor-pointer"
+                type="button"
+              >
+                <Eye size={14} /> View
+              </button>
+              <button
+                className="flex h-8 items-center gap-1 rounded-[10px] bg-cyan-400 hover:bg-cyan-350 transition px-3 text-xs font-bold text-slate-950 cursor-pointer shadow-sm shadow-cyan-400/20"
+                type="button"
+              >
+                <Download size={14} /> Download
+              </button>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Desktop Table View */}
+      <div className="hidden sm:block overflow-x-auto rounded-[16px] border border-border">
         <table className="w-full min-w-[860px] border-collapse text-left text-[13px]">
           <thead className="bg-muted/50 text-muted-foreground">
             <tr>

@@ -101,40 +101,41 @@ export default function NewProjectPage() {
 
   return (
     <DashboardLayout adminName="Admin">
-      <div className="max-w-6xl mx-auto pb-20">
-        <div className="flex items-center justify-between mb-8">
+      <div className="max-w-6xl mx-auto pb-20 px-4 md:px-0">
+        <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between mb-8">
           <div>
-            <h1 className="text-3xl font-extrabold text-foreground tracking-tight">
+            <h1 className="text-2xl md:text-3xl font-extrabold text-foreground tracking-tight">
               Create New Project
             </h1>
-            <p className="text-muted-foreground mt-2">
-              Set up a new project, assign managers, and define team structures.
+            <p className="text-xs md:text-sm text-muted-foreground mt-1">
+              <span className="md:inline hidden">Set up a new project, assign managers, and define team structures.</span>
+              <span className="inline md:hidden">Set up new project structure.</span>
             </p>
           </div>
-          <div className="flex gap-4">
+          <div className="flex gap-2.5 w-full md:w-auto">
             <button
               onClick={() => router.back()}
-              className="px-6 py-2.5 rounded-xl border border-border text-foreground font-medium hover:bg-muted transition-colors"
+              className="flex-1 md:flex-none px-4 py-2 md:px-6 md:py-2.5 rounded-xl border border-border text-foreground text-xs md:text-sm font-semibold hover:bg-muted transition-colors"
             >
               Cancel
             </button>
             <button
               onClick={handleSave}
               disabled={isSaving}
-              className="px-6 py-2.5 rounded-xl bg-primary text-primary-foreground font-bold hover:bg-primary/90 transition-colors shadow-lg shadow-primary/20 flex items-center gap-2 disabled:opacity-50"
+              className="flex-1 md:flex-none px-4 py-2 md:px-6 md:py-2.5 rounded-xl bg-primary text-primary-foreground text-xs md:text-sm font-bold hover:bg-primary/90 transition-colors shadow-lg shadow-primary/20 flex items-center justify-center gap-1.5 md:gap-2 disabled:opacity-50"
             >
               {isSaving ? (
-                <Loader2 size={18} className="animate-spin" />
+                <Loader2 size={14} className="animate-spin" />
               ) : (
-                <Save size={18} />
+                <Save size={14} />
               )}
               Save Project
             </button>
           </div>
         </div>
 
-        <div className="glass-card rounded-3xl p-8 border border-border/50 shadow-xl shadow-black/5">
-          <div className="mb-8">
+        <div className="glass-card rounded-2xl md:rounded-3xl p-4 md:p-8 border border-border/50 shadow-xl shadow-black/5">
+          <div className="mb-6 md:mb-8">
             <Tabs tabs={tabs} activeTab={activeTab} onChange={setActiveTab} />
           </div>
 

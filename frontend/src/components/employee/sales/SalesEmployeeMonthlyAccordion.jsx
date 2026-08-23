@@ -897,16 +897,289 @@ export default function SalesEmployeeMonthlyAccordion({ activeTab, data }) {
     </table>
   );
 
+  const renderClientProjectsMobile = (records) => (
+    <div className="p-4 space-y-4 md:hidden">
+      {records.map((item, index) => {
+        const budgetDisplay = formatCurrencyValue(item.budget || item.agreed);
+        const projectName = item.projectName || item.project;
+        const clientName = item.clientName || item.client;
+
+        return (
+          <div key={index} className="p-5 rounded-2xl border border-border bg-muted/20 flex flex-col gap-4 relative">
+            <div className="flex items-start justify-between gap-2">
+              <div>
+                <h4 className="font-bold text-base text-foreground">{projectName}</h4>
+                <p className="text-xs text-muted-foreground mt-0.5">Client: {clientName}</p>
+              </div>
+              <div className="flex flex-col items-end gap-1.5 shrink-0">
+                <span className={`px-2 py-0.5 rounded-full text-[10px] font-extrabold tracking-wide uppercase ${badgeStyle(item.leadStatus || item.status)}`}>
+                  {item.leadStatus || item.status}
+                </span>
+                <span className={`px-2 py-0.5 rounded-full text-[10px] font-extrabold tracking-wide uppercase ${badgeStyle(item.approvalStatus || item.approval)}`}>
+                  Appr: {item.approvalStatus || item.approval}
+                </span>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3 py-3 border-t border-b border-border/40 text-xs">
+              <div>
+                <span className="text-muted-foreground block mb-0.5">Budget</span>
+                {isBudgetModalAllowed(item) ? (
+                  <button
+                    onClick={() => handleBudgetClick(item)}
+                    className="font-extrabold text-sm underline text-emerald-400 hover:text-emerald-300 transition"
+                  >
+                    {budgetDisplay}
+                  </button>
+                ) : (
+                  <span className="font-extrabold text-sm text-foreground opacity-80">
+                    {budgetDisplay}
+                  </span>
+                )}
+              </div>
+              <div>
+                <span className="text-muted-foreground block mb-0.5">Deadline</span>
+                <span className="font-semibold text-foreground">{item.deadline}</span>
+              </div>
+              <div>
+                <span className="text-muted-foreground block mb-0.5">Submitted</span>
+                <span className="font-semibold text-foreground">{item.submitted || item.submittedDate}</span>
+              </div>
+            </div>
+
+            <div className="flex items-center justify-between gap-3 pt-1">
+              <button
+                onClick={() => handleViewProject(item)}
+                className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl border border-border/80 hover:bg-indigo-500/10 hover:border-indigo-500/40 text-xs font-bold transition shadow-sm"
+              >
+                <Eye size={14} className="text-indigo-400" />
+                View Project
+              </button>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => handleDownloadInvoice(item)}
+                  className="p-2.5 rounded-xl border border-border/80 hover:bg-muted text-muted-foreground hover:text-foreground transition shadow-sm"
+                  title="Download Invoice"
+                >
+                  <Download size={15} />
+                </button>
+                <button
+                  className="p-2.5 rounded-xl border border-border/80 hover:bg-muted text-muted-foreground hover:text-foreground transition shadow-sm"
+                  title="More Actions"
+                >
+                  <MoreVertical size={15} />
+                </button>
+              </div>
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+
+  const renderInternshipsMobile = (records) => {
+    const filterOptions = [
+      { label: "All", value: "All", count: records.length },
+      { label: "Active", value: "Active", count: records.filter((item) => getInternStatus(item) === "Active").length },
+      { label: "Dropped", value: "Dropped Out", count: records.filter((item) => getInternStatus(item) === "Dropped Out").length },
+      { label: "Pending", value: "Not Approved", count: records.filter((item) => getInternStatus(item) === "Not Approved").length },
+      { label: "Completed", value: "Completed", count: records.filter((item) => getInternStatus(item) === "Completed").length },
+    ];
+
+    const filteredRecords =
+      activeInternFilter === "All"
+        ? records
+        : records.filter((item) => getInternStatus(item) === activeInternFilter);
+
+    return (
+      <div className="p-4 space-y-4 md:hidden">
+        <div className="pb-3 border-b border-border/60">
+          <h3 className="text-lg font-bold text-foreground">Intern Details</h3>
+          <p className="text-xs text-muted-foreground mt-0.5">Track candidate profiles and progress</p>
+          <div className="flex flex-wrap gap-1.5 mt-3">
+            {filterOptions.map((filter) => (
+              <button
+                key={filter.value}
+                onClick={() => setActiveInternFilter(filter.value)}
+                className={`rounded-xl border px-3 py-1.5 text-xs font-bold transition ${
+                  activeInternFilter === filter.value
+                    ? "border-indigo-500 bg-indigo-500 text-white shadow-sm"
+                    : "border-border text-foreground hover:bg-muted"
+                }`}
+              >
+                {filter.label} ({filter.count})
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div className="space-y-4">
+          {filteredRecords.length > 0 ? (
+            filteredRecords.map((item, index) => {
+              const internStatus = getInternStatus(item);
+              const mentor = getInternMentor(item);
+              const progress = item.progress || 0;
+
+              return (
+                <div key={index} className="p-5 rounded-2xl border border-border bg-muted/20 flex flex-col gap-3 relative">
+                  <div className="flex items-start justify-between gap-2">
+                    <div>
+                      <h4 className="font-bold text-base text-foreground">{item.candidateName || item.name}</h4>
+                      <p className="text-xs text-muted-foreground">{item.email}</p>
+                    </div>
+                    <span className={`px-2 py-0.5 rounded-full text-[10px] font-extrabold border uppercase shrink-0 ${internStatusStyle(internStatus)}`}>
+                      {internStatus}
+                    </span>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-3 py-3 border-t border-b border-border/40 text-xs">
+                    <div>
+                      <span className="text-muted-foreground block mb-0.5">Department</span>
+                      <span className="font-semibold text-foreground">{item.department || "BTech Computer Science"}</span>
+                    </div>
+                    <div>
+                      <span className="text-muted-foreground block mb-0.5">Duration</span>
+                      <span className="font-semibold text-foreground">{item.duration}</span>
+                    </div>
+                    <div>
+                      <span className="text-muted-foreground block mb-0.5">Mentor</span>
+                      <span className={`font-semibold ${mentor === "Not yet assigned" ? "text-muted-foreground italic" : "text-foreground"}`}>
+                        {mentor}
+                      </span>
+                    </div>
+                    <div>
+                      <span className="text-muted-foreground block mb-0.5">Placement</span>
+                      <span className={`px-1.5 py-0.5 rounded-md text-[10px] font-bold ${placementBadgeStyle(item.placement || "Under Review")}`}>
+                        {item.placement || "Under Review"}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="py-1">
+                    <div className="flex items-center justify-between text-xs font-bold text-emerald-400 mb-1.5">
+                      <span>Progress</span>
+                      <span>{progress}%</span>
+                    </div>
+                    <div className="h-2 w-full rounded-full bg-muted overflow-hidden">
+                      <div
+                        className="h-full rounded-full bg-gradient-to-r from-amber-500 via-emerald-500 to-cyan-400"
+                        style={{ width: `${progress}%` }}
+                      />
+                    </div>
+                  </div>
+
+                  <button
+                    onClick={() => openInternProfile(item)}
+                    className="w-full mt-1 inline-flex items-center justify-center gap-2 rounded-xl border border-border px-4 py-2.5 text-xs font-bold text-foreground hover:bg-muted transition"
+                  >
+                    <UserRound size={14} />
+                    View Profile
+                  </button>
+                </div>
+              );
+            })
+          ) : (
+            <p className="text-center py-6 text-xs text-muted-foreground">No interns found matching this filter.</p>
+          )}
+        </div>
+      </div>
+    );
+  };
+
+  const renderTrainingMobile = (records) => (
+    <div className="p-4 space-y-4 md:hidden">
+      {records.map((item, index) => {
+        const approval = item.approvalStatus || item.approval;
+        const isApproved = String(approval).toLowerCase() === "approved";
+        const trainingFeeDisplay = formatCurrencyValue(item.trainingFee || item.fee || item.cost);
+
+        return (
+          <div key={index} className="p-5 rounded-2xl border border-border bg-muted/20 flex flex-col gap-3.5 relative">
+            <div className="flex items-start justify-between gap-2">
+              <div>
+                <h4 className="font-bold text-base text-foreground">{item.trainingProgram || item.trainingName}</h4>
+                <p className="text-xs text-muted-foreground mt-0.5">Enrolled: {item.clientName || item.candidateName}</p>
+              </div>
+              <span className={`px-2 py-0.5 rounded-full text-[10px] font-extrabold uppercase shrink-0 ${badgeStyle(approval)}`}>
+                {approval}
+              </span>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3 py-3 border-t border-b border-border/40 text-xs">
+              <div>
+                <span className="text-muted-foreground block mb-0.5">Training Fee</span>
+                <span className="font-bold text-sm text-foreground">{trainingFeeDisplay}</span>
+              </div>
+              <div>
+                <span className="text-muted-foreground block mb-0.5">Start Date</span>
+                <span className="font-semibold text-foreground">{item.startDate}</span>
+              </div>
+              <div>
+                <span className="text-muted-foreground block mb-0.5">Mentor/Instructor</span>
+                <span className={`font-semibold ${isApproved ? "text-foreground" : "text-muted-foreground italic"}`}>
+                  {isApproved ? item.instructor || "Enterprise Mentor" : "Not yet assigned"}
+                </span>
+              </div>
+              <div>
+                <span className="text-muted-foreground block mb-0.5">Enrolled Participants</span>
+                <button
+                  onClick={() => openTrainingParticipants(item)}
+                  className="mt-0.5 inline-flex items-center justify-center rounded-lg border border-indigo-500/30 bg-indigo-500/10 px-3 py-1 text-xs font-bold text-indigo-500 hover:bg-indigo-500/20 transition"
+                >
+                  {item.participants?.length || 0} enrolled
+                </button>
+              </div>
+            </div>
+
+            <div className="py-1">
+              <div className="flex items-center justify-between text-xs mb-1.5">
+                <span className="font-bold text-foreground">{item.progress || 0}%</span>
+                <span className="text-muted-foreground text-[10px]">Completed</span>
+              </div>
+              <div className="h-2 w-full overflow-hidden rounded-full bg-muted">
+                <div
+                  className="h-full rounded-full bg-foreground dark:bg-primary"
+                  style={{ width: `${item.progress || 0}%` }}
+                />
+              </div>
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+
   const renderTable = (records) => {
     if (activeTab === "Client Projects") {
-      return renderClientProjectsTable(records);
+      return (
+        <>
+          <div className="hidden md:block">
+            {renderClientProjectsTable(records)}
+          </div>
+          {renderClientProjectsMobile(records)}
+        </>
+      );
     }
 
     if (activeTab === "Internships") {
-      return renderInternshipsTable(records);
+      return (
+        <>
+          <div className="hidden md:block">
+            {renderInternshipsTable(records)}
+          </div>
+          {renderInternshipsMobile(records)}
+        </>
+      );
     }
 
-    return renderTrainingTable(records);
+    return (
+      <>
+        <div className="hidden md:block">
+          {renderTrainingTable(records)}
+        </div>
+        {renderTrainingMobile(records)}
+      </>
+    );
   };
 
   if (selectedClientProject) {

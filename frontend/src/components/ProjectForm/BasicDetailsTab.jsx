@@ -102,17 +102,17 @@ export function BasicDetailsTab({ data, onChange, onEmployeeClick }) {
   };
 
   return (
-    <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+    <div className="space-y-5 md:space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
       <div>
-        <h2 className="text-2xl font-bold text-foreground mb-2">
+        <h2 className="text-lg md:text-2xl font-bold text-foreground mb-1 md:mb-2">
           Basic Details & Client Dossier
         </h2>
-        <p className="text-muted-foreground">
-          Define core project parameters, budgetary constraints, and client contact channels.
+        <p className="text-xs md:text-sm text-muted-foreground">
+          Define core project parameters, budget, and client contact channels.
         </p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
         {/* Project Title */}
         <div className="space-y-2 md:col-span-2">
           <label className="text-sm font-semibold text-foreground flex items-center gap-2">
@@ -302,7 +302,7 @@ export function BasicDetailsTab({ data, onChange, onEmployeeClick }) {
 
         {/* Project Details & Files Upload Zone */}
         <div className="space-y-3 md:col-span-2 pt-2 border-t border-border/50">
-          <label className="text-sm font-semibold text-foreground flex items-center justify-between">
+          <label className="text-sm font-semibold text-foreground flex flex-col gap-1 md:flex-row md:items-center md:justify-between">
             <span className="flex items-center gap-2">
               <Paperclip size={16} className="text-primary" />
               Enter Project Details & Dossier Files

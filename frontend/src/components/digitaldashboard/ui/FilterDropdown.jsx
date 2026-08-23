@@ -20,9 +20,9 @@ export default function FilterDropdown({ value, onChange }) {
         <div className="relative">
             <button
                 onClick={() => setOpen(!open)}
-                className="flex items-center gap-2 rounded-lg border border-white/10 bg-[#111827] px-4 py-2.5 text-sm text-white"
+                className="flex items-center gap-1.5 rounded-xl border border-white/10 bg-[#111827]/80 hover:bg-[#111827] px-3 py-2 text-xs text-white transition hover:scale-[1.02] shadow-sm"
             >
-                <span className="text-gray-400">
+                <span className="text-gray-400 hidden sm:inline">
                     Show data for:
                 </span>
 
@@ -30,7 +30,7 @@ export default function FilterDropdown({ value, onChange }) {
                     {value}
                 </span>
 
-                <ChevronDown size={16} />
+                <ChevronDown size={14} />
             </button>
 
             {open && (

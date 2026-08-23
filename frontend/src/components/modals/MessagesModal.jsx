@@ -13,6 +13,7 @@ import {
   Send,
   Eye,
   CheckCheck,
+  ChevronDown,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { api } from "@/lib/api";
@@ -22,6 +23,7 @@ import { ChatWindowModal } from "./ChatWindowModal";
 
 export function MessagesModal({ isOpen, onClose }) {
   const [activeTab, setActiveTab] = useState("email");
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [viewMode, setViewMode] = useState("inbox");
   const [items, setItems] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -939,13 +941,13 @@ export function MessagesModal({ isOpen, onClose }) {
 
     return (
       <div className="flex min-h-0 flex-1 flex-col overflow-hidden bg-background">
-        <div className="flex items-center justify-between border-b border-border/50 bg-muted/10 px-6 py-4">
+        <div className="flex items-center justify-between border-b border-border/50 bg-muted/10 px-5 sm:px-6 py-4">
           <div>
-            <h3 className="text-lg font-extrabold text-foreground">
+            <h3 className="text-base sm:text-lg font-extrabold text-foreground">
               {isEmail ? "Inbox" : "Messages Inbox"}
             </h3>
 
-            <p className="text-xs text-muted-foreground">
+            <p className="text-[11px] sm:text-xs text-muted-foreground">
               {isEmail
                 ? "Select an email to open the conversation view."
                 : "Click Open Chat to continue the conversation."}
@@ -953,7 +955,7 @@ export function MessagesModal({ isOpen, onClose }) {
           </div>
 
           <span
-            className={`rounded-full px-3 py-1 text-[11px] font-bold ${
+            className={`rounded-full px-2.5 py-0.5 text-[10px] sm:text-[11px] font-bold ${
               isEmail
                 ? "bg-blue-500/10 text-blue-500"
                 : "bg-purple-500/10 text-purple-500"
@@ -963,8 +965,110 @@ export function MessagesModal({ isOpen, onClose }) {
           </span>
         </div>
 
-        <div className="flex-1 overflow-y-auto p-6">
-          <div className="overflow-x-auto rounded-2xl border border-border bg-background shadow-sm">
+        <div className="flex-1 overflow-y-auto p-4 sm:p-6">
+          {/* Mobile Grid View */}
+          <div className="grid grid-cols-1 gap-3 sm:hidden animate-fade-in">
+            {inboxItems.map((item, idx) => {
+              const isUnread =
+                item.unreadCount > 0 ||
+                (!item.isRead && item.direction === "inbound");
+
+              return (
+                <div
+                  key={getItemKey(item, idx)}
+                  onClick={() =>
+                    isEmail ? handlePreviewItem(item) : handleOpenItem(item)
+                  }
+                  className={`rounded-2xl border p-4 flex flex-col gap-3 transition-all cursor-pointer relative ${
+                    isUnread
+                      ? "border-blue-500/30 bg-blue-500/5 hover:bg-blue-500/10 shadow-[0_0_12px_rgba(59,130,246,0.05)]"
+                      : "border-slate-800 bg-slate-900/25 hover:border-slate-700 hover:bg-slate-900/40"
+                  }`}
+                >
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="flex items-center gap-3">
+                      {/* Avatar / Icon container */}
+                      <div className={`relative h-10 w-10 shrink-0 rounded-xl flex items-center justify-center text-xs font-bold ${
+                        isEmail
+                          ? "bg-blue-500/10 text-blue-400"
+                          : "bg-purple-500/10 text-purple-400"
+                      }`}>
+                        {isEmail ? <Mail size={16} /> : <MessageSquare size={16} />}
+                        {isUnread && (
+                          <span className="absolute -top-1 -right-1 h-2.5 w-2.5 rounded-full bg-red-500 ring-2 ring-background animate-pulse" />
+                        )}
+                      </div>
+
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">
+                            #{idx + 1}
+                          </span>
+                          <h4 className="font-extrabold text-slate-200 text-sm leading-snug">
+                            {getDisplayPerson(item)}
+                          </h4>
+                        </div>
+                        <p className="font-semibold text-xs text-slate-300 mt-1 max-w-[220px] truncate">
+                          {getMessageTitle(item)}
+                        </p>
+                      </div>
+                    </div>
+
+                    <span className="text-[10px] text-slate-500 font-semibold shrink-0">
+                      {formatDate(item.createdAt).split(",")[0]}
+                    </span>
+                  </div>
+
+                  <p className="text-xs text-muted-foreground line-clamp-2 bg-muted/30 px-3 py-2 rounded-xl">
+                    {getMessagePreview(item)}
+                  </p>
+
+                  <div className="flex items-center justify-between pt-2 border-t border-border/40">
+                    <span className="text-[10px] font-mono text-slate-500 truncate max-w-[140px]">
+                      {getSenderEmail(item)}
+                    </span>
+
+                    <div className="flex items-center gap-1.5" onClick={(e) => e.stopPropagation()}>
+                      {isEmail ? (
+                        <>
+                          <button
+                            onClick={() => handlePreviewItem(item)}
+                            className="flex h-8 items-center gap-1 rounded-lg border border-blue-500/20 px-2.5 text-xs font-bold text-blue-400 hover:bg-blue-500 hover:text-white transition cursor-pointer"
+                          >
+                            <Eye size={12} /> View
+                          </button>
+                          <button
+                            onClick={() => handleReply(item)}
+                            className="flex h-8 w-8 items-center justify-center rounded-lg border border-slate-700 hover:border-slate-600 text-slate-300 hover:text-white transition cursor-pointer"
+                            title="Reply"
+                          >
+                            <Reply size={12} />
+                          </button>
+                          <button
+                            onClick={() => handleDelete(item)}
+                            className="flex h-8 w-8 items-center justify-center rounded-lg border border-red-500/20 bg-red-500/5 hover:bg-red-500 hover:text-white text-red-400 transition cursor-pointer"
+                            title="Delete"
+                          >
+                            <Trash2 size={12} />
+                          </button>
+                        </>
+                      ) : (
+                        <button
+                          onClick={() => handleOpenItem(item)}
+                          className="flex h-8 items-center justify-center rounded-lg border border-purple-500/20 bg-purple-500/10 hover:bg-purple-500 hover:text-white text-purple-400 px-3 text-xs font-bold transition cursor-pointer"
+                        >
+                          Open Chat
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+          {/* Desktop Table View */}
+          <div className="hidden sm:block overflow-x-auto rounded-2xl border border-border bg-background shadow-sm">
             <table className="w-full min-w-[960px] text-left text-sm">
               <thead className="border-b border-border bg-muted/20 text-xs uppercase tracking-wider text-muted-foreground">
                 <tr>
@@ -1261,114 +1365,183 @@ export function MessagesModal({ isOpen, onClose }) {
             exit={{ opacity: 0, y: 20, scale: 0.95 }}
             className="relative flex max-h-[90vh] w-full max-w-7xl flex-col overflow-hidden rounded-2xl border border-border bg-background shadow-2xl"
           >
-            <div className="flex flex-col justify-between gap-4 border-b border-border/50 bg-muted/20 p-6 sm:flex-row sm:items-center">
-              <div className="flex items-center gap-3">
-                <div className="rounded-xl bg-blue-500/10 p-2.5 text-blue-500">
-                  <Mail size={24} />
+            <div className="relative p-5 sm:p-6 border-b border-border/50 bg-muted/20">
+              <div className="flex flex-col gap-4 pr-10">
+                <div className="flex items-center gap-3">
+                  <div className="p-2.5 bg-blue-500/10 text-blue-500 rounded-xl">
+                    <Mail size={22} className="sm:w-6 sm:h-6" />
+                  </div>
+                  <div>
+                    <h2 className="text-lg sm:text-2xl font-bold text-foreground leading-none">
+                      Emails and Messages
+                    </h2>
+                    <p className="text-[11px] sm:text-xs text-muted-foreground mt-1.5">
+                      Manage client correspondence, replies, and system alerts
+                    </p>
+                  </div>
                 </div>
 
-                <div>
-                  <h2 className="text-2xl font-bold text-foreground">
-                    Communication & Email Center
-                  </h2>
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 w-full">
+                  {/* Dropdown on Mobile, Tabs on Desktop */}
+                  <div className="w-full sm:w-auto">
+                    <div className="block sm:hidden relative">
+                      <button
+                        type="button"
+                        onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                        className="w-full flex items-center justify-between bg-muted border border-border/60 rounded-xl px-3.5 py-2.5 text-xs font-bold text-foreground outline-none cursor-pointer transition focus:border-primary"
+                      >
+                        <span className="flex items-center gap-2">
+                          {activeTab === "email" ? (
+                            <>
+                              <Mail size={14} className="text-blue-500" />
+                              Email Box
+                            </>
+                          ) : (
+                            <>
+                              <MessageSquare size={14} className="text-purple-500" />
+                              Messages
+                            </>
+                          )}
+                        </span>
+                        <ChevronDown size={14} className={`text-muted-foreground transition-transform duration-200 ${isDropdownOpen ? "rotate-180" : ""}`} />
+                      </button>
 
-                  <p className="mt-0.5 text-xs text-muted-foreground">
-                    Manage client correspondence, replies, and system alerts
-                  </p>
+                      {isDropdownOpen && (
+                        <>
+                          <div className="fixed inset-0 z-40" onClick={() => setIsDropdownOpen(false)} />
+                          <div className="absolute left-0 right-0 mt-1.5 z-50 rounded-xl border border-border bg-background shadow-xl overflow-hidden animate-in fade-in slide-in-from-top-1 duration-150">
+                            <button
+                              type="button"
+                              onClick={() => {
+                                handleTopTabClick("email");
+                                setIsDropdownOpen(false);
+                              }}
+                              className={`w-full text-left px-4 py-3 text-xs font-bold transition flex items-center gap-2 ${
+                                activeTab === "email"
+                                  ? "bg-blue-500/10 text-blue-500 border-l-2 border-blue-500"
+                                  : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                              }`}
+                            >
+                              <Mail size={14} />
+                              Email Box
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                handleTopTabClick("message");
+                                setIsDropdownOpen(false);
+                              }}
+                              className={`w-full text-left px-4 py-3 text-xs font-bold transition flex items-center gap-2 ${
+                                activeTab === "message"
+                                  ? "bg-purple-500/10 text-purple-500 border-l-2 border-purple-500"
+                                  : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                              }`}
+                            >
+                              <MessageSquare size={14} />
+                              Messages
+                            </button>
+                          </div>
+                        </>
+                      )}
+                    </div>
+
+                    <div className="hidden sm:flex rounded-xl border border-border/60 bg-muted p-1">
+                      <button
+                        type="button"
+                        onClick={() => handleTopTabClick("email")}
+                        className={`flex cursor-pointer items-center gap-2 rounded-lg px-4 py-2 text-xs font-bold transition-all ${
+                          activeTab === "email"
+                            ? "bg-background text-foreground shadow-sm"
+                            : "text-muted-foreground hover:text-foreground"
+                        }`}
+                      >
+                        <Mail size={14} />
+                        Email Box
+                        <span className="flex items-center gap-1 rounded-full bg-blue-500/10 px-1.5 py-0.5 text-[10px] font-bold text-blue-500">
+                          {activeTab === "email" ? items.length : ""}
+
+                          {activeTab === "email" &&
+                            items.some(
+                              (i) => !i.isRead && i.direction === "inbound"
+                            ) && (
+                              <span
+                                className="h-1.5 w-1.5 rounded-full bg-red-500 shadow-sm"
+                                title="Unread Email"
+                              />
+                            )}
+                        </span>
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => handleTopTabClick("message")}
+                        className={`flex cursor-pointer items-center gap-2 rounded-lg px-4 py-2 text-xs font-bold transition-all ${
+                          activeTab === "message"
+                            ? "bg-background text-foreground shadow-sm"
+                            : "text-muted-foreground hover:text-foreground"
+                        }`}
+                      >
+                        <MessageSquare size={14} />
+                        Messages
+                        <span className="flex items-center gap-1 rounded-full bg-purple-500/10 px-1.5 py-0.5 text-[10px] font-bold text-purple-500">
+                          {activeTab === "message" ? items.length : ""}
+
+                          {activeTab === "message" &&
+                            items.some(
+                              (i) =>
+                                i.unreadCount > 0 ||
+                                (!i.isRead && i.direction === "inbound")
+                            ) && (
+                              <span
+                                className="h-1.5 w-1.5 rounded-full bg-red-500 shadow-sm"
+                                title="Unread Message"
+                              />
+                            )}
+                        </span>
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Actions Row */}
+                  <div className="flex items-center gap-2 w-full sm:w-auto">
+                    {activeTab === "email" ? (
+                      <button
+                        onClick={handleComposeNew}
+                        className="flex-1 sm:flex-none flex cursor-pointer items-center justify-center gap-1.5 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 px-3 sm:px-4 py-2 text-xs font-bold text-white shadow-md transition-all hover:scale-[1.02] hover:from-blue-500 hover:to-indigo-500"
+                      >
+                        <Plus size={14} />
+                        <span>Compose Email</span>
+                      </button>
+                    ) : (
+                      <button
+                        onClick={() => setIsStartChatOpen(true)}
+                        className="flex-1 sm:flex-none flex cursor-pointer items-center justify-center gap-1.5 rounded-xl bg-gradient-to-r from-purple-600 to-pink-600 px-3 sm:px-4 py-2 text-xs font-bold text-white shadow-md transition-all hover:scale-[1.02] hover:from-purple-500 hover:to-pink-500"
+                      >
+                        <MessageSquare size={14} />
+                        <span>Start Chat</span>
+                      </button>
+                    )}
+
+                    <button
+                      type="button"
+                      onClick={handleMarkAllAsRead}
+                      className="flex-1 sm:flex-none flex cursor-pointer items-center justify-center gap-1.5 rounded-xl border border-emerald-500/40 bg-emerald-500/10 px-3 sm:px-4 py-2 text-xs font-bold text-emerald-500 shadow-sm transition-all hover:bg-emerald-600 hover:text-white"
+                      title={`Mark all ${activeTab === "email" ? "emails" : "messages"} as read`}
+                    >
+                      <CheckCheck size={14} />
+                      <span className="hidden xs:inline">Mark all as Read</span>
+                      <span className="inline xs:hidden">Mark Read</span>
+                    </button>
+                  </div>
                 </div>
-              </div>
-
-              <div className="flex items-center gap-3">
-                <div className="flex rounded-xl border border-border/60 bg-muted p-1">
-                  <button
-                    type="button"
-                    onClick={() => handleTopTabClick("email")}
-                    className={`flex cursor-pointer items-center gap-2 rounded-lg px-4 py-2 text-xs font-bold transition-all ${
-                      activeTab === "email"
-                        ? "bg-background text-foreground shadow-sm"
-                        : "text-muted-foreground hover:text-foreground"
-                    }`}
-                  >
-                    <Mail size={14} />
-                    Email Box
-                    <span className="flex items-center gap-1 rounded-full bg-blue-500/10 px-1.5 py-0.5 text-[10px] font-bold text-blue-500">
-                      {activeTab === "email" ? items.length : ""}
-
-                      {activeTab === "email" &&
-                        items.some(
-                          (i) => !i.isRead && i.direction === "inbound"
-                        ) && (
-                          <span
-                            className="h-1.5 w-1.5 rounded-full bg-red-500 shadow-sm"
-                            title="Unread Email"
-                          />
-                        )}
-                    </span>
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => handleTopTabClick("message")}
-                    className={`flex cursor-pointer items-center gap-2 rounded-lg px-4 py-2 text-xs font-bold transition-all ${
-                      activeTab === "message"
-                        ? "bg-background text-foreground shadow-sm"
-                        : "text-muted-foreground hover:text-foreground"
-                    }`}
-                  >
-                    <MessageSquare size={14} />
-                    Messages
-                    <span className="flex items-center gap-1 rounded-full bg-purple-500/10 px-1.5 py-0.5 text-[10px] font-bold text-purple-500">
-                      {activeTab === "message" ? items.length : ""}
-
-                      {activeTab === "message" &&
-                        items.some(
-                          (i) =>
-                            i.unreadCount > 0 ||
-                            (!i.isRead && i.direction === "inbound")
-                        ) && (
-                          <span
-                            className="h-1.5 w-1.5 rounded-full bg-red-500 shadow-sm"
-                            title="Unread Message"
-                          />
-                        )}
-                    </span>
-                  </button>
-                </div>
-
-                {activeTab === "email" ? (
-                  <button
-                    onClick={handleComposeNew}
-                    className="flex cursor-pointer items-center gap-2 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 px-4 py-2 text-xs font-bold text-white shadow-md transition-all hover:scale-105 hover:from-blue-500 hover:to-indigo-500"
-                  >
-                    <Plus size={15} />
-                    Compose Email
-                  </button>
-                ) : (
-                  <button
-                    onClick={() => setIsStartChatOpen(true)}
-                    className="flex cursor-pointer items-center gap-2 rounded-xl bg-gradient-to-r from-purple-600 to-pink-600 px-4 py-2 text-xs font-bold text-white shadow-md transition-all hover:scale-105 hover:from-purple-500 hover:to-pink-500"
-                  >
-                    <MessageSquare size={15} />
-                    Start Chat
-                  </button>
-                )}
-
-                <button
-                  type="button"
-                  onClick={handleMarkAllAsRead}
-                  className="flex cursor-pointer items-center gap-1.5 rounded-xl border border-emerald-500/40 bg-emerald-500/10 px-3.5 py-2 text-xs font-bold text-emerald-500 shadow-sm transition-all hover:bg-emerald-600 hover:text-white"
-                  title={`Mark all ${activeTab === "email" ? "emails" : "messages"} as read`}
-                >
-                  <CheckCheck size={15} />
-                  Mark all as Read
-                </button>
               </div>
 
               <button
                 onClick={onClose}
-                className="absolute right-4 top-4 rounded-full p-2 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground sm:static"
+                className="absolute right-4 top-4 rounded-full p-2 text-slate-400 hover:text-red-500 hover:bg-red-500/10 transition-colors cursor-pointer"
+                title="Close (Esc)"
               >
-                <X size={24} />
+                <X size={20} />
               </button>
             </div>
 

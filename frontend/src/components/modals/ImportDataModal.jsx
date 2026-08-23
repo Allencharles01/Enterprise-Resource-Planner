@@ -16,6 +16,10 @@ import {
   RefreshCw,
   GitCompare,
   Lock,
+  ChevronDown,
+  Info,
+  Mail,
+  Hash,
 } from "lucide-react";
 
 const INITIAL_EMPLOYEES = [
@@ -758,17 +762,18 @@ export default function ImportDataModal({ onClose }) {
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 dark:bg-black/70 backdrop-blur-md px-4">
       <div className="import-data-modal-light w-full max-w-6xl max-h-[90vh] overflow-y-auto rounded-2xl border border-violet-200 dark:border-primary/30 bg-white dark:bg-background shadow-2xl shadow-violet-200/60 dark:shadow-primary/20">
         <div className="sticky top-0 z-20 flex items-start justify-between border-b border-violet-100 dark:border-border bg-white/95 dark:bg-background/95 px-7 py-5 backdrop-blur-xl">
-          <div className="flex items-center gap-4">
-            <div className="flex h-11 w-11 items-center justify-center rounded-xl border border-violet-200 dark:border-violet-500/30 bg-violet-50 dark:bg-violet-500/15 text-violet-500 dark:text-violet-400">
-              <Upload size={22} />
+          <div className="flex items-center gap-3 md:gap-4">
+            <div className="flex h-9 w-9 md:h-11 md:w-11 items-center justify-center rounded-lg md:rounded-xl border border-violet-200 dark:border-violet-50/20 bg-violet-50 dark:bg-violet-500/15 text-violet-500 dark:text-violet-400 shrink-0">
+              <Upload className="w-4 h-4 md:w-[22px] md:h-[22px]" />
             </div>
 
             <div>
-              <h2 className="text-lg font-bold text-slate-900 dark:text-foreground">
+              <h2 className="text-base md:text-lg font-bold text-slate-900 dark:text-foreground">
                 Import Data
               </h2>
-              <p className="text-sm text-slate-500 dark:text-muted-foreground">
-                Upload a file · preview records · check duplicates · assign
+              <p className="text-xs md:text-sm text-slate-500 dark:text-muted-foreground">
+                <span className="md:hidden">Upload & assign files</span>
+                <span className="hidden md:inline">Upload a file · preview records · check duplicates · assign</span>
               </p>
             </div>
           </div>
@@ -784,25 +789,25 @@ export default function ImportDataModal({ onClose }) {
 
         <div className="space-y-6 p-7">
           {!selectedFile ? (
-            <label className="flex min-h-[230px] cursor-pointer flex-col items-center justify-center rounded-2xl border-2 border-dashed border-violet-200 dark:border-violet-500/30 bg-violet-50/60 dark:bg-violet-500/5 p-8 text-center transition hover:bg-violet-100/60 dark:hover:bg-violet-500/10">
-              <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-2xl border border-violet-200 dark:border-violet-500/30 bg-violet-100 dark:bg-violet-500/15 text-violet-500 dark:text-violet-400">
-                <FileText size={28} />
+            <label className="flex min-h-[160px] md:min-h-[230px] cursor-pointer flex-col items-center justify-center rounded-2xl border-2 border-dashed border-violet-200 dark:border-violet-500/30 bg-violet-50/60 dark:bg-violet-500/5 p-4 md:p-8 text-center transition hover:bg-violet-100/60 dark:hover:bg-violet-500/10">
+              <div className="mb-2 md:mb-4 flex h-10 w-10 md:h-14 md:w-14 items-center justify-center rounded-xl md:rounded-2xl border border-violet-200 dark:border-violet-500/30 bg-violet-100 dark:bg-violet-500/15 text-violet-500 dark:text-violet-400">
+                <FileText className="w-5 h-5 md:w-7 md:h-7" />
               </div>
 
-              <p className="text-base font-bold text-slate-900 dark:text-foreground">
+              <p className="text-sm md:text-base font-bold text-slate-900 dark:text-foreground">
                 Drop file here or{" "}
                 <span className="text-violet-500 dark:text-violet-400 underline">browse</span>
               </p>
 
-              <p className="mt-1 text-sm text-slate-500 dark:text-muted-foreground">
+              <p className="mt-0.5 text-xs md:text-sm text-slate-500 dark:text-muted-foreground">
                 CSV, PDF, DOC, DOCX — max 20 MB
               </p>
 
-              <div className="mt-4 flex items-center gap-2">
+              <div className="mt-2 md:mt-4 flex items-center gap-1.5">
                 {["CSV", "PDF", "DOC", "DOCX"].map((type) => (
                   <span
                     key={type}
-                    className="rounded-md border border-violet-200 dark:border-violet-500/30 bg-violet-100 dark:bg-violet-500/10 px-3 py-1 text-xs font-bold text-violet-600 dark:text-violet-300"
+                    className="rounded-md border border-violet-200 dark:border-violet-500/30 bg-violet-100 dark:bg-violet-500/10 px-2 py-0.5 md:px-3 md:py-1 text-[10px] md:text-xs font-bold text-violet-600 dark:text-violet-300"
                   >
                     {type}
                   </span>
@@ -1347,18 +1352,22 @@ function AssignSection({
   toggleEmployee,
   onAssign,
 }) {
+  const [isFilterDropdownOpen, setIsFilterDropdownOpen] = useState(false);
+  const [activeDetailsEmployee, setActiveDetailsEmployee] = useState(null);
+
   return (
     <div className="import-assign-section-light overflow-hidden rounded-2xl border border-violet-100 dark:border-border bg-card shadow-sm dark:shadow-none">
-      <div className="flex items-center gap-3 border-b border-violet-100 dark:border-border px-6 py-4">
-        <Users size={18} className="text-violet-500 dark:text-violet-400" />
-
-        <h3 className="text-sm font-bold text-slate-900 dark:text-foreground">
-          Assign to Employees
-        </h3>
+      <div className="flex flex-col items-start gap-1 md:flex-row md:items-center md:gap-3 border-b border-violet-100 dark:border-border px-6 py-4">
+        <div className="flex items-center gap-2">
+          <Users size={18} className="text-violet-500 dark:text-violet-400 shrink-0" />
+          <h3 className="text-sm font-bold text-slate-900 dark:text-foreground">
+            Assign to Employees
+          </h3>
+        </div>
 
         {!selectedFile && (
-          <span className="text-xs text-slate-400 dark:text-muted-foreground">
-            — upload a file first
+          <span className="text-xs text-slate-400 dark:text-muted-foreground pl-7 md:pl-0">
+            upload the first file
           </span>
         )}
       </div>
@@ -1375,12 +1384,56 @@ function AssignSection({
             />
           </div>
 
-          <div className="import-employee-filter-group flex overflow-hidden rounded-2xl border border-violet-100 dark:border-border bg-violet-50/40 dark:bg-background/60">
+          {/* Mobile Filter Dropdown */}
+          <div className="relative md:hidden w-full">
+            <button
+              onClick={() => setIsFilterDropdownOpen(!isFilterDropdownOpen)}
+              className="w-full flex items-center justify-between px-4 py-3 rounded-2xl border border-violet-100 dark:border-border bg-violet-50/40 dark:bg-background/60 text-xs font-semibold text-slate-900 dark:text-foreground shadow-sm hover:bg-muted/50 transition-all cursor-pointer"
+            >
+              <span>{departmentFilter}</span>
+              <ChevronDown
+                size={14}
+                className={`text-slate-400 dark:text-muted-foreground transition-transform duration-200 ${
+                  isFilterDropdownOpen ? "rotate-180" : ""
+                }`}
+              />
+            </button>
+
+            {isFilterDropdownOpen && (
+              <>
+                <div
+                  className="fixed inset-0 z-30"
+                  onClick={() => setIsFilterDropdownOpen(false)}
+                />
+                <div className="absolute left-0 right-0 mt-1 z-40 rounded-xl border border-violet-100 dark:border-border bg-white dark:bg-slate-900 shadow-xl overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200">
+                  {["Sales", "Digital Marketing", "All Employees"].map((filter) => (
+                    <button
+                      key={filter}
+                      onClick={() => {
+                        setDepartmentFilter(filter);
+                        setIsFilterDropdownOpen(false);
+                      }}
+                      className={`w-full text-left px-4 py-2.5 text-xs font-semibold transition-colors cursor-pointer ${
+                        departmentFilter === filter
+                          ? "bg-violet-500/10 text-violet-600 dark:text-violet-400 font-semibold"
+                          : "text-slate-500 dark:text-muted-foreground hover:text-slate-900 dark:hover:text-foreground"
+                      }`}
+                    >
+                      {filter}
+                    </button>
+                  ))}
+                </div>
+              </>
+            )}
+          </div>
+
+          {/* Desktop Filter Tab Group */}
+          <div className="hidden md:flex import-employee-filter-group overflow-hidden rounded-2xl border border-violet-100 dark:border-border bg-violet-50/40 dark:bg-background/60">
             {["Sales", "Digital Marketing", "All Employees"].map((filter) => (
               <button
                 key={filter}
                 onClick={() => setDepartmentFilter(filter)}
-                className={`import-employee-filter-btn whitespace-nowrap px-5 py-3 text-xs font-semibold transition ${
+                className={`import-employee-filter-btn whitespace-nowrap px-5 py-3 text-xs font-semibold transition cursor-pointer ${
                   departmentFilter === filter
                     ? "active bg-violet-200/70 dark:bg-violet-500/30 text-violet-700 dark:text-violet-200"
                     : "text-slate-500 dark:text-muted-foreground hover:text-slate-900 dark:hover:text-foreground"
@@ -1392,7 +1445,149 @@ function AssignSection({
           </div>
         </div>
 
-        <div className="max-h-[280px] overflow-auto rounded-2xl border border-violet-100 dark:border-border">
+        {/* Mobile Employee Card List */}
+        <div className="md:hidden space-y-3 max-h-[320px] overflow-y-auto pr-1">
+          {filteredEmployees.map((employee) => {
+            const isSelected = selectedEmployees.some(
+              (item) => item.id === employee.id
+            );
+
+            return (
+              <div
+                key={employee.id}
+                onClick={() => toggleEmployee(employee)}
+                className={`p-3 rounded-xl border transition-all flex items-center justify-between gap-3 cursor-pointer ${
+                  isSelected
+                    ? "border-violet-500 bg-violet-500/10 dark:bg-violet-500/5"
+                    : "border-violet-100 dark:border-border hover:bg-muted/10 bg-slate-50/40 dark:bg-slate-950/20"
+                }`}
+              >
+                {/* Left block containing Checkbox, Avatar, Name */}
+                <div className="flex items-center gap-3 min-w-0 flex-1">
+                  {/* Checkbox */}
+                  <div
+                    className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-full border transition ${
+                      isSelected
+                        ? "border-violet-400 bg-violet-500"
+                        : "border-slate-300 dark:border-muted-foreground/40"
+                    }`}
+                  >
+                    {isSelected && (
+                      <CheckCircle2 size={12} className="text-foreground" />
+                    )}
+                  </div>
+
+                  {/* Avatar */}
+                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-violet-500 text-xs font-bold text-foreground">
+                    {employee.initials}
+                  </div>
+
+                  {/* Name */}
+                  <span className="block text-sm font-semibold text-slate-900 dark:text-foreground flex-1 pr-2 leading-tight">
+                    {employee.name}
+                  </span>
+                </div>
+
+                {/* Info Icon Button */}
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setActiveDetailsEmployee(employee);
+                  }}
+                  className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-violet-100 dark:border-border/30 bg-violet-50/50 dark:bg-violet-500/10 text-violet-500 dark:text-violet-400 hover:bg-violet-100 dark:hover:bg-violet-500/20 transition cursor-pointer"
+                >
+                  <Info size={15} />
+                </button>
+              </div>
+            );
+          })}
+        </div>
+
+        {/* Employee Info Popup Modal Overlay */}
+        {activeDetailsEmployee && (
+          <div
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 dark:bg-black/85 backdrop-blur-sm p-4 animate-in fade-in duration-200"
+            onClick={() => setActiveDetailsEmployee(null)}
+          >
+            <div
+              className="relative w-full max-w-sm rounded-3xl border border-violet-200 dark:border-border/60 bg-white/95 dark:bg-slate-900/95 p-6 shadow-2xl backdrop-blur-xl animate-in zoom-in-95 duration-200"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {/* Red X close button */}
+              <button
+                type="button"
+                onClick={() => setActiveDetailsEmployee(null)}
+                className="absolute top-4 right-4 flex h-8 w-8 items-center justify-center rounded-full bg-rose-50 hover:bg-rose-100 dark:bg-rose-950/40 dark:hover:bg-rose-900/60 text-rose-500 hover:text-rose-600 transition shadow-sm cursor-pointer"
+              >
+                <X size={16} />
+              </button>
+
+              {/* Header / Avatar info */}
+              <div className="flex flex-col items-center text-center pb-5 border-b border-violet-100 dark:border-border/30">
+                <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-tr from-violet-600 to-indigo-600 text-lg font-bold text-white shadow-lg shadow-violet-200 dark:shadow-none mb-3">
+                  {activeDetailsEmployee.initials}
+                </div>
+                <h4 className="text-lg font-extrabold text-slate-900 dark:text-foreground leading-tight">
+                  {activeDetailsEmployee.name}
+                </h4>
+                <p className="text-xs font-semibold text-violet-600 dark:text-violet-400 mt-1">
+                  {activeDetailsEmployee.designation || "Employee"}
+                </p>
+              </div>
+
+              {/* Info grid rows */}
+              <div className="pt-5 space-y-4 text-xs">
+                {/* Emp ID */}
+                <div className="flex items-center gap-3 bg-violet-50/30 dark:bg-slate-950/20 p-3 rounded-2xl border border-violet-50/50 dark:border-border/10">
+                  <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-violet-100 dark:bg-violet-500/15 text-violet-600 dark:text-violet-400">
+                    <Hash size={14} />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <span className="block text-[10px] font-bold text-slate-400 dark:text-muted-foreground uppercase tracking-wider">Employee ID</span>
+                    <span className="text-slate-800 dark:text-slate-200 font-mono font-bold block mt-0.5">{activeDetailsEmployee.empId}</span>
+                  </div>
+                </div>
+
+                {/* Department */}
+                <div className="flex items-center gap-3 bg-violet-50/30 dark:bg-slate-950/20 p-3 rounded-2xl border border-violet-50/50 dark:border-border/10">
+                  <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-violet-100 dark:bg-violet-500/15 text-violet-600 dark:text-violet-400">
+                    <Users size={14} />
+                  </div>
+                  <div className="min-w-0 flex-1 flex items-center justify-between gap-2">
+                    <div>
+                      <span className="block text-[10px] font-bold text-slate-400 dark:text-muted-foreground uppercase tracking-wider">Department</span>
+                      <span className="text-slate-800 dark:text-slate-200 font-bold block mt-0.5">{activeDetailsEmployee.department}</span>
+                    </div>
+                    <span
+                      className={`inline-flex rounded-full border px-2.5 py-0.5 text-[9px] font-bold shrink-0 ${
+                        activeDetailsEmployee.department === "Sales"
+                          ? "border-cyan-200 dark:border-cyan-500/30 bg-cyan-50 dark:bg-cyan-500/10 text-cyan-600 dark:text-cyan-400"
+                          : "border-violet-200 dark:border-violet-500/30 bg-violet-50 dark:bg-violet-500/10 text-violet-600 dark:text-violet-300"
+                      }`}
+                    >
+                      {activeDetailsEmployee.department}
+                    </span>
+                  </div>
+                </div>
+
+                {/* Email */}
+                <div className="flex items-center gap-3 bg-violet-50/30 dark:bg-slate-950/20 p-3 rounded-2xl border border-violet-50/50 dark:border-border/10">
+                  <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-violet-100 dark:bg-violet-500/15 text-violet-600 dark:text-violet-400">
+                    <Mail size={14} />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <span className="block text-[10px] font-bold text-slate-400 dark:text-muted-foreground uppercase tracking-wider">Company Email</span>
+                    <span className="text-slate-800 dark:text-slate-200 font-semibold block break-all mt-0.5">{activeDetailsEmployee.email}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Desktop Employee Table */}
+        <div className="hidden md:block max-h-[280px] overflow-auto rounded-2xl border border-violet-100 dark:border-border">
           <table className="min-w-[1150px] w-full border-separate border-spacing-0 text-left text-xs">
             <thead>
               <tr className="text-slate-500 dark:text-muted-foreground">

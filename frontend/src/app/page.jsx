@@ -89,6 +89,25 @@ export default function AdminDashboard() {
   return (
     <DashboardLayout>
       <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
+        {/* Mobile View: Import & New Project Buttons at the top */}
+        <div className="flex md:hidden items-center justify-end gap-3 mb-2">
+          <button
+            onClick={() => setShowImportModal(true)}
+            className="px-4 py-2 bg-primary text-primary-foreground font-semibold rounded-xl hover:bg-primary/90 transition-colors shadow-lg shadow-primary/20 flex items-center gap-2 text-sm cursor-pointer"
+          >
+            <Upload size={16} />
+            Import
+          </button>
+
+          <button
+            onClick={() => router.push("/projects/new")}
+            className="px-4 py-2 bg-primary text-primary-foreground font-semibold rounded-xl hover:bg-primary/90 transition-colors shadow-lg shadow-primary/20 flex items-center gap-2 text-sm cursor-pointer"
+          >
+            <Plus size={16} />
+            New Project
+          </button>
+        </div>
+
         {/* Tiled Buttons Section */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <motion.div
@@ -168,10 +187,10 @@ export default function AdminDashboard() {
               Ongoing Projects
             </h2>
 
-            <div className="flex items-center gap-3">
+            <div className="hidden md:flex items-center gap-3">
               <button
                 onClick={() => setShowImportModal(true)}
-                className="px-4 py-2 bg-primary text-primary-foreground font-semibold rounded-xl hover:bg-primary/90 transition-colors shadow-lg shadow-primary/20 flex items-center gap-2 text-sm"
+                className="px-4 py-2 bg-primary text-primary-foreground font-semibold rounded-xl hover:bg-primary/90 transition-colors shadow-lg shadow-primary/20 flex items-center gap-2 text-sm cursor-pointer"
               >
                 <Upload size={16} />
                 Import
@@ -179,7 +198,7 @@ export default function AdminDashboard() {
 
               <button
                 onClick={() => router.push("/projects/new")}
-                className="px-4 py-2 bg-primary text-primary-foreground font-semibold rounded-xl hover:bg-primary/90 transition-colors shadow-lg shadow-primary/20 flex items-center gap-2 text-sm"
+                className="px-4 py-2 bg-primary text-primary-foreground font-semibold rounded-xl hover:bg-primary/90 transition-colors shadow-lg shadow-primary/20 flex items-center gap-2 text-sm cursor-pointer"
               >
                 <Plus size={16} />
                 New Project

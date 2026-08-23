@@ -14,6 +14,7 @@ import { notificationsRouter } from "./notifications.js";
 import { internalChatRouter } from "./internalChat.js";
 import { profileChangeRequestsRouter } from "./profileChangeRequests.js";
 import { contactListsRouter } from "./contactLists.js";
+import { ticketsRouter } from "./tickets.js";
 
 export const apiRouter = Router();
 
@@ -30,6 +31,7 @@ apiRouter.use("/training", trainingRouter);
 apiRouter.use("/internalChat", internalChatRouter);
 apiRouter.use("/profileChangeRequests", profileChangeRequestsRouter);
 apiRouter.use("/contact-lists", contactListsRouter);
+apiRouter.use("/tickets", ticketsRouter);
 
 
 

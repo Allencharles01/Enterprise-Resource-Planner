@@ -29,6 +29,7 @@ import {
   ShieldCheck,
   Sun,
   Moon,
+  Ticket,
 } from "lucide-react";
 import axios from "axios";
 import { useRouter } from "next/navigation";
@@ -423,52 +424,71 @@ export default function LoginPage() {
           initial={{ opacity: 0, x: -50 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.8 }}
-          className="hidden lg:flex flex-col justify-center w-1/2"
+          className="hidden lg:flex flex-col justify-center w-1/2 pr-6"
         >
-          <div className="flex items-center gap-4 mb-8">
-            <div className="w-16 h-16 shrink-0 bg-primary rounded-xl flex items-center justify-center shadow-lg shadow-primary/30 overflow-hidden">
+          {/* Brand Header Row */}
+          <div className="flex items-center gap-4 mb-7">
+            <div className="w-[4.25rem] h-[4.25rem] shrink-0 rounded-2xl bg-gradient-to-br from-blue-500/20 to-indigo-500/20 border border-blue-400/30 p-1 shadow-lg shadow-blue-500/15 overflow-hidden">
               <img
                 src="/NovaLogo.jpeg"
                 alt="Nova Logo"
-                className="w-full h-full object-cover"
+                className="w-full h-full object-cover rounded-xl"
               />
             </div>
-            <h1 className="text-5xl lg:text-[3.5rem] xl:text-6xl font-extrabold tracking-tight whitespace-nowrap text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-indigo-400 to-purple-500">
-              NovaNectar Pvt Ltd
+            <h1 className="text-2xl lg:text-3xl xl:text-[2.35rem] font-black tracking-tight whitespace-nowrap text-white">
+              NovaNectar{" "}
+              <span className="bg-gradient-to-r from-blue-400 via-indigo-300 to-cyan-300 bg-clip-text text-transparent">
+                Services Pvt. Ltd.
+              </span>
             </h1>
           </div>
 
-          <h2 className="text-4xl lg:text-4xl font-bold text-foreground mb-4 leading-snug">
-            Enterprise resource planning
-          </h2>
+          {/* Hero Headlines */}
+          <div className="space-y-2 mb-5">
+            <h2 className="text-3xl lg:text-4xl font-extrabold text-foreground tracking-tight leading-snug">
+              Enterprise Resource Planning
+            </h2>
+            <h3 className="text-xl lg:text-2xl font-bold tracking-tight text-slate-300">
+              Manage your{" "}
+              <span className="bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
+                business effortlessly.
+              </span>
+            </h3>
+          </div>
 
-          <h3 className="text-3xl font-bold tracking-tight mb-6">
-            Manage your{" "}
-            <span className="text-gradient">business effortlessly.</span>
-          </h3>
-
-          <p className="text-lg text-muted-foreground max-w-lg">
+          {/* Subtitle */}
+          <p className="text-base text-muted-foreground max-w-md leading-relaxed mb-8">
             The next-generation enterprise resource planning platform designed
             for speed, scale, and simplicity.
           </p>
 
-          {/* Violet/Indigo Customer Button */}
-          <motion.button
-            whileHover={{ scale: 1.03 }}
-            whileTap={{ scale: 0.98 }}
-            onClick={() => {
-              setCustomerSubmitted(false);
-              setShowCustomerModal(true);
-            }}
-            type="button"
-            className="mt-8 bg-gradient-to-r from-violet-600 via-indigo-600 to-purple-600 hover:from-violet-500 hover:via-indigo-500 hover:to-purple-500 text-white font-bold px-7 py-4 rounded-2xl shadow-xl shadow-indigo-600/30 transition-all flex items-center gap-3 w-fit border border-violet-400/40 cursor-pointer group"
-          >
-            <span className="tracking-wide">Are you a Customer? Click here</span>
-            <ArrowRight
-              size={20}
-              className="group-hover:translate-x-1 transition-transform"
-            />
-          </motion.button>
+          {/* Action Buttons */}
+          <div className="flex flex-wrap items-center gap-4">
+            <motion.button
+              whileHover={{ scale: 1.03 }}
+              whileTap={{ scale: 0.98 }}
+              onClick={() => {
+                setCustomerSubmitted(false);
+                setShowCustomerModal(true);
+              }}
+              type="button"
+              className="bg-gradient-to-r from-violet-600 via-indigo-600 to-purple-600 hover:from-violet-500 hover:via-indigo-500 hover:to-purple-500 text-white font-bold px-6 py-3.5 rounded-xl shadow-lg shadow-indigo-600/30 transition-all flex items-center gap-2.5 text-sm border border-violet-400/40 cursor-pointer group"
+            >
+              <span className="tracking-wide">Are you a Customer? Click here</span>
+              <ArrowRight
+                size={18}
+                className="group-hover:translate-x-1 transition-transform"
+              />
+            </motion.button>
+
+            <Link
+              href="/raise-ticket"
+              className="px-5 py-3.5 rounded-xl bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-600 dark:text-cyan-400 border border-cyan-500/30 font-bold text-sm transition-all flex items-center gap-2 shadow-sm hover:scale-105"
+            >
+              <Ticket size={18} />
+              <span>Raise a Ticket</span>
+            </Link>
+          </div>
         </motion.div>
 
         {/* Right login form section */}
@@ -728,8 +748,8 @@ export default function LoginPage() {
               </div>
             </form>
 
-            {/* Customer Button visible on mobile screens */}
-            <div className="pt-4 mt-4 border-t border-border/40 text-center lg:hidden">
+            {/* Customer Button & Raise Ticket visible on mobile screens */}
+            <div className="pt-4 mt-4 border-t border-border/40 text-center lg:hidden space-y-3">
               <button
                 type="button"
                 onClick={() => {
@@ -741,6 +761,14 @@ export default function LoginPage() {
                 <span>Are you a Customer? Click here</span>
                 <ArrowRight size={16} />
               </button>
+
+              <Link
+                href="/raise-ticket"
+                className="w-full bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-600 dark:text-cyan-400 font-semibold py-2.5 px-4 rounded-xl transition-all flex items-center justify-center gap-2 text-sm border border-cyan-500/30"
+              >
+                <Ticket size={16} />
+                <span>Raise a Ticket</span>
+              </Link>
             </div>
           </div>
         </motion.div>

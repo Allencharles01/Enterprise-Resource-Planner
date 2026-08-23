@@ -16,6 +16,8 @@ import {
   Settings,
   User,
   MessageSquare,
+  Ticket,
+  Menu,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
@@ -25,6 +27,7 @@ import { MessagesModal } from "@/components/MessagesModal";
 import EmployeeRemindersModal from "@/components/employee/sales/EmployeeRemindersModal";
 import { EmployeeSelfProfileModal } from "@/components/EmployeeSelfProfileModal";
 import { api } from "@/lib/api";
+import { NotificationsModal } from "../modals/NotificationsModal";
 import CSVPreviewModal from "@/components/digitaldashboard/modals/CSVPreviewModal";
 
 export default function Navbar() {
@@ -35,6 +38,7 @@ const toggleTheme = () =>
   setTheme(theme === "dark" ? "light" : "dark");
 
   const [isMessagesOpen, setIsMessagesOpen] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isRemindersOpen, setIsRemindersOpen] = useState(false);
   const [isCalendarOpen, setIsCalendarOpen] = useState(false);
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
@@ -351,22 +355,32 @@ const toggleTheme = () =>
               </Link>
 
               <div>
-                <h1 className="text-xl font-bold text-slate-950 dark:text-foreground">
-                  Welcome back, {userInfo.name}
+                <h1 className="text-base sm:text-xl font-bold text-slate-950 dark:text-foreground truncate max-w-[140px] sm:max-w-none">
+                  <span className="inline md:hidden">Hey! {userInfo.name}</span>
+                  <span className="hidden md:inline">Welcome back, {userInfo.name}</span>
                 </h1>
 
-                <p className="text-xs font-medium text-gradient">
+                <p className="text-[10px] sm:text-xs font-medium text-gradient">
                   NovaNectar Services Pvt. Ltd.
                 </p>
               </div>
             </div>
 
-            {/* Right side */}
-            <div className="flex items-center gap-3">
+            {/* Right side (Desktop) */}
+            <div className="hidden md:flex items-center gap-3">
               <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-indigo-50 text-indigo-600 border border-indigo-100 font-medium text-sm dark:bg-indigo-500/10 dark:text-indigo-400 dark:border-indigo-500/20">
                 <Building2 size={16} />
                 Digital Marketing
               </div>
+
+              <button
+                onClick={() => router.push("/employee/raise-ticket")}
+                title="Raise a Ticket"
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-cyan-500/10 text-cyan-600 dark:text-cyan-400 border border-cyan-500/20 font-bold text-xs hover:bg-cyan-500/20 transition cursor-pointer shadow-sm"
+              >
+                <Ticket size={16} />
+                <span>Raise Ticket</span>
+              </button>
 
               {/* Calendar */}
               <div className="relative" ref={calendarRef}>
@@ -498,178 +512,6 @@ const toggleTheme = () =>
                   )}
                 </button>
 
-                {isNotificationsOpen && (
-                  <div className="absolute right-0 top-full mt-4 w-[390px] overflow-hidden rounded-2xl border border-slate-700/70 bg-[#070b1a] shadow-2xl shadow-black/60 z-[120]">
-                    <div className="flex items-start justify-between border-b border-slate-700/60 px-5 py-4">
-                      <div>
-                        <h2 className="text-lg font-bold text-white">
-                          Notifications
-                        </h2>
-                        <p className="text-xs text-slate-400">
-                          Unread reminders and lead messages
-                        </p>
-                      </div>
-
-                      <button
-                        onClick={() => {
-                          setIsNotificationsOpen(false);
-                          setSelectedNotification(null);
-                        }}
-                        className="flex h-10 w-10 items-center justify-center rounded-full bg-red-500 text-white shadow-lg shadow-red-500/30 hover:bg-red-400 hover:scale-105 active:scale-95 transition"
-                      >
-                        <X size={20} />
-                      </button>
-                    </div>
-
-                    <div className="max-h-[360px] overflow-y-auto p-4 space-y-3">
-                      {reminders.length === 0 && leadMessages.length === 0 && apiNotifications.length === 0 && (
-                        <p className="text-sm text-slate-400">
-                          No notifications yet.
-                        </p>
-                      )}
-
-                      {reminders.map((reminder) => (
-                        <button
-                          key={reminder.id}
-                          onClick={() => openNotificationDetails(reminder)}
-                          className={`w-full rounded-xl border px-4 py-3 text-left transition ${
-                            reminder.isRead
-                              ? "border-slate-700/50 bg-slate-900/40"
-                              : "border-amber-500/30 bg-amber-500/10 hover:bg-amber-500/15"
-                          }`}
-                        >
-                          <div className="flex items-start gap-3">
-                            <AlarmClock
-                              size={18}
-                              className="mt-1 text-amber-400"
-                            />
-
-                            <div className="min-w-0 flex-1">
-                              <div className="flex items-center gap-2">
-                                <h3 className="text-sm font-bold text-white">
-                                  {reminder.title}
-                                </h3>
-
-                                {!reminder.isRead && (
-                                  <span className="h-2 w-2 rounded-full bg-rose-500" />
-                                )}
-                              </div>
-
-                              <p className="mt-1 line-clamp-2 text-sm text-slate-300">
-                                {reminder.description}
-                              </p>
-
-                              <p className="mt-2 text-xs font-semibold text-amber-300">
-                                {reminder.dateTime}
-                              </p>
-                            </div>
-                          </div>
-                        </button>
-                      ))}
-
-                      {leadMessages.map((message) => (
-                        <button
-                          key={message.id}
-                          onClick={() => openNotificationDetails(message)}
-                          className={`w-full rounded-xl border px-4 py-3 text-left transition ${
-                            message.isRead
-                              ? "border-slate-700/50 bg-slate-900/40"
-                              : "border-indigo-500/30 bg-indigo-500/10 hover:bg-indigo-500/15"
-                          }`}
-                        >
-                          <div className="flex items-start gap-3">
-                            <Mail size={18} className="mt-1 text-indigo-400" />
-
-                            <div className="min-w-0 flex-1">
-                              <div className="flex items-center gap-2">
-                                <h3 className="text-sm font-bold text-white">
-                                  {message.title}
-                                </h3>
-
-                                {!message.isRead && (
-                                  <span className="h-2 w-2 rounded-full bg-rose-500" />
-                                )}
-                              </div>
-
-                              <p className="mt-1 line-clamp-2 text-sm text-slate-300">
-                                {message.message}
-                              </p>
-
-                              <p className="mt-2 text-xs font-semibold text-indigo-300">
-                                {message.time}
-                              </p>
-                            </div>
-                          </div>
-                        </button>
-                      ))}
-
-                      {apiNotifications.map((notif) => (
-                        <button
-                          key={notif._id}
-                          onClick={() => openNotificationDetails(notif)}
-                          className={`w-full rounded-xl border px-4 py-3 text-left transition ${
-                            notif.isRead
-                              ? "border-slate-700/50 bg-slate-900/40"
-                              : "border-rose-500/30 bg-rose-500/10 hover:bg-rose-500/15"
-                          }`}
-                        >
-                          <div className="flex items-start gap-3">
-                            <Bell size={18} className="mt-1 text-rose-400" />
-
-                            <div className="min-w-0 flex-1">
-                              <div className="flex items-center gap-2">
-                                <h3 className="text-sm font-bold text-white">
-                                  {notif.title}
-                                </h3>
-
-                                {!notif.isRead && (
-                                  <span className="h-2 w-2 rounded-full bg-rose-500 animate-pulse" />
-                                )}
-                              </div>
-
-                              <p className="mt-1 line-clamp-2 text-sm text-slate-300">
-                                {notif.message}
-                              </p>
-
-                              <p className="mt-2 text-xs font-semibold text-rose-300">
-                                {new Date(notif.createdAt).toLocaleDateString()} {new Date(notif.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                              </p>
-                            </div>
-                          </div>
-                        </button>
-                      ))}
-
-                      {selectedNotification && (
-                        <div className="mt-4 rounded-xl border border-slate-700/70 bg-[#111827] p-4">
-                          <div className="flex items-start justify-between gap-4">
-                            <div>
-                              <h3 className="text-sm font-bold text-white">
-                                {selectedNotification.title}
-                              </h3>
-
-                              <p className="mt-2 text-sm leading-6 text-slate-300">
-                                {selectedNotification.message ||
-                                  selectedNotification.description}
-                              </p>
-
-                              <p className="mt-3 text-xs font-semibold text-slate-400">
-                                {selectedNotification.time ||
-                                  selectedNotification.dateTime}
-                              </p>
-                            </div>
-
-                            <button
-                              onClick={() => setSelectedNotification(null)}
-                              className="text-slate-400 hover:text-white transition"
-                            >
-                              <X size={16} />
-                            </button>
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                )}
               </div>
 
               {/* Theme */}
@@ -729,13 +571,281 @@ const toggleTheme = () =>
                 Logout
               </button>
             </div>
+
+            {/* Right side (Mobile) */}
+            <div className="flex md:hidden items-center gap-2">
+              <button
+                onClick={toggleTheme}
+                className="p-2 rounded-full text-slate-500 hover:text-slate-950 hover:bg-slate-100 transition dark:text-muted-foreground dark:hover:text-foreground dark:hover:bg-muted cursor-pointer"
+              >
+                {theme === "dark" ? (
+                  <Sun size={20} />
+                ) : (
+                  <Moon size={20} />
+                )}
+              </button>
+
+              <button
+                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                className="p-2 rounded-full text-slate-500 hover:text-slate-950 hover:bg-slate-100 transition dark:text-muted-foreground dark:hover:text-foreground dark:hover:bg-muted cursor-pointer"
+              >
+                {isMobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
+              </button>
+            </div>
           </div>
         </div>
       </nav>
 
+      {/* Mobile Navigation Drawer */}
+      <AnimatePresence>
+        {isMobileMenuOpen && (
+          <>
+            {/* Backdrop */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setIsMobileMenuOpen(false)}
+              className="fixed inset-0 z-45 bg-black/60 backdrop-blur-sm md:hidden"
+            />
+
+            {/* Drawer */}
+            <motion.div
+              initial={{ x: "100%" }}
+              animate={{ x: 0 }}
+              exit={{ x: "100%" }}
+              transition={{ type: "spring", damping: 25, stiffness: 200 }}
+              className="fixed right-0 top-0 bottom-0 z-50 w-72 max-w-[80vw] bg-white dark:bg-background border-l border-slate-200/70 dark:border-border shadow-2xl p-6 md:hidden flex flex-col overflow-y-auto"
+            >
+              <div className="flex items-center justify-between mb-6 pb-4 border-b border-slate-200/70 dark:border-border">
+                <div className="flex items-center gap-3">
+                  <div className="w-9 h-9 rounded-full bg-gradient-to-tr from-violet-600 to-purple-500 text-white font-bold flex items-center justify-center text-xs">
+                    {getInitials(userInfo.name)}
+                  </div>
+                  <div>
+                    <h4 className="font-bold text-sm text-slate-950 dark:text-foreground truncate max-w-[140px]">{userInfo.name}</h4>
+                    <p className="text-[10px] text-muted-foreground truncate max-w-[140px]">{userInfo.designation}</p>
+                  </div>
+                </div>
+                <button
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-muted text-muted-foreground"
+                >
+                  <X size={18} />
+                </button>
+              </div>
+
+              {/* Department Info */}
+              <div className="mb-6 space-y-2">
+                <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border border-indigo-100 dark:border-indigo-500/20 font-semibold text-xs justify-center">
+                  <Building2 size={16} />
+                  Digital Marketing
+                </div>
+
+                <button
+                  onClick={() => {
+                    setIsMobileMenuOpen(false);
+                    router.push("/employee/raise-ticket");
+                  }}
+                  className="w-full flex items-center gap-2 px-3 py-2 rounded-xl bg-cyan-500/10 text-cyan-600 dark:text-cyan-400 border border-cyan-500/20 font-semibold text-xs justify-center hover:bg-cyan-500/20 transition cursor-pointer"
+                >
+                  <Ticket size={16} />
+                  <span>Raise Ticket</span>
+                </button>
+              </div>
+
+              {/* Navigation Sections */}
+              <div className="flex-1 space-y-6">
+                <div>
+                  <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider mb-2">Workspace & Tasks</p>
+                  <div className="space-y-1.5">
+                    <button
+                      onClick={() => {
+                        setIsMobileMenuOpen(false);
+                        setIsCalendarOpen(true);
+                      }}
+                      className="w-full text-left px-3 py-2 rounded-xl text-sm hover:bg-slate-100 dark:hover:bg-muted text-slate-900 dark:text-foreground transition-colors flex items-center gap-2"
+                    >
+                      <Calendar size={16} className="text-indigo-500" />
+                      <span>Calendar</span>
+                    </button>
+
+                    <button
+                      onClick={() => {
+                        setIsMobileMenuOpen(false);
+                        setIsMessagesOpen(true);
+                      }}
+                      className="w-full text-left px-3 py-2 rounded-xl text-sm hover:bg-slate-100 dark:hover:bg-muted text-slate-900 dark:text-foreground transition-colors flex items-center justify-between"
+                    >
+                      <span className="flex items-center gap-2">
+                        <Mail size={16} className="text-blue-500" />
+                        Messages
+                      </span>
+                      {internalChatCount + unreadMessageCount > 0 && (
+                        <span className="bg-blue-500 text-white rounded-full text-[10px] font-bold px-1.5 py-0.5 animate-pulse">
+                          {internalChatCount + unreadMessageCount}
+                        </span>
+                      )}
+                    </button>
+
+                    <button
+                      onClick={() => {
+                        setIsMobileMenuOpen(false);
+                        setIsRemindersOpen(true);
+                      }}
+                      className="w-full text-left px-3 py-2 rounded-xl text-sm hover:bg-slate-100 dark:hover:bg-muted text-slate-900 dark:text-foreground transition-colors flex items-center gap-2"
+                    >
+                      <AlarmClock size={16} className="text-amber-500" />
+                      <span>Reminders</span>
+                    </button>
+
+                    <button
+                      onClick={() => {
+                        setIsMobileMenuOpen(false);
+                        handleNotificationClick();
+                      }}
+                      className="w-full text-left px-3 py-2 rounded-xl text-sm hover:bg-slate-100 dark:hover:bg-muted text-slate-900 dark:text-foreground transition-colors flex items-center justify-between"
+                    >
+                      <span className="flex items-center gap-2">
+                        <Bell size={16} className="text-rose-500" />
+                        Notifications
+                      </span>
+                      {unreadNotificationCount > 0 && (
+                        <span className="bg-rose-500 text-white rounded-full text-[10px] font-bold px-1.5 py-0.5">
+                          {unreadNotificationCount}
+                        </span>
+                      )}
+                    </button>
+
+                    <button
+                      onClick={() => {
+                        setIsMobileMenuOpen(false);
+                        setIsProfileModalOpen(true);
+                      }}
+                      className="w-full text-left px-3 py-2 rounded-xl text-sm hover:bg-slate-100 dark:hover:bg-muted text-slate-900 dark:text-foreground transition-colors flex items-center gap-2"
+                    >
+                      <Settings size={16} className="text-purple-500" />
+                      <span>Account Info</span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              {/* Footer Action */}
+              <div className="mt-auto pt-6 border-t border-slate-200/70 dark:border-border">
+                <button
+                  onClick={() => {
+                    setIsMobileMenuOpen(false);
+                    handleLogout();
+                  }}
+                  className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-red-50 text-red-500 hover:bg-red-100 transition-colors font-semibold text-sm border border-red-100 dark:bg-red-500/10 dark:border-red-500/20"
+                >
+                  <LogOut size={16} />
+                  Logout
+                </button>
+              </div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
+
+      {/* Mobile View Calendar Modal */}
+      <AnimatePresence>
+        {isCalendarOpen && (
+          <div className="fixed inset-0 z-[150] flex items-center justify-center bg-black/60 backdrop-blur-sm md:hidden" onClick={() => setIsCalendarOpen(false)}>
+            <div className="w-72 rounded-2xl border border-slate-700/70 bg-[#070b1a] p-4 shadow-2xl shadow-black/60 z-[160]" onClick={(e) => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-4">
+                <button
+                  onClick={goToPreviousMonth}
+                  className="p-1 hover:bg-slate-800 rounded-full text-slate-400 hover:text-white transition"
+                >
+                  <ChevronLeft size={18} />
+                </button>
+
+                <h2 className="text-sm font-semibold text-white">
+                  {monthNames[month]} {year}
+                </h2>
+
+                <button
+                  onClick={goToNextMonth}
+                  className="p-1 hover:bg-slate-800 rounded-full text-slate-400 hover:text-white transition"
+                >
+                  <ChevronRight size={18} />
+                </button>
+              </div>
+
+              <div className="grid grid-cols-7 gap-1 mb-2">
+                {dayNames.map((day) => (
+                  <div
+                    key={day}
+                    className="text-center text-xs font-medium text-slate-400 py-1"
+                  >
+                    {day}
+                  </div>
+                ))}
+              </div>
+
+              <div className="grid grid-cols-7 gap-1">
+                {Array.from({ length: firstDayOfMonth }).map((_, i) => (
+                  <div key={`empty-${i}`} className="p-2" />
+                ))}
+
+                {Array.from({ length: daysInMonth }).map((_, index) => {
+                  const day = index + 1;
+
+                  const isToday =
+                    day === today.getDate() &&
+                    month === today.getMonth() &&
+                    year === today.getFullYear();
+
+                  const hasReminder = reminders.some((r) => {
+                    if (!r.dateTime) return false;
+                    const d = new Date(r.dateTime);
+                    return (
+                      d.getDate() === day &&
+                      d.getMonth() === month &&
+                      d.getFullYear() === year
+                    );
+                  });
+
+                  return (
+                    <button
+                      key={day}
+                      className={`relative p-2 w-8 h-8 flex items-center justify-center rounded-full text-sm mx-auto transition-all ${
+                        isToday
+                          ? "bg-indigo-500 text-white font-bold shadow-md shadow-indigo-500/40"
+                          : "text-slate-100 hover:bg-slate-800 font-medium"
+                      }`}
+                    >
+                      <span>{day}</span>
+                      {hasReminder && (
+                        <span className="absolute bottom-1 right-1 w-1.5 h-1.5 rounded-full bg-rose-500 shadow-sm animate-pulse" />
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
+              <button onClick={() => setIsCalendarOpen(false)} className="mt-4 w-full py-2 bg-indigo-600 hover:bg-indigo-50 text-white rounded-xl text-xs font-bold transition-all">Close Calendar</button>
+            </div>
+          </div>
+        )}
+      </AnimatePresence>
+
+
       <MessagesModal
         isOpen={isMessagesOpen}
         onClose={() => setIsMessagesOpen(false)}
+      />
+
+      <NotificationsModal
+        isOpen={isNotificationsOpen}
+        onClose={() => {
+          setIsNotificationsOpen(false);
+          fetchNotifications();
+        }}
+        onNavigate={(path) => router.push(path)}
+        employeeCode={(typeof window !== "undefined" ? localStorage.getItem("userEmployeeCode") : null) || userInfo.id}
+        employeeName={(typeof window !== "undefined" ? localStorage.getItem("userName") : null) || userInfo.name}
       />
 
       <EmployeeRemindersModal

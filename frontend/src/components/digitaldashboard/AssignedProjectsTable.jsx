@@ -33,7 +33,8 @@ export default function AssignedProjectsTable({ projects = [], onViewDetails }) 
         </div>
       </div>
 
-      <div className="overflow-x-auto">
+      {/* Desktop Table View */}
+      <div className="hidden lg:block overflow-x-auto">
         <table className="w-full min-w-[720px] text-left text-sm">
           <thead>
             <tr className="border-b border-gray-100 text-xs uppercase tracking-wide text-gray-400 dark:border-white/5 dark:text-gray-500">
@@ -75,7 +76,7 @@ export default function AssignedProjectsTable({ projects = [], onViewDetails }) 
                 <td className="py-3.5 pr-0 text-right">
                   <button
                     onClick={() => router.push(`/employee/digitaldashboard/client/${p.id}`)}
-                    className="inline-flex items-center gap-1 text-sm font-medium text-blue-600 hover:underline dark:text-blue-400"
+                    className="inline-flex items-center gap-1 text-sm font-medium text-blue-600 hover:underline dark:text-blue-400 cursor-pointer"
                   >
                     View Details <ArrowRight size={14} />
                   </button>
@@ -91,6 +92,67 @@ export default function AssignedProjectsTable({ projects = [], onViewDetails }) 
             )}
           </tbody>
         </table>
+      </div>
+
+      {/* Mobile Card/Tile Layout */}
+      <div className="grid grid-cols-1 gap-4 lg:hidden">
+        {paginatedProjects.map((p) => (
+          <div
+            key={p.id}
+            className="rounded-2xl border border-gray-150 bg-[#FAF7FF]/40 p-4 shadow-sm dark:border-white/5 dark:bg-[#0E172A]/40 backdrop-blur-md"
+          >
+            <div className="flex items-center justify-between border-b border-gray-100 pb-2.5 dark:border-white/5">
+              <button
+                onClick={() => router.push(`/employee/digitaldashboard/client/${p.id}`)}
+                className="text-sm font-bold text-blue-600 hover:underline dark:text-blue-400 text-left cursor-pointer"
+              >
+                {p.client}
+              </button>
+              <span className={`rounded-full px-2 py-0.5 text-[10px] font-semibold tracking-wide uppercase ${
+                statusColors[p.status] || 
+                (p.status === "In Progress" || p.status === "Ongoing" ? "bg-blue-500/15 text-blue-600 dark:text-blue-400" :
+                 p.status === "On Track" ? "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400" :
+                 p.status === "Completed" ? "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400" :
+                 "bg-gray-500/15 text-gray-600 dark:text-gray-400")
+              }`}>
+                {p.status}
+              </span>
+            </div>
+
+            <div className="mt-3 grid grid-cols-2 gap-y-2 text-xs">
+              <div>
+                <p className="text-gray-400 dark:text-gray-500">Project Type</p>
+                <p className="font-semibold text-gray-750 dark:text-gray-200 mt-0.5">{p.projectType}</p>
+              </div>
+              <div>
+                <p className="text-gray-400 dark:text-gray-500">Assigned By</p>
+                <p className="font-semibold text-gray-750 dark:text-gray-200 mt-0.5">{p.assignedBy}</p>
+              </div>
+              <div>
+                <p className="text-gray-400 dark:text-gray-500">Budget</p>
+                <p className="font-semibold text-gray-750 dark:text-gray-200 mt-0.5">{displayBudget(p.budget)}</p>
+              </div>
+              <div>
+                <p className="text-gray-400 dark:text-gray-500">Deadline</p>
+                <p className="font-semibold text-gray-750 dark:text-gray-200 mt-0.5">{p.deadline}</p>
+              </div>
+            </div>
+
+            <div className="mt-4 pt-3 border-t border-gray-100 dark:border-white/5 flex justify-end">
+              <button
+                onClick={() => router.push(`/employee/digitaldashboard/client/${p.id}`)}
+                className="inline-flex items-center gap-1 text-xs font-semibold text-blue-600 hover:underline dark:text-blue-400 cursor-pointer"
+              >
+                View Details <ArrowRight size={13} />
+              </button>
+            </div>
+          </div>
+        ))}
+        {projects.length === 0 && (
+          <p className="py-6 text-center text-sm text-gray-400 dark:text-gray-500">
+            No projects assigned.
+          </p>
+        )}
       </div>
 
       {projects.length > 0 && (

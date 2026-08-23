@@ -16,7 +16,7 @@ import {
 import { motion, AnimatePresence } from "framer-motion";
 import { api } from "@/lib/api";
 
-export function NotificationsModal({ isOpen, onClose, onNavigate }) {
+export function NotificationsModal({ isOpen, onClose, onNavigate, employeeCode, employeeName }) {
   const [notifications, setNotifications] = useState([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [loading, setLoading] = useState(false);
@@ -24,8 +24,11 @@ export function NotificationsModal({ isOpen, onClose, onNavigate }) {
 
   const fetchNotifications = () => {
     Promise.resolve().then(() => setLoading(true));
+    const url = employeeCode
+      ? `/api/notifications?employeeCode=${employeeCode}&employeeName=${encodeURIComponent(employeeName || "")}`
+      : "/api/notifications";
     api
-      .get("/api/notifications")
+      .get(url)
       .then((res) => {
         Promise.resolve().then(() => {
           setNotifications(res.data?.notifications || []);
@@ -65,7 +68,10 @@ export function NotificationsModal({ isOpen, onClose, onNavigate }) {
 
   const handleMarkAllAsRead = async () => {
     try {
-      await api.patch("/api/notifications/read-all");
+      const url = employeeCode
+        ? `/api/notifications/read-all?employeeCode=${employeeCode}&employeeName=${encodeURIComponent(employeeName || "")}`
+        : "/api/notifications/read-all";
+      await api.patch(url);
       Promise.resolve().then(() => {
         setNotifications((prev) => prev.map((n) => ({ ...n, isRead: true })));
         setUnreadCount(0);
@@ -97,7 +103,10 @@ export function NotificationsModal({ isOpen, onClose, onNavigate }) {
     if (!window.confirm("Are you sure you want to clear all notifications?"))
       return;
     try {
-      await api.delete("/api/notifications");
+      const url = employeeCode
+        ? `/api/notifications?employeeCode=${employeeCode}&employeeName=${encodeURIComponent(employeeName || "")}`
+        : "/api/notifications";
+      await api.delete(url);
       Promise.resolve().then(() => {
         setNotifications([]);
         setUnreadCount(0);
@@ -136,76 +145,82 @@ export function NotificationsModal({ isOpen, onClose, onNavigate }) {
         initial={{ opacity: 0, scale: 0.95, y: 10 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.95, y: 10 }}
-        className="bg-background border border-border/80 w-full max-w-2xl rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-[85vh]"
+        className="bg-background border border-border/80 w-full max-w-2xl rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-[85vh] relative"
       >
-        {/* Header */}
-        <div className="p-6 border-b border-border/60 bg-muted/20 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-pink-500/10 border border-pink-500/20 flex items-center justify-center text-pink-500 shadow-inner">
-              <Bell size={20} className="animate-bounce" />
-            </div>
-            <div>
-              <div className="flex items-center gap-2">
-                <h3 className="text-lg font-bold text-foreground">
-                  Notifications Center
-                </h3>
-                {unreadCount > 0 && (
-                  <span className="px-2 py-0.5 rounded-full bg-pink-500 text-white text-xs font-extrabold shadow-sm">
-                    {unreadCount} New
-                  </span>
-                )}
-              </div>
-              <p className="text-xs text-muted-foreground mt-0.5">
-                Real-time updates, messages, customer inquiries, and employee activity
-              </p>
-            </div>
-          </div>
+        {/* Absolute Close Button */}
+        <button
+          onClick={onClose}
+          className="absolute right-4 top-4 rounded-full p-2 text-slate-400 hover:text-red-500 hover:bg-red-500/10 transition-colors z-10 cursor-pointer"
+          title="Close (Esc)"
+        >
+          <X size={18} />
+        </button>
 
-          <div className="flex items-center gap-2">
-            {notifications.length > 0 && (
-              <>
-                {unreadCount > 0 && (
+        {/* Header */}
+        <div className="p-5 sm:p-6 border-b border-border/60 bg-muted/20">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pr-8">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-2xl bg-pink-500/10 border border-pink-500/20 flex items-center justify-center text-pink-500 shadow-inner shrink-0">
+                <Bell size={20} className="animate-bounce" />
+              </div>
+              <div>
+                <div className="flex items-center gap-2">
+                  <h3 className="text-base sm:text-lg font-bold text-foreground leading-none">
+                    Notifications Center
+                  </h3>
+                  {unreadCount > 0 && (
+                    <span className="px-2 py-0.5 rounded-full bg-pink-500 text-white text-[10px] font-extrabold shadow-sm whitespace-nowrap">
+                      {unreadCount} New
+                    </span>
+                  )}
+                </div>
+                <p className="text-[11px] sm:text-xs text-muted-foreground mt-1.5 leading-normal">
+                  Real-time updates, messages, and employee activity
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2 self-start sm:self-auto">
+              {notifications.length > 0 && (
+                <>
+                  {unreadCount > 0 && (
+                    <button
+                      onClick={handleMarkAllAsRead}
+                      title="Mark all as read"
+                      className="px-3 py-1.5 rounded-xl bg-pink-500/10 text-pink-500 hover:bg-pink-500/20 text-xs font-bold flex items-center gap-1.5 transition-all whitespace-nowrap"
+                    >
+                      <CheckCheck size={14} />
+                      <span>Mark All Read</span>
+                    </button>
+                  )}
                   <button
-                    onClick={handleMarkAllAsRead}
-                    title="Mark all as read"
-                    className="px-3 py-1.5 rounded-xl bg-pink-500/10 text-pink-500 hover:bg-pink-500/20 text-xs font-semibold flex items-center gap-1.5 transition-all"
+                    onClick={handleClearAll}
+                    title="Clear all notifications"
+                    className="p-1.5 rounded-xl bg-muted text-muted-foreground hover:bg-rose-500/10 hover:text-rose-500 transition-all border border-border/40"
                   >
-                    <CheckCheck size={14} /> Mark All Read
+                    <Trash2 size={15} />
                   </button>
-                )}
-                <button
-                  onClick={handleClearAll}
-                  title="Clear all notifications"
-                  className="p-2 rounded-xl bg-muted text-muted-foreground hover:bg-rose-500/10 hover:text-rose-500 transition-all"
-                >
-                  <Trash2 size={16} />
-                </button>
-              </>
-            )}
-            <button
-              onClick={onClose}
-              className="p-2 rounded-xl bg-muted hover:bg-muted/80 text-foreground transition-all ml-1"
-            >
-              <X size={18} />
-            </button>
+                </>
+              )}
+            </div>
           </div>
         </div>
 
         {/* Filter Bar */}
-        <div className="px-6 py-3 border-b border-border/60 bg-background flex items-center gap-2">
+        <div className="px-5 sm:px-6 py-2.5 border-b border-border/60 bg-background flex items-center gap-2">
           <button
             onClick={() => setSelectedFilter("all")}
-            className={`px-3 py-1 rounded-lg text-xs font-bold transition-all ${
+            className={`px-3 py-1.5 rounded-lg text-[11px] sm:text-xs font-bold transition-all ${
               selectedFilter === "all"
                 ? "bg-pink-500 text-white shadow-sm"
                 : "bg-muted text-muted-foreground hover:text-foreground"
             }`}
           >
-            All Notifications ({notifications.length})
+            All ({notifications.length})
           </button>
           <button
             onClick={() => setSelectedFilter("unread")}
-            className={`px-3 py-1 rounded-lg text-xs font-bold transition-all ${
+            className={`px-3 py-1.5 rounded-lg text-[11px] sm:text-xs font-bold transition-all ${
               selectedFilter === "unread"
                 ? "bg-pink-500 text-white shadow-sm"
                 : "bg-muted text-muted-foreground hover:text-foreground"
@@ -253,7 +268,7 @@ export function NotificationsModal({ isOpen, onClose, onNavigate }) {
                       onClose();
                     }
                   }}
-                  className={`p-4 rounded-2xl border transition-all cursor-pointer flex items-start gap-3.5 relative group ${
+                  className={`p-3.5 rounded-2xl border transition-all cursor-pointer flex items-start gap-3 relative group ${
                     n.isRead
                       ? "bg-background border-border/50 opacity-80 hover:opacity-100 hover:border-border"
                       : "bg-pink-500/5 dark:bg-pink-500/10 border-pink-500/30 shadow-sm"
@@ -267,16 +282,16 @@ export function NotificationsModal({ isOpen, onClose, onNavigate }) {
                     <span className="absolute top-4 right-4 w-2 h-2 rounded-full bg-pink-500" />
                   )}
 
-                  <div className="p-2.5 rounded-xl bg-muted/60 border border-border/40 shrink-0 mt-0.5">
+                  <div className="p-2 rounded-xl bg-muted/65 border border-border/40 shrink-0 mt-0.5">
                     {getCategoryIcon(n.category)}
                   </div>
 
                   <div className="flex-1 min-w-0 pr-6">
-                    <div className="flex items-center justify-between gap-2">
-                      <h4 className="text-sm font-bold text-foreground truncate">
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 w-full">
+                      <h4 className="text-xs sm:text-sm font-bold text-foreground leading-snug">
                         {n.title}
                       </h4>
-                      <span className="text-[10px] text-muted-foreground whitespace-nowrap">
+                      <span className="text-[10px] text-muted-foreground whitespace-nowrap shrink-0">
                         {new Date(n.createdAt).toLocaleTimeString([], {
                           hour: "2-digit",
                           minute: "2-digit",
@@ -289,24 +304,24 @@ export function NotificationsModal({ isOpen, onClose, onNavigate }) {
                       </span>
                     </div>
 
-                    <p className="text-xs text-muted-foreground mt-1 line-clamp-2 leading-relaxed">
+                    <p className="text-[11px] sm:text-xs text-muted-foreground mt-1 line-clamp-2 leading-relaxed">
                       {n.message}
                     </p>
 
-                    <div className="flex items-center gap-3 mt-2.5">
+                    <div className="flex items-center gap-3 mt-2">
                       {n.link && (
-                        <span className="text-[11px] font-bold text-pink-500 flex items-center gap-1 group-hover:underline">
+                        <span className="text-[10px] sm:text-[11px] font-bold text-pink-500 flex items-center gap-1 group-hover:underline">
                           Open {n.link === "inquiries" ? "Customer Inquiries" : n.link === "messages" ? "Correspondence Box" : n.link === "accounts" ? "Account Requests" : "Details"}
-                          <ExternalLink size={12} />
+                          <ExternalLink size={11} />
                         </span>
                       )}
 
                       {!n.isRead && (
                         <button
                           onClick={(e) => handleMarkAsRead(n._id, e)}
-                          className="text-[11px] font-semibold text-muted-foreground hover:text-foreground flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                          className="text-[10px] sm:text-[11px] font-semibold text-muted-foreground hover:text-foreground flex items-center gap-1 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity"
                         >
-                          <Check size={12} /> Mark read
+                          <Check size={11} /> Mark read
                         </button>
                       )}
                     </div>
@@ -315,9 +330,9 @@ export function NotificationsModal({ isOpen, onClose, onNavigate }) {
                   <button
                     onClick={(e) => handleDeleteNotification(n._id, e)}
                     title="Delete notification"
-                    className="opacity-0 group-hover:opacity-100 transition-opacity p-1.5 rounded-lg hover:bg-rose-500/10 hover:text-rose-500 text-muted-foreground absolute bottom-3 right-3"
+                    className="opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity p-1.5 rounded-lg hover:bg-rose-500/10 hover:text-rose-500 text-muted-foreground absolute bottom-2.5 right-2.5"
                   >
-                    <Trash2 size={14} />
+                    <Trash2 size={13} />
                   </button>
                 </motion.div>
               ))}
@@ -326,7 +341,7 @@ export function NotificationsModal({ isOpen, onClose, onNavigate }) {
         </div>
 
         {/* Footer */}
-        <div className="p-4 border-t border-border/60 bg-muted/20 flex items-center justify-between text-xs text-muted-foreground">
+        <div className="p-3.5 border-t border-border/60 bg-muted/20 flex items-center justify-between text-xs text-muted-foreground">
           <span>Total Notifications: {notifications.length}</span>
           <span>Click any item to open or mark read</span>
         </div>

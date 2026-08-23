@@ -462,8 +462,8 @@ export default function ProjectsTable({ onViewProject }) {
   };
 
   return (
-    <div className="glass-card rounded-2xl p-6 border border-border">
-      <div className="flex items-center justify-between mb-6">
+    <div className="glass-card rounded-2xl p-4 md:p-6 border border-border">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
         <div>
           <h2 className="text-xl font-bold text-foreground">
             Client Projects Detailed View
@@ -477,13 +477,154 @@ export default function ProjectsTable({ onViewProject }) {
 
         <button
           onClick={handleDownloadReport}
-          className="px-4 py-2 rounded-lg bg-primary text-primary-foreground text-sm font-medium hover:opacity-90 transition"
+          className="w-full sm:w-auto px-4 py-2 rounded-lg bg-primary text-primary-foreground text-sm font-medium hover:opacity-90 transition cursor-pointer"
         >
           View Reports
         </button>
       </div>
 
-      <div className="overflow-x-auto">
+      {/* Mobile Card View */}
+      <div className="md:hidden space-y-4">
+        {combinedProjects.map((project) => {
+          const projectId = getProjectId(project);
+          const isMenuOpen = openActionMenuId === projectId;
+          const isDeleting = deletingId === projectId;
+
+          return (
+            <div
+              key={projectId}
+              className="p-4 rounded-xl border border-border/80 bg-slate-900/10 dark:bg-slate-950/40 hover:bg-muted/10 transition-all flex flex-col gap-3 relative"
+            >
+              {/* Header: Project Name & Actions */}
+              <div className="flex items-start justify-between gap-4">
+                <div>
+                  <h3 className="text-base font-bold text-foreground">
+                    {project.project}
+                  </h3>
+                  <p className="text-xs text-muted-foreground">
+                    {project.client}
+                  </p>
+                </div>
+                
+                {/* Actions Dropdown */}
+                <div className="flex items-center gap-1.5">
+                  <button
+                    onClick={() => handleDownloadInvoice(project)}
+                    className="p-2 rounded-lg border border-border/60 hover:bg-muted text-muted-foreground hover:text-foreground transition cursor-pointer"
+                    title="Download Invoice"
+                  >
+                    <Download size={14} />
+                  </button>
+
+                  <div className="relative">
+                    <button
+                      onClick={() =>
+                        setOpenActionMenuId(isMenuOpen ? null : projectId)
+                      }
+                      className="p-2 rounded-lg border border-border/60 hover:bg-muted text-muted-foreground hover:text-foreground transition cursor-pointer"
+                      title="More Actions"
+                    >
+                      <MoreVertical size={14} />
+                    </button>
+
+                    {isMenuOpen && (
+                      <div className="absolute right-0 top-full z-50 mt-1 w-40 overflow-hidden rounded-xl border border-border bg-background shadow-xl">
+                        <button
+                          onClick={() => {
+                            setSelectedProjectForEdit(project);
+                            setOpenActionMenuId(null);
+                          }}
+                          className="flex w-full items-center gap-2 px-4 py-2.5 text-left text-xs font-bold text-foreground transition hover:bg-muted cursor-pointer"
+                        >
+                          <Edit3 size={14} className="text-indigo-400" />
+                          Edit Project
+                        </button>
+
+                        <button
+                          onClick={() => handleDeleteProject(project)}
+                          disabled={isDeleting}
+                          className="flex w-full items-center gap-2 px-4 py-2.5 text-left text-xs font-bold text-red-500 transition hover:bg-red-500/10 disabled:opacity-60 cursor-pointer"
+                        >
+                          {isDeleting ? (
+                            <Loader2
+                              size={14}
+                              className="animate-spin text-red-500"
+                            />
+                          ) : (
+                            <Trash2 size={14} className="text-red-500" />
+                          )}
+                          Delete Project
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              {/* Budget & Status */}
+              <div className="flex items-center justify-between text-xs border-t border-border/45 pt-2.5">
+                <div>
+                  <span className="text-muted-foreground block text-[10px] uppercase font-bold tracking-wider mb-0.5">Budget</span>
+                  <button
+                    onClick={() => {
+                      setSelectedProject(project);
+                      setOpen(true);
+                    }}
+                    className="font-bold underline text-emerald-500 dark:text-emerald-400 hover:text-emerald-300 transition text-sm cursor-pointer"
+                  >
+                    {formatProjectAmount(getProjectBudgetValue(project))}
+                  </button>
+                </div>
+
+                <div className="text-right">
+                  <span className="text-muted-foreground block text-[10px] uppercase font-bold tracking-wider mb-0.5">Status</span>
+                  <StatusBadge status={project.status} />
+                </div>
+              </div>
+
+              {/* Progress Bar */}
+              <div className="space-y-1">
+                <div className="flex justify-between items-center text-[10px] uppercase font-bold text-muted-foreground tracking-wider">
+                  <span>Progress</span>
+                  <span className="text-indigo-400 font-bold">{project.progress}%</span>
+                </div>
+                <div className="w-full h-2 bg-zinc-800 rounded-full overflow-hidden border border-border/50">
+                  <div
+                    className="h-full bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-500 rounded-full transition-all duration-500 shadow-sm shadow-indigo-500/30"
+                    style={{
+                      width: `${project.progress}%`,
+                    }}
+                  />
+                </div>
+              </div>
+
+              {/* Meta: Manager & Deadline */}
+              <div className="grid grid-cols-2 gap-2 text-xs border-t border-border/45 pt-2.5 text-muted-foreground">
+                <div>
+                  <span className="text-[10px] uppercase font-bold tracking-wider block mb-0.5">Manager</span>
+                  <span className="font-semibold text-foreground">{project.manager}</span>
+                </div>
+                <div>
+                  <span className="text-[10px] uppercase font-bold tracking-wider block mb-0.5">Deadline</span>
+                  <span className="font-semibold text-foreground">{project.deadline}</span>
+                </div>
+              </div>
+
+              {/* Primary Action Button */}
+              <button
+                onClick={() => onViewProject(project)}
+                className="mt-2 w-full flex items-center justify-center gap-2 py-2 rounded-lg bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-600 dark:text-indigo-400 text-xs font-bold transition border border-indigo-500/20 shadow-sm cursor-pointer"
+              >
+                <Eye size={14} />
+                View Project
+              </button>
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Desktop Table View */}
+      <div className="hidden md:block overflow-x-auto">
         <table className="w-full min-w-[1300px] text-left border-collapse">
           <thead>
             <tr className="border-b border-border text-xs uppercase text-muted-foreground tracking-wider">
@@ -542,7 +683,7 @@ export default function ProjectsTable({ onViewProject }) {
                         setSelectedProject(project);
                         setOpen(true);
                       }}
-                      className="font-bold underline text-emerald-400 hover:text-emerald-300 transition"
+                      className="font-bold underline text-emerald-400 hover:text-emerald-300 transition cursor-pointer"
                     >
                       {formatProjectAmount(getProjectBudgetValue(project))}
                     </button>
@@ -580,7 +721,7 @@ export default function ProjectsTable({ onViewProject }) {
                   <td className="py-4 px-4 whitespace-nowrap">
                     <button
                       onClick={() => onViewProject(project)}
-                      className="flex items-center gap-2 px-3.5 py-2 rounded-xl border border-border/80 hover:bg-indigo-500/10 hover:border-indigo-500/40 text-xs font-bold transition shadow-sm"
+                      className="flex items-center gap-2 px-3.5 py-2 rounded-xl border border-border/80 hover:bg-indigo-500/10 hover:border-indigo-500/40 text-xs font-bold transition shadow-sm cursor-pointer"
                     >
                       <Eye size={15} className="text-indigo-400" />
                       View Project
@@ -591,7 +732,7 @@ export default function ProjectsTable({ onViewProject }) {
                     <div className="flex items-center gap-2">
                       <button
                         onClick={() => handleDownloadInvoice(project)}
-                        className="p-2 rounded-xl border border-border/80 hover:bg-muted text-muted-foreground hover:text-foreground transition shadow-sm"
+                        className="p-2 rounded-xl border border-border/80 hover:bg-muted text-muted-foreground hover:text-foreground transition shadow-sm cursor-pointer"
                         title="Download Invoice"
                       >
                         <Download size={16} />
@@ -602,7 +743,7 @@ export default function ProjectsTable({ onViewProject }) {
                           onClick={() =>
                             setOpenActionMenuId(isMenuOpen ? null : projectId)
                           }
-                          className="p-2 rounded-xl border border-border/80 hover:bg-muted text-muted-foreground hover:text-foreground transition shadow-sm"
+                          className="p-2 rounded-xl border border-border/80 hover:bg-muted text-muted-foreground hover:text-foreground transition shadow-sm cursor-pointer"
                           title="More Actions"
                         >
                           <MoreVertical size={16} />
@@ -615,7 +756,7 @@ export default function ProjectsTable({ onViewProject }) {
                                 setSelectedProjectForEdit(project);
                                 setOpenActionMenuId(null);
                               }}
-                              className="flex w-full items-center gap-2 px-4 py-3 text-left text-xs font-bold text-foreground transition hover:bg-muted"
+                              className="flex w-full items-center gap-2 px-4 py-3 text-left text-xs font-bold text-foreground transition hover:bg-muted cursor-pointer"
                             >
                               <Edit3 size={15} className="text-indigo-400" />
                               Edit Project
@@ -624,7 +765,7 @@ export default function ProjectsTable({ onViewProject }) {
                             <button
                               onClick={() => handleDeleteProject(project)}
                               disabled={isDeleting}
-                              className="flex w-full items-center gap-2 px-4 py-3 text-left text-xs font-bold text-red-500 transition hover:bg-red-500/10 disabled:opacity-60"
+                              className="flex w-full items-center gap-2 px-4 py-3 text-left text-xs font-bold text-red-500 transition hover:bg-red-500/10 disabled:opacity-60 cursor-pointer"
                             >
                               {isDeleting ? (
                                 <Loader2

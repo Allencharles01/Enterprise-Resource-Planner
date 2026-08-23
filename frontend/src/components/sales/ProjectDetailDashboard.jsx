@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import {
   ArrowLeft,
   Building2,
@@ -18,6 +18,7 @@ import {
   TrendingUp,
   CheckCircle2,
   Circle,
+  ChevronDown,
 } from "lucide-react";
 
 const formatProjectAmount = (value) => {
@@ -447,6 +448,15 @@ export default function ProjectDetailDashboard({ project, onBack }) {
   const activeGroup = taskGroups.find((g) => g.name === selectedGroupName) || taskGroups[0] || {};
   const [showTeamModal, setShowTeamModal] = useState(false);
   const [viewMode, setViewMode] = useState("departmental");
+  const [isViewDropdownOpen, setIsViewDropdownOpen] = useState(false);
+
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: "instant" });
+    const mainEl = document.querySelector("main") || document.documentElement;
+    if (mainEl) {
+      mainEl.scrollTop = 0;
+    }
+  }, []);
 
   const ActiveGroupIcon = activeGroup.icon || LayoutDashboard;
 
@@ -546,229 +556,212 @@ export default function ProjectDetailDashboard({ project, onBack }) {
 };
 
   return (
-    <div className="px-6 py-8 space-y-8">
+    <div className="px-4 sm:px-6 py-6 sm:py-8 space-y-6">
       {/* Header */}
-<div
-  className="
-    group relative overflow-hidden rounded-2xl border border-border p-7
-    bg-background transition-all duration-300
-    hover:-translate-y-1
-    hover:border-primary/40
-    hover:shadow-2xl hover:shadow-primary/20
-  "
->
-  <div className="pointer-events-none absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-[radial-gradient(circle_at_top_right,rgba(99,102,241,0.20),transparent_40%),radial-gradient(circle_at_bottom_left,rgba(236,72,153,0.12),transparent_35%)]" />
+      <div className="group relative overflow-hidden rounded-2xl border border-slate-800 bg-slate-900/50 p-4 sm:p-6 transition-all duration-300 hover:border-primary/30">
+        <div className="pointer-events-none absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-[radial-gradient(circle_at_top_right,rgba(99,102,241,0.12),transparent_40%)]" />
 
-  <div className="relative z-10">
-    <button
-      onClick={onBack}
-      className="flex items-center gap-2 text-muted-foreground hover:text-foreground mb-6"
-    >
-      <ArrowLeft size={18} />
-      Back to Dashboard
-    </button>
+        <div className="relative z-10">
+          <button
+            onClick={onBack}
+            className="flex items-center gap-2 text-xs font-semibold text-slate-400 hover:text-slate-200 transition cursor-pointer mb-5 uppercase tracking-wider"
+          >
+            <ArrowLeft size={16} />
+            Back to Dashboard
+          </button>
 
-    <div className="flex items-start justify-between gap-6">
-      <div>
-        <h1 className="text-3xl font-bold text-foreground">
-          {project.project}
-        </h1>
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div>
+              <h1 className="text-xl sm:text-2xl font-bold text-slate-100 tracking-tight">
+                {project.project}
+              </h1>
+            </div>
 
-        <div className="flex flex-wrap items-center gap-6 mt-5 text-muted-foreground">
-          <span className="flex items-center gap-2">
-            <Building2 size={16} className="text-primary" />
-            <strong className="text-foreground">Client:</strong>
-            {project.client}
-          </span>
+            <div className="flex items-center shrink-0">
+              <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold border ${statusStyle(project.status)}`}>
+                <span className="w-1.5 h-1.5 rounded-full bg-current animate-pulse" />
+                {project.status === "On Track" ? "Ongoing" : project.status}
+              </span>
+            </div>
+          </div>
 
-          <span className="flex items-center gap-2">
-            <UserRound size={16} className="text-pink-500" />
-            <strong className="text-foreground">Managed by:</strong>
-            {project.manager}
-          </span>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-4 pt-4 border-t border-slate-800/60">
+            <div className="flex items-center gap-2.5">
+              <div className="w-8 h-8 rounded-lg bg-blue-500/10 text-blue-500 border border-blue-500/20 flex items-center justify-center shrink-0">
+                <Building2 size={15} />
+              </div>
+              <div className="text-xs">
+                <p className="text-slate-400 font-medium">Client</p>
+                <p className="font-semibold text-slate-200">{project.client}</p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2.5">
+              <div className="w-8 h-8 rounded-lg bg-pink-500/10 text-pink-500 border border-pink-500/20 flex items-center justify-center shrink-0">
+                <UserRound size={15} />
+              </div>
+              <div className="text-xs">
+                <p className="text-slate-400 font-medium">Managed by</p>
+                <p className="font-semibold text-slate-200">{project.manager}</p>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
-      <div className="px-5 py-3 rounded-xl border border-primary/30 bg-primary/10 text-primary font-semibold">
-        Status: {project.status === "On Track" ? "Ongoing" : project.status}
+      {/* Project Summary Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        {/* Project Budget */}
+        <div className="group relative overflow-hidden rounded-2xl border border-slate-800 bg-slate-900/50 p-4 sm:p-5 transition-all duration-300 hover:-translate-y-0.5 hover:border-orange-500/30">
+          <div className="pointer-events-none absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-[radial-gradient(circle_at_top_right,rgba(249,115,22,0.1),transparent_38%)]" />
+          <div className="relative z-10 flex items-center justify-between gap-4">
+            <div>
+              <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider">
+                Project Budget
+              </p>
+              <h2 className="text-2xl font-bold text-slate-100 mt-1">
+                {formatProjectAmount(project.budget || project.agreed)}
+              </h2>
+              <p className="text-[11px] text-slate-500 mt-1">
+                Total allocated budget
+              </p>
+            </div>
+            <div className="w-10 h-10 rounded-xl bg-orange-500/10 text-orange-500 border border-orange-500/20 flex items-center justify-center shrink-0">
+              <DollarSign size={18} />
+            </div>
+          </div>
+        </div>
+
+        {/* Budget Utilization */}
+        <div className="group relative overflow-hidden rounded-2xl border border-slate-800 bg-slate-900/50 p-4 sm:p-5 transition-all duration-300 hover:-translate-y-0.5 hover:border-emerald-500/30">
+          <div className="pointer-events-none absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-[radial-gradient(circle_at_top_right,rgba(16,185,129,0.1),transparent_38%)]" />
+          <div className="relative z-10 flex items-center justify-between gap-4">
+            <div className="flex-1">
+              <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider">
+                Budget Utilization
+              </p>
+              <h2 className="text-2xl font-bold text-slate-100 mt-1">
+                {project.received ? formatProjectAmount(project.received) : "—"}
+              </h2>
+              <p className="text-[11px] text-slate-500 mt-1">
+                {project.progress}% utilized
+              </p>
+              <div className="h-1.5 bg-slate-800 rounded-full overflow-hidden mt-2.5 max-w-[120px]">
+                <div
+                  className="h-full bg-emerald-500 rounded-full"
+                  style={{ width: `${project.progress}%` }}
+                />
+              </div>
+            </div>
+            <div className="w-10 h-10 rounded-xl bg-emerald-500/10 text-emerald-500 border border-emerald-500/20 flex items-center justify-center shrink-0">
+              <TrendingUp size={18} />
+            </div>
+          </div>
+        </div>
+
+        {/* Team Members */}
+        <div className="group relative overflow-hidden rounded-2xl border border-slate-800 bg-slate-900/50 p-4 sm:p-5 transition-all duration-300 hover:-translate-y-0.5 hover:border-cyan-500/30">
+          <div className="pointer-events-none absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-[radial-gradient(circle_at_top_right,rgba(6,182,212,0.1),transparent_38%)]" />
+          <div className="relative z-10 flex items-center justify-between gap-4">
+            <div>
+              <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider">
+                Team Members
+              </p>
+              <h2 className="text-2xl font-bold text-slate-100 mt-1">
+                {teamMembers.length}
+              </h2>
+              <p className="text-[11px] text-slate-500 mt-1">
+                Active contributors
+              </p>
+            </div>
+            <div className="w-10 h-10 rounded-xl bg-cyan-500/10 text-cyan-500 border border-cyan-500/20 flex items-center justify-center shrink-0">
+              <Users size={18} />
+            </div>
+          </div>
+        </div>
+
+        {/* Tasks Completed */}
+        <div className="group relative overflow-hidden rounded-2xl border border-slate-800 bg-slate-900/50 p-4 sm:p-5 transition-all duration-300 hover:-translate-y-0.5 hover:border-amber-500/30">
+          <div className="pointer-events-none absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-[radial-gradient(circle_at_top_right,rgba(245,158,11,0.1),transparent_38%)]" />
+          <div className="relative z-10 flex items-center justify-between gap-4">
+            <div>
+              <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider">
+                Tasks Completed
+              </p>
+              <h2 className="text-2xl font-bold text-slate-100 mt-1">
+                {completedTasksCount}/{totalTasksCount}
+              </h2>
+              <p className="text-[11px] text-slate-500 mt-1">
+                Overall task progress
+              </p>
+            </div>
+            <div className="w-10 h-10 rounded-xl bg-amber-500/10 text-amber-500 border border-amber-500/20 flex items-center justify-center shrink-0">
+              <CheckCircle2 size={18} />
+            </div>
+          </div>
+        </div>
       </div>
-    </div>
-  </div>
-</div>
-
-{/* Project Summary Cards */}
-<div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
-  {/* Project Budget */}
-  <div
-    className="
-      group relative overflow-hidden rounded-2xl border border-border p-6
-      bg-background transition-all duration-300
-      hover:-translate-y-1
-      hover:border-orange-500/30
-      hover:shadow-2xl hover:shadow-orange-500/20
-    "
-  >
-    <div className="pointer-events-none absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-[radial-gradient(circle_at_top_right,rgba(249,115,22,0.18),transparent_38%)]" />
-
-    <div className="relative z-10">
-      <div className="flex items-start justify-between">
-        <p className="text-muted-foreground font-medium">
-          Project Budget
-        </p>
-
-        <DollarSign size={22} className="text-orange-500" />
-      </div>
-
-      <h2 className="text-3xl font-bold text-foreground mt-10">
-        {formatProjectAmount(project.budget || project.agreed)}
-      </h2>
-
-      <p className="text-sm text-muted-foreground mt-2">
-        Total allocated budget
-      </p>
-    </div>
-  </div>
-
-  {/* Budget Utilization */}
-  <div
-    className="
-      group relative overflow-hidden rounded-2xl border border-border p-6
-      bg-background transition-all duration-300
-      hover:-translate-y-1
-      hover:border-emerald-500/30
-      hover:shadow-2xl hover:shadow-emerald-500/20
-    "
-  >
-    <div className="pointer-events-none absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-[radial-gradient(circle_at_top_right,rgba(16,185,129,0.18),transparent_38%)]" />
-
-    <div className="relative z-10">
-      <div className="flex items-start justify-between">
-        <p className="text-muted-foreground font-medium">
-          Budget Utilization
-        </p>
-
-        <TrendingUp size={22} className="text-emerald-500" />
-      </div>
-
-      <h2 className="text-3xl font-bold text-foreground mt-10">
-        {project.received ? formatProjectAmount(project.received) : "—"}
-      </h2>
-
-      <p className="text-sm text-muted-foreground mt-2">
-        {project.progress}% of budget utilized
-      </p>
-
-      <div className="h-2 bg-muted rounded-full overflow-hidden mt-3">
-        <div
-          className="h-full bg-foreground dark:bg-primary rounded-full"
-          style={{ width: `${project.progress}%` }}
-        />
-      </div>
-    </div>
-  </div>
-
-  {/* Team Members */}
-  <div
-    className="
-      group relative overflow-hidden rounded-2xl border border-border p-6
-      bg-background transition-all duration-300
-      hover:-translate-y-1
-      hover:border-cyan-500/30
-      hover:shadow-2xl hover:shadow-cyan-500/20
-    "
-  >
-    <div className="pointer-events-none absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-[radial-gradient(circle_at_top_right,rgba(6,182,212,0.18),transparent_38%)]" />
-
-    <div className="relative z-10">
-      <div className="flex items-start justify-between">
-        <p className="text-muted-foreground font-medium">
-          Team Members
-        </p>
-
-        <Users size={22} className="text-cyan-500" />
-      </div>
-
-      <h2 className="text-3xl font-bold text-foreground mt-10">
-        {teamMembers.length}
-      </h2>
-
-      <p className="text-sm text-muted-foreground mt-2">
-        Active contributors
-      </p>
-    </div>
-  </div>
-
-  {/* Tasks Completed */}
-  <div
-    className="
-      group relative overflow-hidden rounded-2xl border border-border p-6
-      bg-background transition-all duration-300
-      hover:-translate-y-1
-      hover:border-amber-500/30
-      hover:shadow-2xl hover:shadow-amber-500/20
-    "
-  >
-    <div className="pointer-events-none absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-[radial-gradient(circle_at_top_right,rgba(245,158,11,0.18),transparent_38%)]" />
-
-    <div className="relative z-10">
-      <div className="flex items-start justify-between">
-        <p className="text-muted-foreground font-medium">
-          Tasks Completed
-        </p>
-
-        <CheckCircle2 size={22} className="text-amber-500" />
-      </div>
-
-      <h2 className="text-3xl font-bold text-foreground mt-10">
-        {completedTasksCount}/{totalTasksCount}
-      </h2>
-
-      <p className="text-sm text-muted-foreground mt-2">
-        Overall task progress
-      </p>
-    </div>
-  </div>
-</div>
 
       {/* Toggle Section */}
-      <div className="glass-card rounded-2xl border border-border p-7">
-        <div className="flex items-start justify-between gap-4 mb-7">
+      <div className="glass-card rounded-2xl border border-slate-800 bg-slate-900/20 p-4 sm:p-6">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
           <div>
-            <h2 className="text-xl font-bold text-foreground">
+            <h2 className="text-lg font-bold text-slate-100">
               {viewMode === "departmental"
                 ? "Departmental Progress"
                 : "Project Milestones"}
             </h2>
 
-            <p className="text-muted-foreground mt-1">
+            <p className="text-sm text-slate-400 mt-1">
               {viewMode === "departmental"
                 ? "Department-wise breakdown of progress"
                 : "Key deliverables and timeline"}
             </p>
           </div>
 
-          <div className="inline-flex rounded-xl border border-border overflow-hidden bg-background">
+          {/* Modern View Dropdown Selector */}
+          <div className="relative shrink-0">
             <button
-              onClick={() => setViewMode("departmental")}
-              className={`px-5 py-2 text-sm font-semibold transition ${
-                viewMode === "departmental"
-                  ? "bg-foreground text-background"
-                  : "text-muted-foreground hover:text-foreground"
-              }`}
+              type="button"
+              onClick={() => setIsViewDropdownOpen(!isViewDropdownOpen)}
+              className="w-full sm:w-fit flex items-center justify-between gap-2.5 bg-slate-800 border border-slate-700 rounded-xl px-4 py-2.5 text-sm font-semibold text-white focus:border-blue-500 focus:outline-none cursor-pointer"
             >
-              Departmental Progress
+              <span>{viewMode === "departmental" ? "Departmental Progress" : "Project Milestones"}</span>
+              <ChevronDown size={16} className={`text-slate-400 transition-transform duration-200 ${isViewDropdownOpen ? 'rotate-180' : ''}`} />
             </button>
 
-            <button
-              onClick={() => setViewMode("milestones")}
-              className={`px-5 py-2 text-sm font-semibold transition ${
-                viewMode === "milestones"
-                  ? "bg-foreground text-background"
-                  : "text-muted-foreground hover:text-foreground"
-              }`}
-            >
-              Project Milestones
-            </button>
+            {isViewDropdownOpen && (
+              <>
+                <div 
+                  className="fixed inset-0 z-20 cursor-default" 
+                  onClick={() => setIsViewDropdownOpen(false)}
+                />
+                <div className="absolute right-0 z-30 mt-1.5 w-56 bg-slate-800 border border-slate-700 rounded-xl shadow-xl overflow-hidden py-1">
+                  <button
+                    onClick={() => {
+                      setViewMode("departmental");
+                      setIsViewDropdownOpen(false);
+                    }}
+                    className={`w-full text-left px-4 py-2 text-sm transition hover:bg-slate-700 cursor-pointer ${
+                      viewMode === "departmental" ? "text-blue-500 font-bold bg-slate-750" : "text-slate-200"
+                    }`}
+                  >
+                    Departmental Progress
+                  </button>
+                  <button
+                    onClick={() => {
+                      setViewMode("milestones");
+                      setIsViewDropdownOpen(false);
+                    }}
+                    className={`w-full text-left px-4 py-2 text-sm transition hover:bg-slate-700 cursor-pointer ${
+                      viewMode === "milestones" ? "text-blue-500 font-bold bg-slate-750" : "text-slate-200"
+                    }`}
+                  >
+                    Project Milestones
+                  </button>
+                </div>
+              </>
+            )}
           </div>
         </div>
 
@@ -822,38 +815,38 @@ export default function ProjectDetailDashboard({ project, onBack }) {
               })}
             </div>
 
-            <div className="border border-border rounded-2xl overflow-hidden">
-              <div className="px-5 py-4 border-b border-border flex items-center justify-between">
+            <div className="border border-slate-800 rounded-2xl p-4 sm:p-5 bg-slate-900/10">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-800/80 mb-5">
                 <div className="flex items-center gap-3">
                   <div
                     className={`
-                      w-9 h-9 rounded-xl flex items-center justify-center border
+                      w-9 h-9 rounded-xl flex items-center justify-center border shrink-0
                       ${getColorClasses(activeGroup.color)}
                     `}
                   >
                     <ActiveGroupIcon size={18} />
                   </div>
 
-                  <h3 className="font-bold text-foreground">
-                    {activeGroup.name} Tasks
-                  </h3>
-
-                  <span className="text-sm text-muted-foreground">
-                    {activeGroup.tasks?.length || 0} total
-                  </span>
+                  <div>
+                    <h3 className="font-bold text-slate-100 text-sm sm:text-base">
+                      {activeGroup.name} Tasks
+                    </h3>
+                    <p className="text-xs text-slate-400 mt-0.5">
+                      {activeGroup.tasks?.length || 0} total tasks
+                    </p>
+                  </div>
                 </div>
 
-                <p className="text-sm text-foreground">
-                  Lead:{" "}
-                  <span className="font-semibold">{activeGroup.lead}</span>
-                  <span className="mx-2">·</span>
-                  <span className="font-semibold">
+                <div className="text-xs sm:text-sm text-slate-300 flex items-center gap-1.5 flex-wrap">
+                  <span>Lead: <strong className="text-slate-200 font-semibold">{activeGroup.lead}</strong></span>
+                  <span className="text-slate-600">·</span>
+                  <span className="font-semibold text-slate-200">
                     {activeGroup.progress}% complete
                   </span>
-                </p>
+                </div>
               </div>
 
-              <div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {(activeGroup.tasks || []).map((task) => {
                   const completed = task.status === "Completed";
 
@@ -861,54 +854,59 @@ export default function ProjectDetailDashboard({ project, onBack }) {
                     <div
                       key={task.title}
                       className={`
-                        px-5 py-4
-                        border-b border-border last:border-b-0
-                        flex items-center justify-between
-                        transition
+                        p-4 rounded-xl border flex flex-col justify-between gap-3.5 transition-all duration-300
                         ${
                           completed
                             ? "bg-emerald-500/5 border-emerald-500/20"
-                            : "hover:bg-muted/20"
+                            : "bg-slate-900/40 border-slate-800 hover:border-slate-700"
                         }
                       `}
                     >
                       <div className="flex items-start gap-3">
-                        {completed ? (
-                          <CheckCircle2
-                            size={20}
-                            className="text-emerald-500 mt-1"
-                          />
-                        ) : (
-                          <Circle
-                            size={20}
-                            className="text-muted-foreground mt-1"
-                          />
-                        )}
+                        <div className="mt-0.5 shrink-0">
+                          {completed ? (
+                            <CheckCircle2
+                              size={18}
+                              className="text-emerald-500"
+                            />
+                          ) : (
+                            <Circle
+                              size={18}
+                              className="text-slate-500"
+                            />
+                          )}
+                        </div>
 
                         <div>
                           <h4
-                            className={`font-semibold ${
+                            className={`font-semibold text-sm leading-snug ${
                               completed
-                                ? "line-through text-muted-foreground"
-                                : "text-foreground"
+                                ? "line-through text-slate-500"
+                                : "text-slate-200"
                             }`}
                           >
                             {task.title}
                           </h4>
 
-                          <p className="text-sm text-muted-foreground mt-1">
-                            Manager: {task.manager} · Team Size: {task.team}
+                          <p className="text-xs text-slate-400 mt-1">
+                            Manager: {task.manager}
                           </p>
                         </div>
                       </div>
 
-                      <span
-                        className={`px-3 py-1 rounded-full text-xs font-medium border ${statusStyle(
-                          task.status
-                        )}`}
-                      >
-                        {task.status}
-                      </span>
+                      <div className="flex items-center justify-between border-t border-slate-800/60 pt-2.5 mt-1">
+                        <span className="text-[11px] text-slate-400">
+                          Team Size: <strong className="text-slate-300 font-semibold">{task.team}</strong>
+                        </span>
+
+                        <span
+                          className={`px-2.5 py-0.5 rounded-full text-[10px] font-semibold border ${statusStyle(
+                            task.status
+                          )}`}
+                        >
+                          {task.status}
+                        </span>
+                      </div>
                     </div>
                   );
                 })}
@@ -918,80 +916,46 @@ export default function ProjectDetailDashboard({ project, onBack }) {
         )}
 
         {viewMode === "milestones" && (
-          <div className="overflow-x-auto">
-            <table className="w-full min-w-[900px]">
-              <thead>
-                <tr className="border-b border-border bg-muted/40">
-                  <th className="text-left px-4 py-4 text-foreground">
-                    Milestone
-                  </th>
-                  <th className="text-left px-4 py-4 text-foreground">
-                    Target Date
-                  </th>
-                  <th className="text-left px-4 py-4 text-foreground">
-                    Status
-                  </th>
-                  <th className="text-left px-4 py-4 text-foreground">
-                    Completion
-                  </th>
-                </tr>
-              </thead>
-
-              <tbody>
-                {milestones.map((item) => (
-                  <tr
-                    key={item.name}
-                    className="border-b border-border/60 last:border-b-0"
-                  >
-                    <td className="px-4 py-4 font-semibold text-foreground">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {milestones.map((item) => (
+              <div
+                key={item.name}
+                className="p-4 rounded-xl border border-slate-800 bg-slate-900/40 flex flex-col justify-between gap-4 hover:border-slate-700 transition"
+              >
+                <div>
+                  <div className="flex items-start justify-between gap-2">
+                    <h4 className="font-semibold text-sm text-slate-200 leading-snug">
                       {item.name}
-                    </td>
+                    </h4>
+                    <span className={`px-2 py-0.5 rounded-full text-[10px] font-semibold border ${statusStyle(item.status)} shrink-0`}>
+                      {item.status}
+                    </span>
+                  </div>
 
-                    <td className="px-4 py-4 text-foreground">
-                      <div className="flex items-center gap-2">
-                        <CalendarDays
-                          size={16}
-                          className="text-muted-foreground"
-                        />
-                        {item.date}
-                      </div>
-                    </td>
+                  <div className="flex items-center gap-1.5 text-xs text-slate-400 mt-2">
+                    <CalendarDays size={14} className="text-slate-500" />
+                    <span>Target: {item.date}</span>
+                  </div>
+                </div>
 
-                    <td className="px-4 py-4">
-                      <span
-                        className={`px-3 py-1 rounded-full text-xs font-medium border ${statusStyle(
-                          item.status
-                        )}`}
-                      >
-                        {item.status}
-                      </span>
-                    </td>
-
-                    <td className="px-4 py-4">
-                      <div className="flex items-center gap-4">
-                        <span className="font-semibold text-foreground w-12">
-                          {item.completion}%
-                        </span>
-
-                        <div className="h-2 flex-1 bg-muted rounded-full overflow-hidden">
-                          <div
-  className={`
-    h-full rounded-full
-    ${
-      item.status === "Upcoming"
-        ? "bg-slate-300 dark:bg-slate-600"
-        : "bg-foreground dark:bg-primary"
-    }
-  `}
-  style={{ width: `${item.completion}%` }}
-/>
-                        </div>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+                <div className="border-t border-slate-800/60 pt-2.5">
+                  <div className="flex items-center justify-between text-xs font-semibold text-slate-300 mb-1.5">
+                    <span>Completion</span>
+                    <span>{item.completion}%</span>
+                  </div>
+                  <div className="h-1.5 w-full bg-slate-800 rounded-full overflow-hidden">
+                    <div
+                      className={`h-full rounded-full ${
+                        item.status === "Upcoming"
+                          ? "bg-slate-700"
+                          : "bg-gradient-to-r from-blue-500 to-indigo-500"
+                      }`}
+                      style={{ width: `${item.completion}%` }}
+                    />
+                  </div>
+                </div>
+              </div>
+            ))}
           </div>
         )}
       </div>
@@ -1012,151 +976,115 @@ export default function ProjectDetailDashboard({ project, onBack }) {
       </div>
 
       <div className="grid grid-cols-1 xl:grid-cols-2 gap-5">
-  {/* Department Managers Table */}
-  <div className="glass-card rounded-2xl border border-border p-5">
-    <h2 className="text-lg font-bold text-foreground">
-      Department Managers
-    </h2>
+        {/* Department Managers Card Grid */}
+        <div className="glass-card rounded-2xl border border-slate-800 bg-slate-900/20 p-4 sm:p-5">
+          <h2 className="text-lg font-bold text-slate-100">
+            Department Managers
+          </h2>
 
-    <p className="text-sm text-muted-foreground mt-1 mb-5">
-      Department-wise project leads and managers
-    </p>
+          <p className="text-sm text-slate-400 mt-1 mb-5">
+            Department-wise project leads and managers
+          </p>
 
-    <div className="overflow-hidden rounded-xl border border-border">
-      <table className="w-full table-fixed">
-        <thead>
-          <tr className="border-b border-border bg-muted/30">
-            <th className="w-[34%] text-left px-4 py-3 text-xs font-semibold text-muted-foreground uppercase tracking-wide">
-  Role & Manager
-</th>
-<th className="w-[46%] text-left px-4 py-3 text-xs font-semibold text-muted-foreground uppercase tracking-wide">
-  Department
-</th>
-<th className="w-[20%] text-right px-4 py-3 text-xs font-semibold text-muted-foreground uppercase tracking-wide">
-  Status
-</th>
-          </tr>
-        </thead>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {departmentManagers.map((manager) => {
+              const initials = manager.name
+                ? manager.name.split(" ").map((n) => n[0]).join("").toUpperCase()
+                : "M";
+              return (
+                <div
+                  key={manager.title}
+                  className="p-4 rounded-xl border border-slate-800 bg-slate-900/40 flex items-center justify-between gap-4 hover:border-slate-700 transition"
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="w-9 h-9 rounded-lg bg-slate-800 border border-slate-700 flex items-center justify-center font-bold text-xs text-slate-300 shrink-0">
+                      {initials}
+                    </div>
+                    <div>
+                      <p className="text-sm font-semibold text-slate-200 leading-snug">
+                        {manager.title}
+                      </p>
+                      <p className="text-xs text-slate-400 mt-0.5">
+                        {manager.name}
+                      </p>
+                    </div>
+                  </div>
 
-        <tbody>
-          {departmentManagers.map((manager) => (
-            <tr
-              key={manager.title}
-              className="border-b border-border/60 last:border-b-0 hover:bg-muted/20 transition"
-            >
-              <td className="px-4 py-3">
-                <p className="text-sm font-semibold text-foreground leading-snug">
-                  {manager.title}
-                </p>
-                <p className="text-xs text-muted-foreground mt-1">
-                  {manager.name}
-                </p>
-              </td>
+                  <div className="flex flex-col items-end gap-1.5 shrink-0">
+                    <span
+                      className={`inline-flex items-center whitespace-nowrap px-2.5 py-0.5 rounded-full text-[10px] font-medium border ${departmentPillStyle(
+                        manager.department
+                      )}`}
+                    >
+                      {manager.department}
+                    </span>
+                    <span className="inline-flex px-2 py-0.5 rounded-full text-[10px] font-medium bg-emerald-500/10 text-emerald-500 border border-emerald-500/20">
+                      Active
+                    </span>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
 
-              <td className="px-4 py-3">
-                <span
-  className={`inline-flex items-center whitespace-nowrap px-2.5 py-1 rounded-full text-[11px] font-medium border ${departmentPillStyle(
-    manager.department
-  )}`}
->
-  {manager.department}
-</span>
-              </td>
+        {/* Current Tasks Card Grid */}
+        <div className="glass-card rounded-2xl border border-slate-800 bg-slate-900/20 p-4 sm:p-5">
+          <h2 className="text-lg font-bold text-slate-100">
+            Current Tasks
+          </h2>
 
-              <td className="px-4 py-3 text-right">
-                <span className="inline-flex px-2.5 py-1 rounded-full text-[11px] font-medium bg-emerald-500/10 text-emerald-500 border border-emerald-500/20">
-                  Active
-                </span>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
-  </div>
+          <p className="text-sm text-slate-400 mt-1 mb-5">
+            Active and pending tasks with department details
+          </p>
 
-  {/* Current Tasks Table */}
-  <div className="glass-card rounded-2xl border border-border p-5">
-    <h2 className="text-lg font-bold text-foreground">
-      Current Tasks
-    </h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {currentTasks.map((task) => (
+              <div
+                key={task.title}
+                className="p-4 rounded-xl border border-slate-800 bg-slate-900/40 flex flex-col justify-between gap-3.5 hover:border-slate-700 transition"
+              >
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <h4 className="text-sm font-semibold text-slate-200 leading-snug">
+                      {task.title}
+                    </h4>
+                    <p className="text-xs text-slate-400 mt-1">
+                      Assigned: {task.member || task.manager}
+                    </p>
+                  </div>
 
-    <p className="text-sm text-muted-foreground mt-1 mb-5">
-      Active and pending tasks with department details
-    </p>
+                  <span
+                    className={`px-2 py-0.5 rounded-full text-[10px] font-semibold border ${priorityStyle(
+                      task.priority
+                    )} shrink-0`}
+                  >
+                    {task.priority}
+                  </span>
+                </div>
 
-    <div className="overflow-hidden rounded-xl border border-border">
-      <table className="w-full table-fixed">
-        <thead>
-          <tr className="border-b border-border bg-muted/30">
-<th className="w-[31%] text-left px-4 py-3 text-xs font-semibold text-muted-foreground uppercase tracking-wide">
-  Task & Member
-</th>
-<th className="w-[34%] text-left px-4 py-3 text-xs font-semibold text-muted-foreground uppercase tracking-wide">
-  Department
-</th>
-<th className="w-[18%] text-center px-3 py-3 text-xs font-semibold text-muted-foreground uppercase tracking-wide">
-  Status
-</th>
-<th className="w-[17%] text-center px-2 py-3 text-xs font-semibold text-muted-foreground uppercase tracking-wide">
-  Priority
-</th>
-          </tr>
-        </thead>
+                <div className="flex items-center justify-between border-t border-slate-800/60 pt-2.5 mt-1">
+                  <span
+                    className={`inline-flex items-center whitespace-nowrap px-2.5 py-0.5 rounded-full text-[10px] font-medium border ${departmentPillStyle(
+                      task.department
+                    )}`}
+                  >
+                    {task.department}
+                  </span>
 
-        <tbody>
-          {currentTasks.map((task) => (
-            <tr
-              key={task.title}
-              className="border-b border-border/60 last:border-b-0 hover:bg-muted/20 transition"
-            >
-              <td className="px-4 py-3">
-                <p className="text-sm font-semibold text-foreground leading-snug">
-                  {task.title}
-                </p>
-                <p className="text-xs text-muted-foreground mt-1">
-                  {task.member}
-                </p>
-              </td>
-
-<td className="px-4 py-3">
-  <span
-    className={`inline-flex items-center whitespace-nowrap px-2.5 py-1 rounded-full text-[11px] font-medium border ${departmentPillStyle(
-      task.department
-    )}`}
-  >
-    {task.department}
-  </span>
-</td>
-
-              <td className="px-3 py-3 text-center">
-  <span
-    className={`inline-flex items-center justify-center whitespace-nowrap min-w-[84px] px-2.5 py-1 rounded-full text-[11px] font-medium border ${statusStyle(
-      task.status
-    )}`}
-  >
-    {task.status}
-  </span>
-</td>
-
-              <td className="px-2 py-3 text-center">
-  <span
-    className={`inline-flex items-center justify-center whitespace-nowrap min-w-[64px] px-2.5 py-1 rounded-full text-[11px] font-medium border ${priorityStyle(
-      task.priority
-    )}`}
-  >
-    {task.priority}
-  </span>
-</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
-  </div>
-</div>
-
-{/* Detailed Team Modal */}
+                  <span
+                    className={`inline-flex items-center justify-center whitespace-nowrap min-w-[70px] px-2.5 py-0.5 rounded-full text-[10px] font-semibold border ${statusStyle(
+                      task.status
+                    )}`}
+                  >
+                    {task.status}
+                  </span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>{/* Detailed Team Modal */}
 {showTeamModal && (
   <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-md flex items-center justify-center p-4">
     <div className="w-full max-w-5xl max-h-[80vh] overflow-y-auto rounded-2xl bg-background border border-border shadow-2xl">

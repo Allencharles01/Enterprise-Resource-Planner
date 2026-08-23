@@ -161,10 +161,25 @@ notificationsRouter.post("/", async (req, res) => {
 // PATCH /api/notifications/read-all -> mark all as read
 notificationsRouter.patch("/read-all", async (req, res) => {
   try {
-    await Notification.updateMany({ isRead: false }, { isRead: true });
-    await CustomerInquiry.updateMany({ isRead: false }, { isRead: true }).catch(() => {});
-    await AccountRequest.updateMany({ status: "pending", isRead: { $ne: true } }, { isRead: true }).catch(() => {});
-    await ProfileChangeRequest.updateMany({ status: "pending", isRead: { $ne: true } }, { isRead: true }).catch(() => {});
+    const { employeeCode, employeeName } = req.query;
+    let query = { isRead: false };
+    if (employeeCode) {
+      query = {
+        isRead: false,
+        $or: [
+          { "metadata.employeeCode": employeeCode },
+          { "metadata.employeeName": employeeName },
+          { "metadata.assignedTo": employeeCode }
+        ]
+      };
+    }
+    await Notification.updateMany(query, { isRead: true });
+    
+    if (!employeeCode) {
+      await CustomerInquiry.updateMany({ isRead: false }, { isRead: true }).catch(() => {});
+      await AccountRequest.updateMany({ status: "pending", isRead: { $ne: true } }, { isRead: true }).catch(() => {});
+      await ProfileChangeRequest.updateMany({ status: "pending", isRead: { $ne: true } }, { isRead: true }).catch(() => {});
+    }
     res.json({ success: true });
   } catch (error) {
     console.error("Error marking all notifications as read:", error);
@@ -219,10 +234,24 @@ notificationsRouter.delete("/:id", async (req, res) => {
 // DELETE /api/notifications -> clear all notifications
 notificationsRouter.delete("/", async (req, res) => {
   try {
-    await Notification.deleteMany({});
-    await CustomerInquiry.updateMany({ isRead: false }, { isRead: true }).catch(() => {});
-    await AccountRequest.updateMany({ status: "pending", isRead: { $ne: true } }, { isRead: true }).catch(() => {});
-    await ProfileChangeRequest.updateMany({ status: "pending", isRead: { $ne: true } }, { isRead: true }).catch(() => {});
+    const { employeeCode, employeeName } = req.query;
+    let query = {};
+    if (employeeCode) {
+      query = {
+        $or: [
+          { "metadata.employeeCode": employeeCode },
+          { "metadata.employeeName": employeeName },
+          { "metadata.assignedTo": employeeCode }
+        ]
+      };
+    }
+    await Notification.deleteMany(query);
+    
+    if (!employeeCode) {
+      await CustomerInquiry.updateMany({ isRead: false }, { isRead: true }).catch(() => {});
+      await AccountRequest.updateMany({ status: "pending", isRead: { $ne: true } }, { isRead: true }).catch(() => {});
+      await ProfileChangeRequest.updateMany({ status: "pending", isRead: { $ne: true } }, { isRead: true }).catch(() => {});
+    }
     res.json({ success: true });
   } catch (error) {
     console.error("Error clearing notifications:", error);

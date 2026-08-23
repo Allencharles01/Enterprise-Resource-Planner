@@ -12,5 +12,6 @@ export * from "./CustomerInquiry";
 export * from "./EmailLog";
 export * from "./ContactList";
 export * from "./CSVDoc";
+export * from "./Ticket";
 
 

@@ -36,30 +36,30 @@ export default function ModuleCard({ module, icon: Icon, onOpen }) {
   return (
     <motion.article
       whileHover={{ scale: 1.02, y: -2 }}
-      className={`module-card ${glow} flex flex-col justify-between p-5 sm:p-6 rounded-[16px] aspect-square transition-all duration-300`}
+      className={`module-card ${glow} flex flex-col justify-between p-4 sm:p-6 rounded-[16px] sm:aspect-square transition-all duration-300`}
       style={{ "--module-color": color }}
     >
       <div>
-        <div className="flex items-center justify-between mb-4">
-          <span className="module-icon flex h-[52px] w-[52px] items-center justify-center rounded-[13px]">
-            <Icon size={24} strokeWidth={2.4} />
+        <div className="flex items-center justify-between mb-3 sm:mb-4">
+          <span className="module-icon flex h-10 w-10 sm:h-[52px] sm:w-[52px] items-center justify-center rounded-xl sm:rounded-[13px]">
+            <Icon className="h-5 w-5 sm:h-6 sm:w-6" strokeWidth={2.4} />
           </span>
         </div>
-        <h3 className="text-[18px] font-bold tracking-tight text-foreground">
+        <h3 className="text-base sm:text-[18px] font-bold tracking-tight text-foreground">
           {title}
         </h3>
-        <p className="mt-2 text-xs text-muted-foreground leading-relaxed">
+        <p className="mt-1 sm:mt-2 text-xs text-muted-foreground leading-relaxed">
           {description}
         </p>
       </div>
 
-      <div className="mt-5 flex items-end justify-between">
+      <div className="mt-4 sm:mt-5 flex items-end justify-between">
         <div>
-          <p className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
+          <p className="text-[10px] sm:text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
             {module.metricLabel}
           </p>
           <p
-            className="mt-1 text-[22px] font-extrabold tracking-tight"
+            className="mt-0.5 sm:mt-1 text-lg sm:text-[22px] font-extrabold tracking-tight"
             style={{ color }}
           >
             {module.metricText || inr(module.metricValue)}
@@ -67,11 +67,11 @@ export default function ModuleCard({ module, icon: Icon, onOpen }) {
         </div>
         <button
           onClick={() => onOpen(module.id)}
-          className="module-action flex h-10 w-24 items-center justify-center gap-2 rounded-[8px] border text-[13px] font-semibold transition cursor-pointer shadow-sm"
+          className="module-action flex h-8 sm:h-10 w-20 sm:w-24 items-center justify-center gap-1.5 sm:gap-2 rounded-[8px] border text-xs sm:text-[13px] font-semibold transition cursor-pointer shadow-sm"
           type="button"
         >
           {module.button}
-          <ChevronRight size={16} />
+          <ChevronRight size={14} className="sm:w-4 sm:h-4" />
         </button>
       </div>
     </motion.article>

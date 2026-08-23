@@ -179,6 +179,7 @@ export default function ContactCallingWorkspace({ onBack }) {
   const [isContactListOpen, setIsContactListOpen] = useState(false);
   const [contactListFilter, setContactListFilter] = useState("All");
   const [expandedMonth, setExpandedMonth] = useState("July 2026");
+  const [isMobileDialerOpen, setIsMobileDialerOpen] = useState(false);
 
   const [statusModalContact, setStatusModalContact] = useState(null);
   const [statusValue, setStatusValue] = useState("");
@@ -192,6 +193,7 @@ export default function ContactCallingWorkspace({ onBack }) {
   const [qrImage, setQrImage] = useState("");
   const [qrError, setQrError] = useState("");
   const [isQrLoading, setIsQrLoading] = useState(false);
+  const [qrCodeNumber, setQrCodeNumber] = useState("");
 
   const { resolvedTheme } = useTheme();
   const isDarkMode = resolvedTheme === "dark";
@@ -306,6 +308,7 @@ export default function ContactCallingWorkspace({ onBack }) {
     setDialNumber(contact.contact);
     setDialNumberError("");
     setIsCalling(false);
+    setIsMobileDialerOpen(true);
   };
 
   const handleEmailClick = (contact) => {
@@ -314,16 +317,18 @@ export default function ContactCallingWorkspace({ onBack }) {
     setIsComposerOpen(true);
   };
 
-  const handleGenerateQrCode = async () => {
+  const handleGenerateQrCode = async (customNumber) => {
+    const numberToUse = customNumber || dialNumber;
+    setQrCodeNumber(numberToUse);
     setIsQrModalOpen(true);
     setQrImage("");
     setQrError("");
     setIsQrLoading(true);
 
     try {
-      const localDigits = getLocalDigits(dialNumber);
+      const localDigits = getLocalDigits(numberToUse);
 
-      if (!dialNumber || dialNumberError || localDigits.length !== 10) {
+      if (!numberToUse || localDigits.length !== 10) {
         throw new Error("Invalid number");
       }
 
@@ -506,76 +511,171 @@ export default function ContactCallingWorkspace({ onBack }) {
 
                       {isExpanded && (
                         <div className="contact-list-month-table-wrap border-t border-violet-100 dark:border-slate-700">
-                          <table className="w-full table-fixed text-left">
-                            <thead className="contact-list-table-head text-[11px] uppercase tracking-wider">
-                              <tr>
-                                <th className="w-[70px] px-4 py-3">S.No.</th>
-                                <th className="w-[18%] px-4 py-3">Name</th>
-                                <th className="w-[18%] px-4 py-3">Contact</th>
-                                <th className="w-[24%] px-4 py-3">Email</th>
-                                <th className="w-[16%] px-4 py-3">
-                                  Call Status
-                                </th>
-                                <th className="w-[24%] px-4 py-3">Remark</th>
-                              </tr>
-                            </thead>
+                          {/* Desktop Table View */}
+                          <div className="hidden md:block">
+                            <table className="w-full table-fixed text-left">
+                              <thead className="contact-list-table-head text-[11px] uppercase tracking-wider">
+                                <tr>
+                                  <th className="w-[70px] px-4 py-3">S.No.</th>
+                                  <th className="w-[18%] px-4 py-3">Name</th>
+                                  <th className="w-[18%] px-4 py-3">Contact</th>
+                                  <th className="w-[24%] px-4 py-3">Email</th>
+                                  <th className="w-[16%] px-4 py-3">
+                                    Call Status
+                                  </th>
+                                  <th className="w-[24%] px-4 py-3">Remark</th>
+                                </tr>
+                              </thead>
 
-                            <tbody>
-                              {monthContacts.map((contact, index) => (
-                                <tr
-                                  key={contact.id}
-                                  className="contact-list-table-row"
-                                >
-                                  <td className="px-4 py-3 text-sm font-semibold">
-                                    {index + 1}
-                                  </td>
+                              <tbody>
+                                {monthContacts.map((contact, index) => (
+                                  <tr
+                                    key={contact.id}
+                                    className="contact-list-table-row"
+                                  >
+                                    <td className="px-4 py-3 text-sm font-semibold">
+                                      {index + 1}
+                                    </td>
 
-                                  <td className="px-4 py-3 text-sm font-bold">
-                                    <span className="block truncate">
-                                      {contact.name}
+                                    <td className="px-4 py-3 text-sm font-bold">
+                                      <span className="block truncate">
+                                        {contact.name}
+                                      </span>
+                                    </td>
+
+                                    <td className="px-4 py-3 text-sm">
+                                      <div className="flex items-center gap-1.5 justify-between">
+                                        <button
+                                          type="button"
+                                          onClick={() => {
+                                            handleSelectContactForCall(contact);
+                                            setIsContactListOpen(false);
+                                          }}
+                                          className="truncate font-semibold text-primary transition hover:underline"
+                                          title="Click to fill dialpad"
+                                        >
+                                          {contact.contact}
+                                        </button>
+                                        <button
+                                          type="button"
+                                          onClick={() => handleGenerateQrCode(contact.contact)}
+                                          className="shrink-0 rounded bg-violet-50 dark:bg-primary/10 p-1 text-primary hover:bg-violet-100 dark:hover:bg-primary/20 transition"
+                                          title="View QR Code"
+                                        >
+                                          <QrCode size={13} />
+                                        </button>
+                                      </div>
+                                    </td>
+
+                                    <td className="px-4 py-3 text-sm">
+                                      <span className="block truncate">
+                                        {contact.email}
+                                      </span>
+                                    </td>
+
+                                    <td className="px-4 py-3">
+                                      {contact.status ? (
+                                        <span
+                                          className={`inline-flex max-w-full items-center gap-1.5 rounded-full border px-2.5 py-1 text-[11px] font-bold ${getStatusClass(
+                                            contact.status
+                                          )}`}
+                                        >
+                                          <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-current" />
+                                          <span className="truncate">
+                                            {contact.status}
+                                          </span>
+                                        </span>
+                                      ) : (
+                                        <span className="text-xs font-semibold text-muted-foreground">
+                                          Not marked
+                                        </span>
+                                      )}
+                                    </td>
+
+                                    <td className="px-4 py-3 text-sm">
+                                      <span className="block truncate text-muted-foreground">
+                                        {contact.remark || "No remark added"}
+                                      </span>
+                                    </td>
+                                  </tr>
+                                ))}
+                              </tbody>
+                            </table>
+                          </div>
+
+                          {/* Mobile Cards View */}
+                          <div className="block md:hidden p-4 space-y-3 bg-[#fbf7ff] dark:bg-slate-950/20">
+                            {monthContacts.map((contact, index) => (
+                              <div
+                                key={contact.id}
+                                className="p-4 rounded-xl border border-violet-100 dark:border-slate-800 bg-white dark:bg-slate-900/40 shadow-sm flex flex-col gap-2.5"
+                              >
+                                <div className="flex items-start justify-between gap-3">
+                                  <div className="flex items-center gap-2">
+                                    <span className="flex h-5 w-5 items-center justify-center rounded bg-violet-100 dark:bg-slate-800 text-[10px] font-bold text-primary dark:text-slate-400">
+                                      {index + 1}
                                     </span>
-                                  </td>
-
-                                  <td className="px-4 py-3 text-sm">
-                                    <span className="block truncate">
-                                      {contact.contact}
-                                    </span>
-                                  </td>
-
-                                  <td className="px-4 py-3 text-sm">
-                                    <span className="block truncate">
-                                      {contact.email}
-                                    </span>
-                                  </td>
-
-                                  <td className="px-4 py-3">
+                                    <h4 className="font-bold text-sm text-foreground">{contact.name}</h4>
+                                  </div>
+                                  <div>
                                     {contact.status ? (
                                       <span
-                                        className={`inline-flex max-w-full items-center gap-1.5 rounded-full border px-2.5 py-1 text-[11px] font-bold ${getStatusClass(
+                                        className={`inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[9px] font-extrabold uppercase ${getStatusClass(
                                           contact.status
                                         )}`}
                                       >
-                                        <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-current" />
-                                        <span className="truncate">
-                                          {contact.status}
-                                        </span>
+                                        <span className="h-1 w-1 rounded-full bg-current" />
+                                        <span>{contact.status}</span>
                                       </span>
                                     ) : (
-                                      <span className="text-xs font-semibold text-muted-foreground">
+                                      <span className="text-[10px] font-semibold text-muted-foreground italic">
                                         Not marked
                                       </span>
                                     )}
-                                  </td>
-
-                                  <td className="px-4 py-3 text-sm">
-                                    <span className="block truncate text-muted-foreground">
-                                      {contact.remark || "No remark added"}
-                                    </span>
-                                  </td>
-                                </tr>
-                              ))}
-                            </tbody>
-                          </table>
+                                  </div>
+                                </div>
+                                
+                                <div className="grid grid-cols-1 gap-2 pt-2 border-t border-dashed border-border/60 text-xs">
+                                  <div className="flex items-center justify-between gap-2">
+                                    <span className="text-muted-foreground">Phone</span>
+                                    <div className="flex items-center gap-1.5">
+                                      <button
+                                        type="button"
+                                        onClick={() => {
+                                          handleSelectContactForCall(contact);
+                                          setIsContactListOpen(false);
+                                        }}
+                                        className="font-bold text-primary hover:underline"
+                                        title="Click to fill dialpad"
+                                      >
+                                        {contact.contact}
+                                      </button>
+                                      <button
+                                        type="button"
+                                        onClick={() => handleGenerateQrCode(contact.contact)}
+                                        className="rounded bg-violet-50 dark:bg-primary/10 p-1 text-primary hover:bg-violet-100 dark:hover:bg-primary/20 transition"
+                                        title="View QR Code"
+                                      >
+                                        <QrCode size={12} />
+                                      </button>
+                                    </div>
+                                  </div>
+                                  <div className="flex items-center justify-between">
+                                    <span className="text-muted-foreground">Email</span>
+                                    <span className="font-semibold text-foreground truncate max-w-[180px]">{contact.email}</span>
+                                  </div>
+                                  {contact.remark && (
+                                    <div className="mt-1 pt-1.5 border-t border-border/30">
+                                      <span className="text-muted-foreground block mb-0.5">Remark</span>
+                                      <p className="text-xs text-slate-600 dark:text-slate-400 bg-slate-50 dark:bg-slate-950/40 p-2 rounded-lg italic">
+                                        {contact.remark}
+                                      </p>
+                                    </div>
+                                  )}
+                                </div>
+                              </div>
+                            ))}
+                          </div>
                         </div>
                       )}
                     </div>
@@ -600,37 +700,63 @@ export default function ContactCallingWorkspace({ onBack }) {
   return (
     <div className="space-y-5">
       {/* Header */}
-      <div className="flex items-start justify-between gap-5">
+      <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4 md:gap-5">
         <div className="flex items-start gap-3">
           <button
             onClick={onBack}
-            className="mt-1 flex h-10 w-10 items-center justify-center rounded-xl border border-violet-200 bg-white text-primary shadow-sm transition hover:bg-violet-50 dark:border-primary/30 dark:bg-primary/10 dark:text-primary dark:hover:bg-primary/20"
+            className="mt-1 flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-violet-200 bg-white text-primary shadow-sm transition hover:bg-violet-50 dark:border-primary/30 dark:bg-primary/10 dark:text-primary dark:hover:bg-primary/20"
             title="Back to Dashboard"
           >
             <ArrowLeft size={18} />
           </button>
 
           <div>
-            <h1 className="text-2xl font-bold text-foreground">
+            <h1 className="text-xl md:text-2xl font-bold text-foreground">
               Contact Calling Workspace
             </h1>
 
-            <p className="mt-1 text-sm text-muted-foreground">
+            <p className="mt-1 text-xs md:text-sm text-muted-foreground max-w-md">
               Make calls, manage assigned contacts, and update call status.
             </p>
           </div>
         </div>
 
-        <div className="flex items-center gap-2.5">
+        <div className="flex items-center justify-end gap-2 w-full md:w-auto mt-2 md:mt-0">
+          {/* Dialer Pad (mobile-only) */}
+          <button
+            onClick={() => setIsMobileDialerOpen((prev) => !prev)}
+            className={`flex md:hidden h-[34px] w-[34px] items-center justify-center rounded-xl border shadow-sm transition ${
+              isMobileDialerOpen
+                ? "bg-primary border-primary text-primary-foreground shadow-lg shadow-primary/25"
+                : "border-violet-200 bg-white text-primary hover:bg-violet-50 dark:border-primary/30 dark:bg-primary/10 dark:hover:bg-primary/20"
+            }`}
+            title="Toggle Dialer Pad"
+          >
+            <PhoneCall size={14} />
+          </button>
+
+          <button
+            onClick={() => {
+              setIsContactListOpen(true);
+              if (monthOrder[0]) {
+                setExpandedMonth(monthOrder[0]);
+              }
+            }}
+            className="flex items-center gap-1.5 rounded-xl border border-violet-200 bg-white px-3 py-2 md:px-4 md:py-2.5 text-[11px] md:text-xs font-bold text-primary shadow-sm transition hover:bg-violet-50 dark:border-primary/30 dark:bg-primary/10 dark:hover:bg-primary/20"
+          >
+            <List size={14} />
+            Contact List
+          </button>
+
           <div className="relative">
             <button
               onClick={() => setShowLeadDropdown((prev) => !prev)}
-              className="flex items-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-xs font-bold text-primary-foreground shadow-lg shadow-primary/25 transition hover:scale-105"
+              className="flex items-center gap-1.5 rounded-xl bg-primary px-3 py-2 md:px-4 md:py-2.5 text-[11px] md:text-xs font-bold text-primary-foreground shadow-lg shadow-primary/25 transition hover:scale-105"
             >
-              <Plus size={16} />
+              <Plus size={14} />
               New Lead
               <ChevronDown
-                size={15}
+                size={13}
                 className={`transition ${
                   showLeadDropdown ? "rotate-180" : ""
                 }`}
@@ -640,7 +766,7 @@ export default function ContactCallingWorkspace({ onBack }) {
             {showLeadDropdown && (
               <div
                 className={`
-                  absolute right-0 z-50 mt-3 w-56 overflow-hidden rounded-2xl border shadow-xl
+                  absolute right-0 z-50 mt-2 w-48 overflow-hidden rounded-2xl border shadow-xl
                   ${
                     isDarkMode
                       ? "border-slate-700 bg-slate-900 shadow-black/40"
@@ -651,7 +777,7 @@ export default function ContactCallingWorkspace({ onBack }) {
                 <button
                   onClick={() => openLeadModal("Client Projects")}
                   className={`
-                    block w-full px-4 py-3 text-left text-sm font-semibold transition
+                    block w-full px-4 py-2.5 text-left text-xs font-semibold transition
                     ${
                       isDarkMode
                         ? "text-slate-100 hover:bg-primary/10"
@@ -665,7 +791,7 @@ export default function ContactCallingWorkspace({ onBack }) {
                 <button
                   onClick={() => openLeadModal("Internships")}
                   className={`
-                    block w-full border-t px-4 py-3 text-left text-sm font-semibold transition
+                    block w-full border-t px-4 py-2.5 text-left text-xs font-semibold transition
                     ${
                       isDarkMode
                         ? "border-slate-800 text-slate-100 hover:bg-primary/10"
@@ -679,7 +805,7 @@ export default function ContactCallingWorkspace({ onBack }) {
                 <button
                   onClick={() => openLeadModal("Training")}
                   className={`
-                    block w-full border-t px-4 py-3 text-left text-sm font-semibold transition
+                    block w-full border-t px-4 py-2.5 text-left text-xs font-semibold transition
                     ${
                       isDarkMode
                         ? "border-slate-800 text-slate-100 hover:bg-primary/10"
@@ -692,26 +818,15 @@ export default function ContactCallingWorkspace({ onBack }) {
               </div>
             )}
           </div>
-
-          <button
-            onClick={() => {
-              setIsContactListOpen(true);
-              if (monthOrder[0]) {
-                setExpandedMonth(monthOrder[0]);
-              }
-            }}
-            className="flex items-center gap-2 rounded-xl border border-violet-200 bg-white px-4 py-2.5 text-xs font-bold text-primary shadow-sm transition hover:bg-violet-50 dark:border-primary/30 dark:bg-primary/10 dark:hover:bg-primary/20"
-          >
-            <List size={16} />
-            Contact List
-          </button>
         </div>
       </div>
 
       {/* Main Workspace */}
       <div className="grid grid-cols-1 gap-5 xl:grid-cols-[320px_minmax(0,1fr)]">
         {/* Dialpad */}
-        <div className="contact-workspace-card glass-card rounded-2xl border border-border p-4">
+        <div className={`contact-workspace-card glass-card rounded-2xl border border-border p-4 transition-all ${
+          isMobileDialerOpen ? "block" : "hidden xl:block"
+        }`}>
           <div className="mb-4 flex items-start justify-between gap-3">
             <div className="flex items-center gap-3">
               <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-violet-100 text-primary dark:bg-primary/10">
@@ -726,34 +841,45 @@ export default function ContactCallingWorkspace({ onBack }) {
               </div>
             </div>
 
-            <button
-              type="button"
-              onClick={handleGenerateQrCode}
-              className="flex items-center gap-1.5 rounded-xl border border-violet-200 bg-white px-3 py-2 text-xs font-bold text-primary shadow-sm transition hover:bg-violet-50 dark:border-primary/30 dark:bg-primary/10 dark:text-primary dark:hover:bg-primary/20"
-              title="Generate QR Code"
-            >
-              <QrCode size={15} />
-              QR Code
-            </button>
+            <div className="flex items-center gap-1.5">
+              <button
+                type="button"
+                onClick={() => handleGenerateQrCode()}
+                className="flex items-center gap-1.5 rounded-xl border border-violet-200 bg-white px-3 py-2 text-xs font-bold text-primary shadow-sm transition hover:bg-violet-50 dark:border-primary/30 dark:bg-primary/10 dark:text-primary dark:hover:bg-primary/20"
+                title="Generate QR Code"
+              >
+                <QrCode size={15} />
+                QR Code
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setIsMobileDialerOpen(false)}
+                className="flex xl:hidden h-8 w-8 items-center justify-center rounded-lg border border-violet-200 bg-white text-muted-foreground hover:bg-violet-50 dark:border-primary/30 dark:bg-slate-900 dark:hover:bg-primary/10 transition animate-in fade-in zoom-in-95"
+                title="Close Dialpad"
+              >
+                <X size={15} />
+              </button>
+            </div>
           </div>
 
-          <div className="contact-workspace-soft mb-4 rounded-xl border border-violet-100 bg-white p-3 text-center shadow-sm dark:border-slate-700 dark:bg-slate-900/50">
-            <p className="mb-2 text-xs font-semibold text-muted-foreground">
+          <div className="mb-4 rounded-2xl border border-purple-100 bg-purple-50/20 p-4 text-center shadow-inner dark:border-slate-800/80 dark:bg-slate-950/20">
+            <p className="mb-1 text-[10px] font-extrabold uppercase tracking-wider text-muted-foreground">
               Selected Number
             </p>
 
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 bg-white/80 dark:bg-slate-950/60 rounded-xl border border-purple-100 dark:border-slate-850 p-1 pr-2 shadow-sm">
               <input
                 value={dialNumber}
                 onChange={handleDialInputChange}
                 placeholder="Enter number"
-                className="contact-dial-number-input w-full rounded-lg border px-3 py-2 text-center text-base font-bold outline-none transition"
+                className="w-full bg-transparent border-0 py-2.5 text-center text-base font-black tracking-wider text-foreground placeholder:text-muted-foreground/45 outline-none focus:ring-0"
               />
 
               <button
                 onClick={handleBackspace}
                 disabled={!dialNumber}
-                className="contact-dial-delete-btn flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border text-lg font-bold transition disabled:cursor-not-allowed disabled:opacity-40"
+                className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-rose-500/10 text-rose-500 transition hover:bg-rose-500 hover:text-white active:scale-95 disabled:cursor-not-allowed disabled:opacity-40"
                 title="Delete last digit"
               >
                 ⌫
@@ -766,24 +892,25 @@ export default function ContactCallingWorkspace({ onBack }) {
               </p>
             )}
 
-            <p className="mt-2 text-xs text-muted-foreground">
+            <p className="mt-2 text-[11px] font-semibold text-muted-foreground">
               {selectedContact
                 ? `Selected: ${selectedContact.name}`
                 : "Selected from contact list"}
             </p>
           </div>
 
-          <div className="grid grid-cols-3 gap-3">
+          <div className="grid grid-cols-3 gap-3 justify-items-center">
             {dialPadKeys.map((key) => (
               <button
                 key={key.number}
+                type="button"
                 onClick={() => handleDialKey(key.number)}
-                className="contact-dial-key flex h-14 w-14 flex-col items-center justify-center rounded-full border border-violet-100 bg-white text-foreground shadow-sm transition hover:scale-105 hover:bg-violet-50 dark:border-slate-700 dark:bg-slate-800/70 dark:hover:bg-slate-800"
+                className="flex h-14 w-14 flex-col items-center justify-center rounded-full border border-purple-100/50 bg-white/70 text-foreground shadow-sm transition-all duration-200 hover:scale-105 active:scale-95 hover:bg-purple-50/50 hover:border-purple-300 dark:border-slate-800 dark:bg-slate-900/40 dark:hover:bg-slate-800/80 dark:hover:border-slate-700"
               >
-                <span className="text-lg font-bold">{key.number}</span>
+                <span className="text-lg font-bold leading-none">{key.number}</span>
 
                 {key.letters && (
-                  <span className="text-[9px] font-semibold text-muted-foreground">
+                  <span className="text-[9px] font-bold text-muted-foreground mt-0.5">
                     {key.letters}
                   </span>
                 )}
@@ -851,7 +978,8 @@ export default function ContactCallingWorkspace({ onBack }) {
             </div>
           </div>
 
-          <div className="contact-table-wrap overflow-hidden rounded-xl border border-violet-100 dark:border-slate-700">
+          {/* Desktop Table View */}
+          <div className="hidden md:block contact-table-wrap overflow-hidden rounded-xl border border-violet-100 dark:border-slate-700">
             <table className="w-full table-fixed text-left">
               <thead className="contact-table-head border-b border-violet-100 bg-violet-50/70 text-[11px] uppercase tracking-wider text-black dark:border-slate-700 dark:bg-slate-900/70 dark:text-muted-foreground">
                 <tr>
@@ -882,14 +1010,24 @@ export default function ContactCallingWorkspace({ onBack }) {
                     </td>
 
                     <td className="px-3 py-3 text-sm">
-                      <button
-                        type="button"
-                        onClick={() => handleSelectContactForCall(contact)}
-                        className="block w-full truncate text-left font-semibold text-primary transition hover:underline"
-                        title="Click to fill dialpad"
-                      >
-                        {contact.contact}
-                      </button>
+                      <div className="flex items-center gap-1.5 justify-between">
+                        <button
+                          type="button"
+                          onClick={() => handleSelectContactForCall(contact)}
+                          className="truncate font-semibold text-primary transition hover:underline"
+                          title="Click to fill dialpad"
+                        >
+                          {contact.contact}
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => handleGenerateQrCode(contact.contact)}
+                          className="shrink-0 rounded bg-violet-50 dark:bg-primary/10 p-1 text-primary hover:bg-violet-100 dark:hover:bg-primary/20 transition"
+                          title="View QR Code"
+                        >
+                          <QrCode size={13} />
+                        </button>
+                      </div>
                     </td>
 
                     <td className="px-3 py-3 text-sm">
@@ -927,6 +1065,83 @@ export default function ContactCallingWorkspace({ onBack }) {
                 ))}
               </tbody>
             </table>
+          </div>
+
+          {/* Mobile Tiles View */}
+          <div className="block md:hidden space-y-3">
+            {paginatedContacts.map((contact, index) => (
+              <div
+                key={contact.id}
+                className={`p-4 rounded-xl border transition-all ${
+                  selectedContact?.id === contact.id
+                    ? "border-primary bg-violet-50/60 dark:border-primary/45 dark:bg-primary/10"
+                    : "border-violet-100 dark:border-slate-800 bg-white dark:bg-slate-900/40"
+                }`}
+              >
+                <div className="flex items-start justify-between gap-3">
+                  <div className="flex items-center gap-2">
+                    <span className="flex h-5 w-5 items-center justify-center rounded bg-violet-100 dark:bg-slate-800 text-[10px] font-bold text-primary dark:text-slate-400">
+                      {(safeCurrentPage - 1) * contactsPerPage + index + 1}
+                    </span>
+                    <h4 className="font-bold text-sm text-foreground">{contact.name}</h4>
+                  </div>
+                  
+                  <div>
+                    {contact.status ? (
+                      <button
+                        onClick={() => openStatusModal(contact)}
+                        className={`inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[9px] font-extrabold uppercase ${getStatusClass(
+                          contact.status
+                        )}`}
+                      >
+                        <span className="h-1 w-1 rounded-full bg-current" />
+                        <span>{contact.status}</span>
+                      </button>
+                    ) : (
+                      <button
+                        onClick={() => openStatusModal(contact)}
+                        className="rounded-full border border-violet-200 bg-violet-50 px-2.5 py-0.5 text-[9px] font-extrabold uppercase text-primary transition hover:bg-violet-100 dark:border-slate-700 dark:bg-slate-900/50 dark:hover:bg-primary/10"
+                      >
+                        Mark Status
+                      </button>
+                    )}
+                  </div>
+                </div>
+
+                <div className="mt-3 grid grid-cols-1 gap-2 pt-2.5 border-t border-dashed border-border/60 text-xs">
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="text-muted-foreground font-medium">Phone</span>
+                    <div className="flex items-center gap-1.5">
+                      <button
+                        type="button"
+                        onClick={() => handleSelectContactForCall(contact)}
+                        className="font-bold text-primary hover:underline"
+                      >
+                        {contact.contact}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => handleGenerateQrCode(contact.contact)}
+                        className="rounded bg-violet-50 dark:bg-primary/10 p-1 text-primary hover:bg-violet-100 dark:hover:bg-primary/20 transition"
+                        title="View QR Code"
+                      >
+                        <QrCode size={12} />
+                      </button>
+                    </div>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-muted-foreground font-medium">Email</span>
+                    <button
+                      type="button"
+                      onClick={() => handleEmailClick(contact)}
+                      className="font-semibold text-primary hover:underline truncate max-w-[180px]"
+                    >
+                      {contact.email}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ))}
           </div>
 
           <div className="mt-3 flex flex-col gap-3 text-xs text-muted-foreground sm:flex-row sm:items-center sm:justify-between">
@@ -1121,7 +1336,7 @@ export default function ContactCallingWorkspace({ onBack }) {
         </div>
 
         <p className="contact-qr-number mt-4 text-center text-sm font-bold">
-          {dialNumber || "No number selected"}
+          {qrCodeNumber || "No number selected"}
         </p>
 
         <p className="contact-qr-help mt-1 text-center text-xs">

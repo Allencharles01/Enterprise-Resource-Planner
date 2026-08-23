@@ -15,26 +15,26 @@ export default function FeatureCard({
         group
         relative
         overflow-hidden
-        rounded-3xl
+        rounded-2xl
 
         border border-gray-200/70
         bg-white/90
         backdrop-blur-xl
 
-        p-6
+        p-4 sm:p-5
 
         transition-all
         duration-500
 
-        hover:-translate-y-2
-        hover:scale-[1.02]
+        hover:-translate-y-1.5
+        hover:scale-[1.01]
         hover:border-violet-300
-        hover:shadow-[0_20px_60px_rgba(124,58,237,0.18)]
+        hover:shadow-[0_15px_40px_rgba(124,58,237,0.12)]
 
         dark:border-white/10
         dark:bg-[#0B1224]
         dark:hover:border-violet-500/40
-        dark:hover:shadow-[0_20px_60px_rgba(124,58,237,0.12)]
+        dark:hover:shadow-[0_15px_40px_rgba(124,58,237,0.08)]
       "
     >
       {/* Animated Glow */}
@@ -43,8 +43,8 @@ export default function FeatureCard({
           absolute
           -right-10
           -top-10
-          h-40
-          w-40
+          h-32
+          w-32
           rounded-full
           bg-violet-400/10
           blur-3xl
@@ -82,11 +82,11 @@ export default function FeatureCard({
           <div
             className={`
               flex
-              h-14
-              w-14
+              h-10
+              w-10
               items-center
               justify-center
-              rounded-2xl
+              rounded-xl
               text-white
 
               ${iconBg}
@@ -104,9 +104,9 @@ export default function FeatureCard({
           {/* TITLE */}
           <h3
             className="
-              mt-5
+              mt-3
 
-              text-lg
+              text-base
               font-bold
 
               text-gray-900
@@ -126,10 +126,10 @@ export default function FeatureCard({
           {/* DESCRIPTION */}
           <p
             className="
-              mt-2
+              mt-1
 
-              text-sm
-              leading-6
+              text-xs
+              leading-normal
 
               text-gray-500
 
@@ -147,20 +147,21 @@ export default function FeatureCard({
         </div>
 
         {/* FOOTER */}
-        <div className="mt-8 flex items-center justify-between">
+        <div className="mt-4 flex items-center justify-between">
 
           <div>
 
-            <p className="text-xs uppercase tracking-wider text-gray-400 dark:text-gray-500">
+            <p className="text-[10px] uppercase tracking-wider text-gray-400 dark:text-gray-500">
               {statLabel}
             </p>
 
             <p
               className="
-                mt-1
+                mt-0.5
 
-                text-2xl
-                font-bold
+                text-lg
+                sm:text-xl
+                font-extrabold
 
                 text-gray-900
 
@@ -182,7 +183,7 @@ export default function FeatureCard({
             className="
               flex
               items-center
-              gap-2
+              gap-1.5
 
               rounded-xl
 
@@ -191,10 +192,10 @@ export default function FeatureCard({
 
               bg-white
 
-              px-4
-              py-2
+              px-3
+              py-1.5
 
-              text-sm
+              text-xs
               font-semibold
 
               text-gray-700
@@ -218,7 +219,7 @@ export default function FeatureCard({
             Open
 
             <ArrowRight
-              size={15}
+              size={13}
               className="
                 transition-transform
                 duration-300

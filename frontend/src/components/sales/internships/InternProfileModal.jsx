@@ -15,11 +15,34 @@ import {
   Download,
   Eye,
   UserRound,
+  Clock,
+  Calendar,
 } from "lucide-react";
+
+const formatDate = (dateStr) => {
+  if (!dateStr || dateStr === "N/A") return "N/A";
+  try {
+    const d = new Date(dateStr);
+    if (isNaN(d.getTime())) return dateStr;
+    return d.toLocaleDateString("en-US", {
+      month: "short",
+      day: "numeric",
+      year: "numeric",
+    });
+  } catch (e) {
+    return dateStr;
+  }
+};
 
 export default function InternProfileModal({ intern, onClose }) {
   useEffect(() => {
     if (!intern) return;
+
+    // Scroll to top of modal container when modal content changes
+    const container = document.getElementById("intern-profile-modal-container");
+    if (container) {
+      container.scrollTop = 0;
+    }
 
     const handleEscapeKey = (event) => {
       if (event.key === "Escape") {
@@ -262,11 +285,11 @@ export default function InternProfileModal({ intern, onClose }) {
               </div>
               <div class="row">
                 <div class="label">Start Date</div>
-                <div class="value">${intern.startDate || "N/A"}</div>
+                <div class="value">${formatDate(intern.startDate)}</div>
               </div>
               <div class="row">
                 <div class="label">End Date</div>
-                <div class="value">${intern.endDate || "N/A"}</div>
+                <div class="value">${formatDate(intern.endDate)}</div>
               </div>
               <div class="row">
                 <div class="label">Mentor</div>
@@ -332,15 +355,15 @@ export default function InternProfileModal({ intern, onClose }) {
             <div class="section-title">Invoices & Legal Documents</div>
             <div class="document-row">
               <span>Internship Agreement</span>
-              <strong>${intern.startDate || "N/A"}</strong>
+              <strong>${formatDate(intern.startDate)}</strong>
             </div>
             <div class="document-row">
               <span>Course Invoice</span>
-              <strong>${intern.startDate || "N/A"}</strong>
+              <strong>${formatDate(intern.startDate)}</strong>
             </div>
             <div class="document-row">
               <span>NDA Agreement</span>
-              <strong>${intern.startDate || "N/A"}</strong>
+              <strong>${formatDate(intern.startDate)}</strong>
             </div>
           </div>
 
@@ -371,7 +394,7 @@ export default function InternProfileModal({ intern, onClose }) {
       body: `
         This Internship Agreement is made between the organization and ${intern.name}.
         The candidate is enrolled in the ${intern.program} internship program under the ${intern.department} department.
-        The internship duration is ${intern.duration}, starting from ${intern.startDate || "N/A"} and ending on ${intern.endDate || "N/A"}.
+        The internship duration is ${intern.duration}, starting from ${formatDate(intern.startDate)} and ending on ${formatDate(intern.endDate)}.
         The assigned mentor for this internship is ${intern.mentor || "N/A"}.
         The intern is expected to follow all organizational guidelines, maintain professional conduct, complete assigned tasks on time, and participate actively in project work.
       `,
@@ -565,21 +588,25 @@ export default function InternProfileModal({ intern, onClose }) {
 };
 
 
+
   if (typeof document === "undefined") return null;
 
   return createPortal(
     <div className="fixed inset-0 z-[999999] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-      <div className="w-full max-w-[700px] max-h-[84vh] overflow-y-auto rounded-2xl border border-border bg-background shadow-2xl">
+      <div
+        id="intern-profile-modal-container"
+        className="w-full max-w-[700px] max-h-[85vh] overflow-y-auto rounded-2xl border border-slate-800 bg-slate-900 shadow-2xl scrollbar-none animate-in fade-in-50 zoom-in-95 duration-150"
+      >
         {/* Header */}
-        <div className="sticky top-0 z-10 flex items-start justify-between border-b border-border bg-background/95 backdrop-blur-xl px-5 py-4">
+        <div className="sticky top-0 z-10 flex items-start justify-between border-b border-slate-800 bg-slate-900/95 backdrop-blur-xl px-5 py-4">
           <div className="flex items-center gap-4">
-            <div className="w-12 h-12 rounded-full bg-muted flex items-center justify-center text-base font-bold text-foreground">
+            <div className="w-12 h-12 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center text-base font-bold text-slate-200">
               {initials}
             </div>
 
             <div>
               <div className="flex items-center gap-3">
-                <h2 className="text-lg font-bold text-foreground">
+                <h2 className="text-lg font-bold text-slate-100">
                   {intern.name}
                 </h2>
 
@@ -588,7 +615,7 @@ export default function InternProfileModal({ intern, onClose }) {
                 </span>
               </div>
 
-              <p className="text-sm text-muted-foreground mt-1">
+              <p className="text-sm text-slate-400 mt-1">
                 {intern.program} · {intern.department}
               </p>
             </div>
@@ -596,7 +623,7 @@ export default function InternProfileModal({ intern, onClose }) {
 
           <button
             onClick={onClose}
-            className="w-10 h-10 rounded-full bg-red-500 text-white flex items-center justify-center hover:scale-105 hover:shadow-lg hover:shadow-red-500/30 transition"
+            className="w-10 h-10 rounded-full bg-red-500 text-white flex items-center justify-center hover:scale-105 hover:shadow-lg hover:shadow-red-500/30 transition cursor-pointer"
           >
             <X size={18} />
           </button>
@@ -605,10 +632,10 @@ export default function InternProfileModal({ intern, onClose }) {
         <div className="p-5 space-y-4">
           {/* Personal + Internship Details */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="rounded-2xl border border-border bg-muted/10 p-4">
+            <div className="rounded-2xl border border-slate-800 bg-slate-800/10 p-4">
               <div className="flex items-center gap-2 mb-4">
-                <UserRound size={16} className="text-primary" />
-                <h3 className="font-semibold text-foreground">
+                <UserRound size={16} className="text-blue-500" />
+                <h3 className="font-semibold text-slate-100">
                   Personal Info
                 </h3>
               </div>
@@ -621,40 +648,40 @@ export default function InternProfileModal({ intern, onClose }) {
               </div>
             </div>
 
-            <div className="rounded-2xl border border-border bg-muted/10 p-4">
+            <div className="rounded-2xl border border-slate-800 bg-slate-800/10 p-4">
               <div className="flex items-center gap-2 mb-4">
-                <Briefcase size={16} className="text-primary" />
-                <h3 className="font-semibold text-foreground">
+                <Briefcase size={16} className="text-blue-500" />
+                <h3 className="font-semibold text-slate-100">
                   Internship Details
                 </h3>
               </div>
 
               <div className="space-y-3 text-sm">
-                <InfoRow label="Duration" value={intern.duration || "N/A"} />
-                <InfoRow label="Start" value={intern.startDate || "N/A"} />
-                <InfoRow label="End" value={intern.endDate || "N/A"} />
-                <InfoRow label="Mentor" value={intern.mentor || "N/A"} />
-                <InfoRow label="Sales Agent" value={intern.salesAgent || "N/A"} />
+                <InfoRow icon={<Clock size={14} />} label="Duration" value={intern.duration || "N/A"} />
+                <InfoRow icon={<Calendar size={14} />} label="Start" value={formatDate(intern.startDate)} />
+                <InfoRow icon={<Calendar size={14} />} label="End" value={formatDate(intern.endDate)} />
+                <InfoRow icon={<UserRound size={14} />} label="Mentor" value={intern.mentor || "N/A"} />
+                <InfoRow icon={<Briefcase size={14} />} label="Sales Agent" value={intern.salesAgent || "N/A"} />
               </div>
             </div>
           </div>
 
           {/* Course Cost */}
-          <div className="rounded-2xl border border-border bg-muted/10 p-4">
+          <div className="rounded-2xl border border-slate-800 bg-slate-800/10 p-4">
             <div className="flex items-center justify-between gap-4">
               <div>
                 <div className="flex items-center gap-2 mb-2">
-                  <GraduationCap size={16} className="text-primary" />
-                  <h3 className="font-semibold text-foreground">
+                  <GraduationCap size={16} className="text-blue-500" />
+                  <h3 className="font-semibold text-slate-100">
                     Purchased Course & Cost
                   </h3>
                 </div>
 
-                <h4 className="text-base font-bold text-foreground">
+                <h4 className="text-base font-bold text-slate-200">
                   {intern.program}
                 </h4>
 
-                <p className="text-sm text-muted-foreground">
+                <p className="text-sm text-slate-400">
                   {intern.duration} program
                 </p>
               </div>
@@ -666,43 +693,43 @@ export default function InternProfileModal({ intern, onClose }) {
           </div>
 
           {/* Progress */}
-          <div className="rounded-2xl border border-border bg-muted/10 p-4">
+          <div className="rounded-2xl border border-slate-800 bg-slate-800/10 p-4">
             <div className="flex items-center gap-2 mb-4">
-              <TrendingUp size={16} className="text-primary" />
-              <h3 className="font-semibold text-foreground">
+              <TrendingUp size={16} className="text-blue-500" />
+              <h3 className="font-semibold text-slate-100">
                 Progress Tracking
               </h3>
             </div>
 
             <div className="flex items-center justify-between text-sm mb-2">
-              <span className="text-muted-foreground">Overall Progress</span>
-              <span className="font-semibold text-foreground">
+              <span className="text-slate-400">Overall Progress</span>
+              <span className="font-semibold text-slate-200">
                 {intern.progress}%
               </span>
             </div>
 
-            <div className="h-2 rounded-full bg-muted overflow-hidden">
+            <div className="h-2 rounded-full bg-slate-800 overflow-hidden">
               <div
-                className="h-full rounded-full bg-foreground dark:bg-primary"
+                className="h-full rounded-full bg-gradient-to-r from-blue-500 to-indigo-500"
                 style={{ width: `${intern.progress}%` }}
               />
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-4">
-              <div className="rounded-xl bg-muted/40 p-3 text-center">
-                <h4 className="text-lg font-bold text-foreground">
+              <div className="rounded-xl bg-slate-800/40 p-3 text-center">
+                <h4 className="text-lg font-bold text-slate-100">
                   {intern.projectsCompleted || "0/0"}
                 </h4>
-                <p className="text-xs text-muted-foreground mt-1">
+                <p className="text-xs text-slate-400 mt-1">
                   Projects Completed
                 </p>
               </div>
 
-              <div className="rounded-xl bg-muted/40 p-3 text-center">
+              <div className="rounded-xl bg-slate-800/40 p-3 text-center">
                 <span className="inline-flex px-3 py-1 rounded-full text-xs font-semibold bg-blue-500/10 text-blue-500 border border-blue-500/20">
                   {intern.placement}
                 </span>
-                <p className="text-xs text-muted-foreground mt-2">
+                <p className="text-xs text-slate-400 mt-2">
                   Placement Status
                 </p>
               </div>
@@ -710,8 +737,8 @@ export default function InternProfileModal({ intern, onClose }) {
           </div>
 
           {/* Skills */}
-          <div className="rounded-2xl border border-border bg-muted/10 p-4">
-            <h3 className="font-semibold text-foreground mb-3">
+          <div className="rounded-2xl border border-slate-800 bg-slate-800/10 p-4">
+            <h3 className="font-semibold text-slate-100 mb-3">
               Skills & Competencies
             </h3>
 
@@ -719,7 +746,7 @@ export default function InternProfileModal({ intern, onClose }) {
               {(intern.skills || []).map((skill) => (
                 <span
                   key={skill}
-                  className="px-3 py-1 rounded-full text-xs font-medium bg-muted text-foreground border border-border"
+                  className="px-3 py-1 rounded-full text-xs font-medium bg-slate-800 text-slate-200 border border-slate-700"
                 >
                   {skill}
                 </span>
@@ -728,44 +755,44 @@ export default function InternProfileModal({ intern, onClose }) {
           </div>
 
           {/* Documents */}
-<div className="rounded-2xl border border-border bg-background p-4">
-  <div className="flex items-center gap-2 mb-4">
-    <FileText size={16} className="text-primary" />
-    <h3 className="font-semibold text-foreground">
-      Invoices & Legal Documents
-    </h3>
-  </div>
+          <div className="rounded-2xl border border-slate-800 bg-slate-800/10 p-4">
+            <div className="flex items-center gap-2 mb-4">
+              <FileText size={16} className="text-blue-500" />
+              <h3 className="font-semibold text-slate-100">
+                Invoices & Legal Documents
+              </h3>
+            </div>
 
-  {["Internship Agreement", "Course Invoice", "NDA Agreement"].map((doc) => (
-    <div
-      key={doc}
-      className="grid grid-cols-[1fr_auto_auto] items-center gap-4 border-b border-border last:border-b-0 py-3"
-    >
-      <p className="text-sm font-medium text-foreground">
-        {doc}
-      </p>
+            {["Internship Agreement", "Course Invoice", "NDA Agreement"].map((doc) => (
+              <div
+                key={doc}
+                className="grid grid-cols-[1fr_auto_auto] items-center gap-4 border-b border-slate-800 last:border-b-0 py-3"
+              >
+                <p className="text-sm font-medium text-slate-200">
+                  {doc}
+                </p>
 
-      <p className="text-sm text-muted-foreground whitespace-nowrap">
-        {intern.startDate || "Jan 15, 2026"}
-      </p>
+                <p className="text-sm text-slate-400 whitespace-nowrap">
+                  {formatDate(intern.startDate) !== "N/A" ? formatDate(intern.startDate) : "Jan 15, 2026"}
+                </p>
 
-      <button
-        onClick={() => handleDownloadDocument(doc)}
-        className="flex items-center gap-2 text-sm font-semibold text-foreground hover:text-primary transition"
-      >
-        <Download size={15} />
-        View
-      </button>
-    </div>
-  ))}
-</div>
+                <button
+                  onClick={() => handleDownloadDocument(doc)}
+                  className="flex items-center gap-2 text-sm font-semibold text-slate-200 hover:text-blue-500 transition cursor-pointer"
+                >
+                  <Download size={15} />
+                  View
+                </button>
+              </div>
+            ))}
+          </div>
         </div>
 
         {/* Footer */}
-        <div className="sticky bottom-0 bg-background/95 backdrop-blur-xl border-t border-border px-5 py-4 flex gap-3">
+        <div className="sticky bottom-0 bg-slate-900/95 backdrop-blur-xl border-t border-slate-800 px-5 py-4 flex gap-3">
           <button
             onClick={handleDownloadProfile}
-            className="flex-1 flex items-center justify-center gap-2 rounded-xl border border-border py-3 text-sm font-semibold text-foreground hover:bg-muted transition"
+            className="flex-1 flex items-center justify-center gap-2 rounded-xl border border-slate-700 py-3 text-sm font-semibold text-slate-300 hover:bg-slate-800 hover:text-white transition cursor-pointer"
           >
             <Download size={17} />
             Download PDF Profile
@@ -773,7 +800,7 @@ export default function InternProfileModal({ intern, onClose }) {
 
           <button
             onClick={onClose}
-            className="flex-1 rounded-xl bg-foreground text-background py-3 text-sm font-semibold hover:opacity-90 transition"
+            className="flex-1 rounded-xl bg-blue-600 hover:bg-blue-700 text-white py-3 text-sm font-semibold transition cursor-pointer active:scale-[0.98]"
           >
             Close
           </button>
@@ -786,13 +813,13 @@ export default function InternProfileModal({ intern, onClose }) {
 
 function InfoRow({ icon, label, value }) {
   return (
-    <div className="flex items-start justify-between gap-4">
-      <span className="flex items-center gap-2 text-muted-foreground">
+    <div className="grid grid-cols-[115px_1fr] sm:grid-cols-[130px_1fr] items-start gap-4 py-0.5">
+      <span className="flex items-center gap-2 text-xs font-semibold text-slate-400 uppercase tracking-wider mt-0.5">
         {icon}
-        {label}
+        <span>{label}</span>
       </span>
 
-      <span className="text-right font-medium text-foreground">
+      <span className="font-semibold text-slate-200 break-all text-sm leading-snug">
         {value}
       </span>
     </div>

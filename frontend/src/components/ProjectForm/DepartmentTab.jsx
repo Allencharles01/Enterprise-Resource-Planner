@@ -67,16 +67,15 @@ export function DepartmentTab({
   };
 
   return (
-    <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+    <div className="space-y-5 md:space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
       <div>
-        <h2 className="text-2xl font-bold text-foreground mb-2">{title}</h2>
-        <p className="text-muted-foreground">
-          Configure the {title.toLowerCase()} department assignments and
-          deadlines.
+        <h2 className="text-lg md:text-2xl font-bold text-foreground mb-1 md:mb-2">{title}</h2>
+        <p className="text-xs md:text-sm text-muted-foreground">
+          Configure the {title.toLowerCase()} department assignments and deadlines.
         </p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 bg-muted/30 p-6 rounded-2xl border border-border/50">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-8 bg-muted/30 p-4 md:p-6 rounded-2xl border border-border/50">
         <div className="space-y-3">
           <label className="text-sm font-semibold text-foreground flex items-center gap-2">
             <Calendar size={16} className="text-primary" />
@@ -125,7 +124,7 @@ export function DepartmentTab({
               initial={{ opacity: 0, height: 0 }}
               animate={{ opacity: 1, height: "auto" }}
               exit={{ opacity: 0, height: 0 }}
-              className="glass-card border border-border rounded-2xl p-6 relative overflow-visible"
+              className="glass-card border border-border rounded-2xl p-4 md:p-6 relative overflow-visible"
             >
               <button
                 onClick={() => removeTeam(team.id)}
