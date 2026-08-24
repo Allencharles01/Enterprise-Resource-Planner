@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { motion } from "framer-motion";
 import {
   BarChart3,
@@ -129,58 +129,64 @@ function DataTable({ columns, rows }) {
     <>
       {/* Mobile Grid View */}
       <div className="grid grid-cols-1 gap-4 sm:hidden">
-        {rows.map((row, index) => {
-          const title = row[primaryCol.key];
-          const statusVal = statusCol ? row[statusCol.key] : null;
+        {rows.length === 0 ? (
+          <div className="rounded-2xl border border-slate-800 bg-slate-900/40 p-8 text-center text-slate-500 text-sm">
+            No data available
+          </div>
+        ) : (
+          rows.map((row, index) => {
+            const title = row[primaryCol.key];
+            const statusVal = statusCol ? row[statusCol.key] : null;
 
-          return (
-            <div
-              key={`${title}-${index}`}
-              className="rounded-2xl border border-slate-800 bg-slate-900/40 p-4 flex flex-col gap-4 hover:border-slate-700 transition animate-fade-in"
-            >
-              {/* Header */}
-              <div className="flex items-start justify-between gap-3">
-                <div>
-                  <p className="text-xs text-slate-500 font-semibold uppercase tracking-wider">
-                    {primaryCol.label}
-                  </p>
-                  <h4 className="font-bold text-slate-200 mt-0.5 text-sm sm:text-base leading-snug">
-                    {title}
-                  </h4>
+            return (
+              <div
+                key={`${title}-${index}`}
+                className="rounded-2xl border border-slate-800 bg-slate-900/40 p-4 flex flex-col gap-4 hover:border-slate-700 transition animate-fade-in"
+              >
+                {/* Header */}
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <p className="text-xs text-slate-500 font-semibold uppercase tracking-wider">
+                      {primaryCol.label}
+                    </p>
+                    <h4 className="font-bold text-slate-200 mt-0.5 text-sm sm:text-base leading-snug">
+                      {title}
+                    </h4>
+                  </div>
+                  {statusVal && <Status value={statusVal} />}
                 </div>
-                {statusVal && <Status value={statusVal} />}
-              </div>
 
-              {/* Metrics Grid */}
-              <div className="grid grid-cols-2 gap-3 pt-3 border-t border-slate-800/60">
-                {detailCols.map((col) => {
-                  const val = row[col.key];
-                  return (
-                    <div key={col.key} className="text-xs">
-                      <p className="text-slate-500 font-medium">{col.label}</p>
-                      <p className="font-semibold text-slate-200 mt-0.5">
-                        {col.money ? (
-                          <span className="font-mono text-emerald-500 font-bold">{inr(val)}</span>
-                        ) : col.compact ? (
-                          compact(val)
-                        ) : (
-                          val
-                        )}
-                      </p>
-                    </div>
-                  );
-                })}
-              </div>
-
-              {/* Action Buttons */}
-              {actionCol && (
-                <div className="flex justify-end pt-3 border-t border-slate-800/60">
-                  <ActionButtons />
+                {/* Metrics Grid */}
+                <div className="grid grid-cols-2 gap-3 pt-3 border-t border-slate-800/60">
+                  {detailCols.map((col) => {
+                    const val = row[col.key];
+                    return (
+                      <div key={col.key} className="text-xs">
+                        <p className="text-slate-500 font-medium">{col.label}</p>
+                        <p className="font-semibold text-slate-200 mt-0.5">
+                          {col.money ? (
+                            <span className="font-mono text-emerald-500 font-bold">{inr(val)}</span>
+                          ) : col.compact ? (
+                            compact(val)
+                          ) : (
+                            val
+                          )}
+                        </p>
+                      </div>
+                    );
+                  })}
                 </div>
-              )}
-            </div>
-          );
-        })}
+
+                {/* Action Buttons */}
+                {actionCol && (
+                  <div className="flex justify-end pt-3 border-t border-slate-800/60">
+                    <ActionButtons />
+                  </div>
+                )}
+              </div>
+            );
+          })
+        )}
       </div>
 
       {/* Desktop Table View */}
@@ -196,28 +202,36 @@ function DataTable({ columns, rows }) {
             </tr>
           </thead>
           <tbody className="divide-y divide-border/50">
-            {rows.map((row, index) => (
-              <tr
-                key={`${row.platform || row.campaignName || row.creator || row.documentName}-${index}`}
-                className="hover:bg-muted/20 transition-colors"
-              >
-                {columns.map((column) => (
-                  <td key={column.key} className="px-4 py-3 text-foreground font-medium">
-                    {column.key === "actions" ? (
-                      <ActionButtons />
-                    ) : column.money ? (
-                      <span className="font-mono text-emerald-500 font-bold">{inr(row[column.key])}</span>
-                    ) : column.compact ? (
-                      compact(row[column.key])
-                    ) : column.status ? (
-                      <Status value={row[column.key]} />
-                    ) : (
-                      row[column.key]
-                    )}
-                  </td>
-                ))}
+            {rows.length === 0 ? (
+              <tr>
+                <td colSpan={columns.length} className="px-4 py-8 text-center text-muted-foreground">
+                  No data available
+                </td>
               </tr>
-            ))}
+            ) : (
+              rows.map((row, index) => (
+                <tr
+                  key={`${row.platform || row.campaignName || row.creator || row.documentName}-${index}`}
+                  className="hover:bg-muted/20 transition-colors"
+                >
+                  {columns.map((column) => (
+                    <td key={column.key} className="px-4 py-3 text-foreground font-medium">
+                      {column.key === "actions" ? (
+                        <ActionButtons />
+                      ) : column.money ? (
+                        <span className="font-mono text-emerald-500 font-bold">{inr(row[column.key])}</span>
+                      ) : column.compact ? (
+                        compact(row[column.key])
+                      ) : column.status ? (
+                        <Status value={row[column.key]} />
+                      ) : (
+                        row[column.key]
+                      )}
+                    </td>
+                  ))}
+                </tr>
+              ))
+            )}
           </tbody>
         </table>
       </div>
@@ -448,57 +462,63 @@ function DocumentsModal({ data }) {
       </div>
       {/* Mobile Grid View */}
       <div className="grid grid-cols-1 gap-4 sm:hidden">
-        {rows.map((row) => (
-          <div
-            key={row.documentName}
-            className="rounded-2xl border border-slate-800 bg-slate-900/40 p-4 flex flex-col gap-4 hover:border-slate-700 transition animate-fade-in"
-          >
-            {/* Header */}
-            <div className="flex items-start justify-between gap-3">
-              <div>
-                <p className="text-xs text-slate-500 font-semibold uppercase tracking-wider">
-                  Document Name
-                </p>
-                <h4 className="font-bold text-slate-200 mt-0.5 text-sm sm:text-base leading-snug">
-                  {row.documentName}
-                </h4>
-              </div>
-              <Status value={row.status} />
-            </div>
-
-            {/* Details */}
-            <div className="grid grid-cols-2 gap-3 pt-3 border-t border-slate-800/60">
-              <div className="text-xs">
-                <p className="text-slate-500 font-medium">Type</p>
-                <p className="font-semibold text-slate-200 mt-0.5">{row.type}</p>
-              </div>
-              <div className="text-xs">
-                <p className="text-slate-500 font-medium">Related To</p>
-                <p className="font-semibold text-slate-200 mt-0.5 font-mono">{row.relatedTo}</p>
-              </div>
-              <div className="text-xs">
-                <p className="text-slate-500 font-medium">Date</p>
-                <p className="font-semibold text-slate-200 mt-0.5">{row.date}</p>
-              </div>
-            </div>
-
-            {/* Action Buttons */}
-            <div className="flex justify-end gap-2 pt-3 border-t border-slate-800/60">
-              <button
-                className="flex h-8 items-center gap-1 rounded-[10px] border border-slate-700 px-3 text-xs hover:bg-slate-800 transition text-slate-300 cursor-pointer"
-                type="button"
-              >
-                <Eye size={14} /> View
-              </button>
-              <button
-                className="flex h-8 items-center gap-1 rounded-[10px] bg-cyan-400 hover:bg-cyan-350 transition px-3 text-xs font-bold text-slate-950 cursor-pointer shadow-sm shadow-cyan-400/20"
-                type="button"
-              >
-                <Download size={14} /> Download
-              </button>
-            </div>
+        {rows.length === 0 ? (
+          <div className="rounded-2xl border border-slate-800 bg-slate-900/40 p-8 text-center text-slate-500 text-sm">
+            No data available
           </div>
-        ))}
+        ) : (
+          rows.map((row) => (
+            <div
+              key={row.documentName}
+              className="rounded-2xl border border-slate-800 bg-slate-900/40 p-4 flex flex-col gap-4 hover:border-slate-700 transition animate-fade-in"
+            >
+              {/* Header */}
+              <div className="flex items-start justify-between gap-3">
+                <div>
+                  <p className="text-xs text-slate-500 font-semibold uppercase tracking-wider">
+                    Document Name
+                  </p>
+                  <h4 className="font-bold text-slate-200 mt-0.5 text-sm sm:text-base leading-snug">
+                    {row.documentName}
+                  </h4>
+                </div>
+                <Status value={row.status} />
+              </div>
+
+              {/* Details */}
+              <div className="grid grid-cols-2 gap-3 pt-3 border-t border-slate-800/60">
+                <div className="text-xs">
+                  <p className="text-slate-500 font-medium">Type</p>
+                  <p className="font-semibold text-slate-200 mt-0.5">{row.type}</p>
+                </div>
+                <div className="text-xs">
+                  <p className="text-slate-500 font-medium">Related To</p>
+                  <p className="font-semibold text-slate-200 mt-0.5 font-mono">{row.relatedTo}</p>
+                </div>
+                <div className="text-xs">
+                  <p className="text-slate-500 font-medium">Date</p>
+                  <p className="font-semibold text-slate-200 mt-0.5">{row.date}</p>
+                </div>
+              </div>
+
+              {/* Action Buttons */}
+              <div className="flex justify-end gap-2 pt-3 border-t border-slate-800/60">
+                <button
+                  className="flex h-8 items-center gap-1 rounded-[10px] border border-slate-700 px-3 text-xs hover:bg-slate-800 transition text-slate-300 cursor-pointer"
+                  type="button"
+                >
+                  <Eye size={14} /> View
+                </button>
+                <button
+                  className="flex h-8 items-center gap-1 rounded-[10px] bg-cyan-400 hover:bg-cyan-350 transition px-3 text-xs font-bold text-slate-950 cursor-pointer shadow-sm shadow-cyan-400/20"
+                  type="button"
+                >
+                  <Download size={14} /> Download
+                </button>
+              </div>
+            </div>
+          ))
+        )}
       </div>
 
       {/* Desktop Table View */}
@@ -515,33 +535,41 @@ function DocumentsModal({ data }) {
             </tr>
           </thead>
           <tbody className="divide-y divide-border/50">
-            {rows.map((row) => (
-              <tr key={row.documentName} className="hover:bg-muted/20 transition-colors">
-                <td className="px-4 py-3 font-medium text-foreground">{row.documentName}</td>
-                <td className="px-4 py-3 text-muted-foreground">{row.type}</td>
-                <td className="px-4 py-3 text-muted-foreground font-mono">{row.relatedTo}</td>
-                <td className="px-4 py-3 text-muted-foreground">{row.date}</td>
-                <td className="px-4 py-3">
-                  <Status value={row.status} />
-                </td>
-                <td className="px-4 py-3">
-                  <div className="flex gap-2">
-                    <button
-                      className="flex h-8 items-center gap-1 rounded-[10px] border border-border px-3 text-[12px] hover:bg-muted transition text-foreground cursor-pointer"
-                      type="button"
-                    >
-                      <Eye size={14} /> View
-                    </button>
-                    <button
-                      className="flex h-8 items-center gap-1 rounded-[10px] bg-cyan-400 hover:bg-cyan-300 transition px-3 text-[12px] font-bold text-slate-950 cursor-pointer shadow-sm shadow-cyan-400/20"
-                      type="button"
-                    >
-                      <Download size={14} /> Download
-                    </button>
-                  </div>
+            {rows.length === 0 ? (
+              <tr>
+                <td colSpan={6} className="px-4 py-8 text-center text-muted-foreground">
+                  No data available
                 </td>
               </tr>
-            ))}
+            ) : (
+              rows.map((row) => (
+                <tr key={row.documentName} className="hover:bg-muted/20 transition-colors">
+                  <td className="px-4 py-3 font-medium text-foreground">{row.documentName}</td>
+                  <td className="px-4 py-3 text-muted-foreground">{row.type}</td>
+                  <td className="px-4 py-3 text-muted-foreground font-mono">{row.relatedTo}</td>
+                  <td className="px-4 py-3 text-muted-foreground">{row.date}</td>
+                  <td className="px-4 py-3">
+                    <Status value={row.status} />
+                  </td>
+                  <td className="px-4 py-3">
+                    <div className="flex gap-2">
+                      <button
+                        className="flex h-8 items-center gap-1 rounded-[10px] border border-border px-3 text-[12px] hover:bg-muted transition text-foreground cursor-pointer"
+                        type="button"
+                      >
+                        <Eye size={14} /> View
+                      </button>
+                      <button
+                        className="flex h-8 items-center gap-1 rounded-[10px] bg-cyan-400 hover:bg-cyan-350 transition px-3 text-[12px] font-bold text-slate-950 cursor-pointer shadow-sm shadow-cyan-400/20"
+                        type="button"
+                      >
+                        <Download size={14} /> Download
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))
+            )}
           </tbody>
         </table>
       </div>
@@ -564,18 +592,198 @@ function DocumentsModal({ data }) {
 export default function DigitalMarketingPage() {
   const [activeModal, setActiveModal] = useState(null);
   const [search, setSearch] = useState("");
+  const [projects, setProjects] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [isDeleted, setIsDeleted] = useState(false);
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      setIsDeleted(localStorage.getItem("marketing_deleted") === "true");
+    }
+
+    const fetchProjects = async () => {
+      try {
+        const token = localStorage.getItem("token");
+        const apiUrl = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:4001";
+        const res = await fetch(`${apiUrl}/api/projects`, {
+          headers: token ? { Authorization: `Bearer ${token}` } : {},
+        });
+        if (res.ok) {
+          const data = await res.json();
+          // Filter out the ERP project
+          const filtered = data.filter(
+            (p) => !(p.client === "NovaNectar Pvt Ltd" && p.name === "Enterprise Resource Planner") &&
+                   !(p.client === "NovaNectar Services Pvt Ltd" && p.name === "ERP") &&
+                   !(p.client === "NovaNectar Pvt Ltd" && p.name === "ERP")
+          );
+          setProjects(filtered);
+
+          if (filtered.length > 0) {
+            localStorage.removeItem("marketing_deleted");
+            setIsDeleted(false);
+          }
+        }
+      } catch (err) {
+        console.error("Error fetching projects:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProjects();
+
+    const handleMarketingDeleted = () => {
+      setIsDeleted(true);
+      setProjects([]);
+    };
+
+    window.addEventListener("marketingDeleted", handleMarketingDeleted);
+    return () => {
+      window.removeEventListener("marketingDeleted", handleMarketingDeleted);
+    };
+  }, []);
+
+  const currentSummary = useMemo(() => {
+    if (isDeleted) {
+      return {
+        user: { name: "Admin", access: "Administrator" },
+        budget: {
+          totalAllocated: 0,
+          allocatedChange: 0,
+          spent: 0,
+          spentChange: 0,
+        },
+        modules: [
+          {
+            id: "advertising",
+            title: "Advertising",
+            metricLabel: "Spend",
+            metricValue: 0,
+            button: "Open",
+            labels: ["Reach", "ROI"],
+            glow: "blue",
+          },
+          {
+            id: "creators",
+            title: "Creators",
+            metricLabel: "Paid",
+            metricValue: 0,
+            button: "Open",
+            labels: ["Top creators"],
+            glow: "purple",
+          },
+          {
+            id: "heavyads",
+            title: "Heavy Ads",
+            metricLabel: "Campaigns",
+            metricValue: 0,
+            button: "Open",
+            labels: ["Events"],
+            glow: "orange",
+          },
+          {
+            id: "documents",
+            title: "Documents",
+            metricLabel: "Files",
+            metricValue: 0,
+            button: "Open",
+            labels: ["Storage"],
+            glow: "cyan",
+          },
+        ],
+      };
+    }
+    return summaryJson;
+  }, [isDeleted]);
+
+  const currentAnalytics = useMemo(() => {
+    if (isDeleted) {
+      return {
+        range: "Last 6 Months",
+        monthly: [
+          { month: "Jan", profit: 0, spend: 0 },
+          { month: "Feb", profit: 0, spend: 0 },
+          { month: "Mar", profit: 0, spend: 0 },
+          { month: "Apr", profit: 0, spend: 0 },
+          { month: "May", profit: 0, spend: 0 },
+          { month: "Jun", profit: 0, spend: 0 },
+        ],
+      };
+    }
+    return analyticsJson;
+  }, [isDeleted]);
+
+  const currentActivities = useMemo(() => {
+    if (isDeleted) {
+      return { items: [] };
+    }
+    return activitiesJson;
+  }, [isDeleted]);
+
+  const currentAdvertising = useMemo(() => {
+    if (isDeleted) {
+      return {
+        filters: ["All Platforms", "Facebook", "Google"],
+        rows: [],
+        stats: [
+          { label: "Spend", value: 0 },
+          { label: "Profit", value: 0 },
+        ],
+        bestPlatform: { name: "None", description: "No advertising data available" },
+      };
+    }
+    return advertisingJson;
+  }, [isDeleted]);
+
+  const currentCreators = useMemo(() => {
+    if (isDeleted) {
+      return {
+        platforms: ["YouTube", "Instagram"],
+        oneTime: [],
+        partnership: [],
+        stats: [{ label: "Creators", value: 0 }],
+        bottomStats: [{ label: "Top Creator", value: "None" }],
+      };
+    }
+    return creatorsJson;
+  }, [isDeleted]);
+
+  const currentHeavyAds = useMemo(() => {
+    if (isDeleted) {
+      return {
+        filters: ["All", "Outdoor"],
+        rows: [],
+        stats: [{ label: "Campaigns", value: 0 }],
+        bestCampaign: { name: "None", description: "No heavy ads data available" },
+      };
+    }
+    return heavyadsJson;
+  }, [isDeleted]);
+
+  const currentDocuments = useMemo(() => {
+    if (isDeleted) {
+      return {
+        tabs: ["All Documents", "Invoices"],
+        rows: [],
+        types: ["Invoice", "Contract"],
+        statuses: ["Approved", "Pending"],
+        storage: { label: "0 GB of 100 GB", used: 0 },
+      };
+    }
+    return documentsJson;
+  }, [isDeleted]);
 
   const modalTitle = useMemo(() => {
     if (!activeModal) return "";
     return (
-      summaryJson.modules?.find((item) => item.id === activeModal)?.title || ""
+      currentSummary.modules?.find((item) => item.id === activeModal)?.title || ""
     );
-  }, [activeModal]);
+  }, [activeModal, currentSummary]);
 
   const visibleModules = useMemo(() => {
     const normalizedSearch = search.trim().toLowerCase();
-    if (!normalizedSearch) return summaryJson.modules || [];
-    return (summaryJson.modules || []).filter((module) =>
+    if (!normalizedSearch) return currentSummary.modules || [];
+    return (currentSummary.modules || []).filter((module) =>
       [
         module.title,
         module.metricLabel,
@@ -586,7 +794,7 @@ export default function DigitalMarketingPage() {
         .filter(Boolean)
         .some((value) => value.toLowerCase().includes(normalizedSearch))
     );
-  }, [search]);
+  }, [search, currentSummary]);
 
   return (
     <DashboardLayout adminName="Allen Charles">
@@ -620,17 +828,17 @@ export default function DigitalMarketingPage() {
           <TopStatCard
             icon={Wallet}
             title="Total Allocated Budget"
-            amount={summaryJson.budget?.totalAllocated || 0}
-            change={summaryJson.budget?.allocatedChange || 0}
-            chartData={analyticsJson.monthly || []}
+            amount={currentSummary.budget?.totalAllocated || 0}
+            change={currentSummary.budget?.allocatedChange || 0}
+            chartData={currentAnalytics.monthly || []}
             variant="blue"
           />
           <TopStatCard
             icon={BarChart3}
             title="Spend Amount"
-            amount={summaryJson.budget?.spent || 0}
-            change={summaryJson.budget?.spentChange || 0}
-            chartData={analyticsJson.monthly || []}
+            amount={currentSummary.budget?.spent || 0}
+            change={currentSummary.budget?.spentChange || 0}
+            chartData={currentAnalytics.monthly || []}
             variant="pink"
           />
         </div>
@@ -648,10 +856,10 @@ export default function DigitalMarketingPage() {
 
         <div className="grid gap-6 xl:grid-cols-[1fr_390px]">
           <AnalyticsCard
-            data={analyticsJson.monthly || []}
-            range={analyticsJson.range || "Monthly"}
+            data={currentAnalytics.monthly || []}
+            range={currentAnalytics.range || "Monthly"}
           />
-          <RecentActivity activities={activitiesJson.items || []} />
+          <RecentActivity activities={currentActivities.items || []} />
         </div>
       </motion.div>
 
@@ -664,16 +872,16 @@ export default function DigitalMarketingPage() {
         onClose={() => setActiveModal(null)}
       >
         {activeModal === "advertising" ? (
-          <AdvertisingModal data={advertisingJson} />
+          <AdvertisingModal data={currentAdvertising} />
         ) : null}
         {activeModal === "creators" ? (
-          <CreatorsModal data={creatorsJson} />
+          <CreatorsModal data={currentCreators} />
         ) : null}
         {activeModal === "heavyads" ? (
-          <HeavyAdsModal data={heavyadsJson} />
+          <HeavyAdsModal data={currentHeavyAds} />
         ) : null}
         {activeModal === "documents" ? (
-          <DocumentsModal data={documentsJson} />
+          <DocumentsModal data={currentDocuments} />
         ) : null}
       </ModalShell>
     </DashboardLayout>

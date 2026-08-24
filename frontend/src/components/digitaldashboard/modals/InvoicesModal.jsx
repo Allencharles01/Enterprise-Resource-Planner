@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { FolderOpen, Search, Eye, Download, HardDrive } from "lucide-react";
 import Modal from "../ui/Modal";
 import { invoices, statusColors } from "../data/mockData";
@@ -6,14 +6,26 @@ import { invoices, statusColors } from "../data/mockData";
 export default function InvoicesModal({ open, onClose }) {
   const [tab, setTab] = useState("All Documents");
   const [query, setQuery] = useState("");
+  const [docs, setDocs] = useState([]);
+  const [storageUsed, setStorageUsed] = useState(invoices.storageUsedGb);
+  const [totalDocsCount, setTotalDocsCount] = useState(invoices.totalDocuments);
 
-  const filtered = invoices.documents.filter((d) => {
+  useEffect(() => {
+    if (open) {
+      const isDeleted = typeof window !== "undefined" && localStorage.getItem("marketing_deleted") === "true";
+      setDocs(isDeleted ? [] : invoices.documents);
+      setStorageUsed(isDeleted ? 0 : invoices.storageUsedGb);
+      setTotalDocsCount(isDeleted ? 0 : invoices.totalDocuments);
+    }
+  }, [open]);
+
+  const filtered = docs.filter((d) => {
     const matchesTab = tab === "All Documents" || d.type === tab.replace(/s$/, "");
     const matchesQuery = d.name.toLowerCase().includes(query.toLowerCase());
     return matchesTab && matchesQuery;
   });
 
-  const storagePct = Math.round((invoices.storageUsedGb / invoices.storageTotalGb) * 100);
+  const storagePct = storageUsed && invoices.storageTotalGb ? Math.round((storageUsed / invoices.storageTotalGb) * 100) : 0;
 
   return (
     <Modal
@@ -117,13 +129,13 @@ export default function InvoicesModal({ open, onClose }) {
           </div>
           <div>
             <p className="text-xs text-gray-500 dark:text-gray-400">Total Documents Stored</p>
-            <p className="font-semibold text-gray-900 dark:text-white">{invoices.totalDocuments} Files</p>
+            <p className="font-semibold text-gray-900 dark:text-white">{totalDocsCount} Files</p>
           </div>
         </div>
         <div className="flex-1 sm:max-w-xs">
           <div className="mb-1.5 flex items-center justify-between text-xs text-gray-500 dark:text-gray-400">
             <span>Storage Used</span>
-            <span>{invoices.storageUsedGb} GB / {invoices.storageTotalGb} GB</span>
+            <span>{storageUsed} GB / {invoices.storageTotalGb} GB</span>
           </div>
           <div className="h-2 w-full overflow-hidden rounded-full bg-gray-100 dark:bg-white/10">
             <div className="h-full rounded-full bg-teal-500" style={{ width: `${storagePct}%` }} />

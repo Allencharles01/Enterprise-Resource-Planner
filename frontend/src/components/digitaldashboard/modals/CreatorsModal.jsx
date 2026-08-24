@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Pencil, Trash2, Plus } from "lucide-react";
 import CreatorFormModal from "./CreatorFormModal";
 import { Users, PieChart } from "lucide-react";
@@ -16,8 +16,16 @@ function StatBox({ label, value }) {
 
 export default function CreatorsModal({ open, onClose }) {
   const [tab, setTab] = useState("oneTime");
-  const [oneTimeCreators, setOneTimeCreators] = useState(creators.oneTime);
-  const [partnershipCreators, setPartnershipCreators] = useState(creators.partnership);
+  const [oneTimeCreators, setOneTimeCreators] = useState([]);
+  const [partnershipCreators, setPartnershipCreators] = useState([]);
+
+  useEffect(() => {
+    if (open) {
+      const isDeleted = typeof window !== "undefined" && localStorage.getItem("marketing_deleted") === "true";
+      setOneTimeCreators(isDeleted ? [] : creators.oneTime);
+      setPartnershipCreators(isDeleted ? [] : creators.partnership);
+    }
+  }, [open]);
 
   const [showForm, setShowForm] = useState(false);
   const [editingCreator, setEditingCreator] = useState(null);
@@ -27,27 +35,28 @@ export default function CreatorsModal({ open, onClose }) {
       ? oneTimeCreators
       : partnershipCreators;
   const allCreators = [
-  ...oneTimeCreators,
-  ...partnershipCreators,
-];
+    ...oneTimeCreators,
+    ...partnershipCreators,
+  ];
 
-const totalCreators = allCreators.length;
+  const totalCreators = allCreators.length;
 
-const totalBudget = allCreators.reduce(
-  (sum, creator) => sum + Number(creator.amount),
-  0
-);
+  const totalBudget = allCreators.reduce(
+    (sum, creator) => sum + Number(creator.amount),
+    0
+  );
 
-const totalReach = allCreators.reduce((sum, creator) => {
-  const followers = String(creator.followers)
-    .replace(/K/i, "000")
-    .replace(/M/i, "000000")
-    .replace(/,/g, "");
+  const totalReach = allCreators.reduce((sum, creator) => {
+    const followers = String(creator.followers)
+      .replace(/K/i, "000")
+      .replace(/M/i, "000000")
+      .replace(/,/g, "");
 
-  return sum + Number(followers);
-}, 0);
+    return sum + Number(followers);
+  }, 0);
 
-const engagement = creators.totals.engagement;
+  const isDeletedFlag = typeof window !== "undefined" && localStorage.getItem("marketing_deleted") === "true";
+  const engagement = isDeletedFlag ? 0 : creators.totals.engagement;
 
   return (
     <Modal
@@ -127,76 +136,84 @@ const engagement = creators.totals.engagement;
             </tr>
           </thead>
           <tbody>
-            {rows.map((c) => (
-              <tr key={c.handle} className="border-b border-gray-50 last:border-0 dark:border-white/5">
-                <td className="px-4 py-3">
-  <div className="flex items-center justify-between">
-
-    <div>
-      <p className="font-medium text-gray-900 dark:text-white">
-        {c.name}
-      </p>
-
-      <a
-        href={
-          c.platform === "Instagram"
-            ? `https://instagram.com/${c.handle.replace("@", "")}`
-            : `https://youtube.com/@${c.handle.replace("@", "")}`
-        }
-        target="_blank"
-        rel="noreferrer"
-        className="text-xs text-blue-500 hover:underline"
-      >
-        {c.handle}
-      </a>
-    </div>
-
-    <div className="flex gap-2">
-
-      <button
-        onClick={() => {
-          setEditingCreator(c);
-          setShowForm(true);
-        }}
-        className="rounded-lg p-2 text-blue-500 hover:bg-blue-500/10"
-      >
-        <Pencil size={15} />
-      </button>
-
-      <button
-        onClick={() => {
-          if (tab === "oneTime") {
-            setOneTimeCreators(
-              oneTimeCreators.filter(
-                (creator) => creator.handle !== c.handle
-              )
-            );
-          } else {
-            setPartnershipCreators(
-              partnershipCreators.filter(
-                (creator) => creator.handle !== c.handle
-              )
-            );
-          }
-        }}
-        className="rounded-lg p-2 text-red-500 hover:bg-red-500/10"
-      >
-        <Trash2 size={15} />
-      </button>
-
-    </div>
-
-  </div>
-</td>
-                <td className="px-4 py-3 text-gray-600 dark:text-gray-300">{c.platform}</td>
-                <td className="px-4 py-3 text-gray-600 dark:text-gray-300">{c.followers}</td>
-                <td className="px-4 py-3 text-gray-600 dark:text-gray-300">{c.contentType}</td>
-                <td className="px-4 py-3 font-medium text-gray-900 dark:text-white">{formatINR(c.amount)}</td>
-                <td className="px-4 py-3">
-                  <span className={`rounded-full px-2.5 py-1 text-xs font-medium ${statusColors[c.status]}`}>{c.status}</span>
+            {rows.length === 0 ? (
+              <tr>
+                <td colSpan={6} className="px-4 py-8 text-center text-gray-400">
+                  No creators registered
                 </td>
               </tr>
-            ))}
+            ) : (
+              rows.map((c) => (
+                <tr key={c.handle} className="border-b border-gray-50 last:border-0 dark:border-white/5">
+                  <td className="px-4 py-3">
+    <div className="flex items-center justify-between">
+
+      <div>
+        <p className="font-medium text-gray-900 dark:text-white">
+          {c.name}
+        </p>
+
+        <a
+          href={
+            c.platform === "Instagram"
+              ? `https://instagram.com/${c.handle.replace("@", "")}`
+              : `https://youtube.com/@${c.handle.replace("@", "")}`
+          }
+          target="_blank"
+          rel="noreferrer"
+          className="text-xs text-blue-500 hover:underline"
+        >
+          {c.handle}
+        </a>
+      </div>
+
+      <div className="flex gap-2">
+
+        <button
+          onClick={() => {
+            setEditingCreator(c);
+            setShowForm(true);
+          }}
+          className="rounded-lg p-2 text-blue-500 hover:bg-blue-500/10"
+        >
+          <Pencil size={15} />
+        </button>
+
+        <button
+          onClick={() => {
+            if (tab === "oneTime") {
+              setOneTimeCreators(
+                oneTimeCreators.filter(
+                  (creator) => creator.handle !== c.handle
+                )
+              );
+            } else {
+              setPartnershipCreators(
+                partnershipCreators.filter(
+                  (creator) => creator.handle !== c.handle
+                )
+              );
+            }
+          }}
+          className="rounded-lg p-2 text-red-500 hover:bg-red-500/10"
+        >
+          <Trash2 size={15} />
+        </button>
+
+      </div>
+
+    </div>
+  </td>
+                  <td className="px-4 py-3 text-gray-600 dark:text-gray-300">{c.platform}</td>
+                  <td className="px-4 py-3 text-gray-600 dark:text-gray-300">{c.followers}</td>
+                  <td className="px-4 py-3 text-gray-600 dark:text-gray-300">{c.contentType}</td>
+                  <td className="px-4 py-3 font-medium text-gray-900 dark:text-white">{formatINR(c.amount)}</td>
+                  <td className="px-4 py-3">
+                    <span className={`rounded-full px-2.5 py-1 text-xs font-medium ${statusColors[c.status]}`}>{c.status}</span>
+                  </td>
+                </tr>
+              ))
+            )}
           </tbody>
         </table>
       </div>

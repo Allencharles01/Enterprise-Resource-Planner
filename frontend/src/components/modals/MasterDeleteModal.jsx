@@ -11,21 +11,26 @@ import {
   Database,
   ArrowRight,
   ChevronLeft,
+  Eye,
+  EyeOff,
+  Megaphone,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { api } from "@/lib/api";
 
 export function MasterDeleteModal({ isOpen, onClose, onSuccess }) {
-  const [target, setTarget] = useState(null); // 'all' | 'employees' | 'projects' | null
+  const [target, setTarget] = useState(null); // 'all' | 'employees' | 'projects' | 'marketing' | null
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
 
   useEffect(() => {
     if (isOpen) {
       setTarget(null);
       setPassword("");
       setErrorMsg("");
+      setShowPassword(false);
     }
   }, [isOpen]);
 
@@ -49,6 +54,10 @@ export function MasterDeleteModal({ isOpen, onClose, onSuccess }) {
       });
 
       if (response.data?.success) {
+        if (target === "marketing" || target === "all" || target === "projects") {
+          localStorage.setItem("marketing_deleted", "true");
+          window.dispatchEvent(new Event("marketingDeleted"));
+        }
         if (onSuccess) {
           onSuccess(target);
         }
@@ -167,6 +176,24 @@ export function MasterDeleteModal({ isOpen, onClose, onSuccess }) {
                     </div>
                     <ArrowRight size={16} className="text-slate-600 group-hover:text-amber-400 transition-transform group-hover:translate-x-1" />
                   </button>
+
+                  <button
+                    onClick={() => setTarget("marketing")}
+                    className="w-full text-left p-4 rounded-2xl bg-slate-900/50 hover:bg-indigo-950/20 border border-slate-800 hover:border-indigo-500/40 transition-all flex items-center gap-4 cursor-pointer group"
+                  >
+                    <div className="p-3 bg-indigo-500/10 text-indigo-400 rounded-xl group-hover:bg-indigo-500/25 group-hover:text-indigo-300 transition-colors">
+                      <Megaphone size={22} />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <span className="font-extrabold text-sm text-white block">
+                        Digital Marketing
+                      </span>
+                      <span className="text-xs text-slate-400 leading-normal block mt-0.5">
+                        Deletes all digital marketing campaigns, platforms, creator collaborations, and documents.
+                      </span>
+                    </div>
+                    <ArrowRight size={16} className="text-slate-600 group-hover:text-indigo-400 transition-transform group-hover:translate-x-1" />
+                  </button>
                 </div>
 
                 <button
@@ -195,7 +222,7 @@ export function MasterDeleteModal({ isOpen, onClose, onSuccess }) {
                   <h4 className="text-sm font-extrabold text-white">
                     Confirm Deletion of:{" "}
                     <span className="text-red-500 font-black uppercase">
-                      {target === "all" ? "All (Factory Reset)" : target}
+                      {target === "all" ? "All (Factory Reset)" : target === "marketing" ? "Digital Marketing" : target}
                     </span>
                   </h4>
                   <p className="text-xs text-slate-400 leading-relaxed">
@@ -207,15 +234,24 @@ export function MasterDeleteModal({ isOpen, onClose, onSuccess }) {
                   <label className="text-xs font-bold text-slate-300 block">
                     Admin Password:
                   </label>
-                  <input
-                    type="password"
-                    placeholder="••••••••"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    className="w-full bg-slate-900 border border-slate-800 focus:border-red-500 rounded-2xl px-4 py-3 text-sm text-white placeholder:text-slate-600 focus:outline-none transition-colors"
-                    required
-                    disabled={isLoading}
-                  />
+                  <div className="relative">
+                    <input
+                      type={showPassword ? "text" : "password"}
+                      placeholder="••••••••"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      className="w-full bg-slate-900 border border-slate-800 focus:border-red-500 rounded-2xl pl-4 pr-12 py-3 text-sm text-white placeholder:text-slate-600 focus:outline-none transition-colors"
+                      required
+                      disabled={isLoading}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white transition-colors cursor-pointer"
+                    >
+                      {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                    </button>
+                  </div>
                 </div>
 
                 {errorMsg && (

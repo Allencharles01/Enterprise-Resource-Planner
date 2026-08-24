@@ -55,6 +55,23 @@ export default function DigitalDashboardPage({ clientProject = null }) {
   const [loading, setLoading] = useState(true);
   const [companyId, setCompanyId] = useState("");
   const [chartFilter, setChartFilter] = useState("This Year");
+  const [isDeleted, setIsDeleted] = useState(false);
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      setIsDeleted(localStorage.getItem("marketing_deleted") === "true");
+    }
+
+    const handleMarketingDeleted = () => {
+      setIsDeleted(true);
+      setProjects([]);
+    };
+
+    window.addEventListener("marketingDeleted", handleMarketingDeleted);
+    return () => {
+      window.removeEventListener("marketingDeleted", handleMarketingDeleted);
+    };
+  }, []);
 
   // Fetch all projects from database
   useEffect(() => {
@@ -140,6 +157,13 @@ export default function DigitalDashboardPage({ clientProject = null }) {
             (p) => !(p.client === "NovaNectar Pvt Ltd" && p.projectType === "Enterprise Resource Planner")
           );
           setProjects(filtered);
+
+          if (filtered.length > 0) {
+            localStorage.removeItem("marketing_deleted");
+            setIsDeleted(false);
+          } else if (typeof window !== "undefined" && localStorage.getItem("marketing_deleted") === "true") {
+            setIsDeleted(true);
+          }
         }
       } catch (err) {
         console.error("Error fetching data:", err);
@@ -221,6 +245,12 @@ export default function DigitalDashboardPage({ clientProject = null }) {
 
   // Compute metrics dynamically
   const displayMetrics = useMemo(() => {
+    if (isDeleted) {
+      return {
+        allocatedBudget: { value: "₹0", growth: "+0%" },
+        spendAmount: { value: "₹0", growth: "+0%" }
+      };
+    }
     if (clientProject) {
       const rawBudget = typeof clientProject.budget === "number"
         ? clientProject.budget
@@ -233,13 +263,21 @@ export default function DigitalDashboardPage({ clientProject = null }) {
     const totalAllocated = projects.reduce((sum, p) => sum + p.budget, 0);
     const totalSpent = projects.reduce((sum, p) => sum + p.budget * 0.5, 0);
     return {
-      allocatedBudget: { value: "₹" + totalAllocated.toLocaleString("en-IN"), growth: "+14.6%" },
-      spendAmount: { value: "₹" + totalSpent.toLocaleString("en-IN"), growth: "+8.5%" }
+      allocatedBudget: { value: "₹" + totalAllocated.toLocaleString("en-IN"), growth: projects.length === 0 ? "+0%" : "+14.6%" },
+      spendAmount: { value: "₹" + totalSpent.toLocaleString("en-IN"), growth: projects.length === 0 ? "+0%" : "+8.5%" }
     };
-  }, [projects, clientProject]);
+  }, [projects, clientProject, isDeleted]);
 
   // Compute feature stats dynamically
   const featureStats = useMemo(() => {
+    if (isDeleted) {
+      return {
+        advertising: "₹0",
+        creators: "₹0",
+        heavyAds: "₹0",
+        documents: "0 Files"
+      };
+    }
     if (clientProject) {
       const rawBudget = typeof clientProject.budget === "number"
         ? clientProject.budget
@@ -259,7 +297,7 @@ export default function DigitalDashboardPage({ clientProject = null }) {
       heavyAds: "₹" + Math.round(totalBudget * 0.35).toLocaleString("en-IN"),
       documents: `${totalFiles} Files`
     };
-  }, [projects, clientProject]);
+  }, [projects, clientProject, isDeleted]);
 
   // Spend trend chart data
   const spendTrend = useMemo(() => {
@@ -267,15 +305,15 @@ export default function DigitalDashboardPage({ clientProject = null }) {
     const monthlyMap = {};
     months.forEach((m) => { monthlyMap[m] = 0; });
 
-    if (projects.length === 0) {
+    if (projects.length === 0 || isDeleted) {
       return [
-        { month: "Jan", value: 120000 },
-        { month: "Feb", value: 145000 },
-        { month: "Mar", value: 132000 },
-        { month: "Apr", value: 168000 },
-        { month: "May", value: 190000 },
-        { month: "Jun", value: 210000 },
-        { month: "Jul", value: 225000 }
+        { month: "Jan", value: isDeleted ? 0 : 120000 },
+        { month: "Feb", value: isDeleted ? 0 : 145000 },
+        { month: "Mar", value: isDeleted ? 0 : 132000 },
+        { month: "Apr", value: isDeleted ? 0 : 168000 },
+        { month: "May", value: isDeleted ? 0 : 190000 },
+        { month: "Jun", value: isDeleted ? 0 : 210000 },
+        { month: "Jul", value: isDeleted ? 0 : 225000 }
       ];
     }
 
@@ -291,13 +329,13 @@ export default function DigitalDashboardPage({ clientProject = null }) {
       month: m,
       value: monthlyMap[m] || Math.round(projects.reduce((sum, p) => sum + p.budget, 0) / 12)
     }));
-  }, [projects]);
+  }, [projects, isDeleted]);
 
   // Recent activity list
   const dynamicActivities = useMemo(() => {
-    if (projects.length === 0) {
+    if (projects.length === 0 || isDeleted) {
       return [
-        { id: 1, title: "No campaigns registered yet", detail: "Active projects list is empty", time: "Just now", type: "advertising" }
+        { id: 1, title: isDeleted ? "Digital Marketing deleted" : "No campaigns registered yet", detail: isDeleted ? "All campaigns and data purged" : "Active projects list is empty", time: "Just now", type: "advertising" }
       ];
     }
     return projects.slice(0, 4).map((p, index) => {
@@ -319,7 +357,7 @@ export default function DigitalDashboardPage({ clientProject = null }) {
         type
       };
     });
-  }, [projects]);
+  }, [projects, isDeleted]);
 
   if (loading) {
     return (

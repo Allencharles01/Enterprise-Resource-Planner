@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Tv,
   Trophy,
@@ -22,25 +22,37 @@ function StatBox({ label, value }) {
 
 export default function HeavyAdsModal({ open, onClose }) {
   const [filter, setFilter] = useState("All Campaigns");
-  const [campaigns, setCampaigns] = useState(heavyAds.campaigns);
+  const [campaigns, setCampaigns] = useState([]);
 
-const [showForm, setShowForm] = useState(false);
-const [editingCampaign, setEditingCampaign] = useState(null);
+  useEffect(() => {
+    if (open) {
+      const isDeleted = typeof window !== "undefined" && localStorage.getItem("marketing_deleted") === "true";
+      setCampaigns(isDeleted ? [] : heavyAds.campaigns);
+    }
+  }, [open]);
 
-const { campaignTypes, bestPerforming } = heavyAds;
-const totals = {
-  spend: campaigns.reduce((s, c) => s + Number(c.spent), 0),
+  const [showForm, setShowForm] = useState(false);
+  const [editingCampaign, setEditingCampaign] = useState(null);
 
-  profit: campaigns.reduce((s, c) => s + Number(c.profit), 0),
+  const { campaignTypes, bestPerforming } = heavyAds;
+  const isDeletedFlag = typeof window !== "undefined" && localStorage.getItem("marketing_deleted") === "true";
+  const currentBestPerforming = isDeletedFlag
+    ? { name: "None", spent: 0, profit: 0, reach: 0, roi: 0 }
+    : bestPerforming;
 
-  reach: campaigns.reduce((s, c) => s + Number(c.reach), 0),
+  const totals = {
+    spend: campaigns.reduce((s, c) => s + Number(c.spent), 0),
 
-  avgRoi:
-    (
-      campaigns.reduce((s, c) => s + Number(c.roi), 0) /
-      campaigns.length
-    ).toFixed(1),
-};
+    profit: campaigns.reduce((s, c) => s + Number(c.profit), 0),
+
+    reach: campaigns.reduce((s, c) => s + Number(c.reach), 0),
+
+    avgRoi:
+      campaigns.length > 0 ? (
+        campaigns.reduce((s, c) => s + Number(c.roi), 0) /
+        campaigns.length
+      ).toFixed(1) : "0.0",
+  };
   const filtered = filter === "All Campaigns" ? campaigns : campaigns.filter((c) => c.type === filter);
 
   return (
@@ -108,55 +120,63 @@ const totals = {
             </tr>
           </thead>
           <tbody>
-            {filtered.map((c) => (
-              <tr key={c.name} className="border-b border-gray-50 last:border-0 dark:border-white/5">
-                <td className="px-4 py-3">
-  <div className="flex items-center justify-between">
-
-    <span className="font-medium text-gray-900 dark:text-white">
-      {c.name}
-    </span>
-
-    <div className="flex gap-2">
-
-      <button
-        onClick={() => {
-          setEditingCampaign(c);
-          setShowForm(true);
-        }}
-        className="rounded-lg p-2 text-blue-500 hover:bg-blue-500/10"
-      >
-        <Pencil size={15} />
-      </button>
-
-      <button
-        onClick={() =>
-          setCampaigns(
-            campaigns.filter(
-              (item) => item.name !== c.name
-            )
-          )
-        }
-        className="rounded-lg p-2 text-red-500 hover:bg-red-500/10"
-      >
-        <Trash2 size={15} />
-      </button>
-
-    </div>
-
-  </div>
-</td>
-                <td className="px-4 py-3 text-gray-600 dark:text-gray-300">{c.type}</td>
-                <td className="px-4 py-3 text-gray-600 dark:text-gray-300">{c.location}</td>
-                <td className="px-4 py-3 text-gray-600 dark:text-gray-300">{formatINR(c.spent)}</td>
-                <td className="px-4 py-3 text-emerald-600 dark:text-emerald-400">{formatINR(c.profit)}</td>
-                <td className="px-4 py-3 text-gray-600 dark:text-gray-300">{c.reach.toLocaleString("en-IN")}</td>
-                <td className="px-4 py-3 font-medium text-gray-900 dark:text-white">{c.roi}%</td>
-                <td className="px-4 py-3">
-                  <span className={`rounded-full px-2.5 py-1 text-xs font-medium ${statusColors[c.status]}`}>{c.status}</span>
+            {filtered.length === 0 ? (
+              <tr>
+                <td colSpan={8} className="px-4 py-8 text-center text-gray-400">
+                  No campaigns registered
                 </td>
               </tr>
-            ))}
+            ) : (
+              filtered.map((c) => (
+                <tr key={c.name} className="border-b border-gray-50 last:border-0 dark:border-white/5">
+                  <td className="px-4 py-3">
+    <div className="flex items-center justify-between">
+
+      <span className="font-medium text-gray-900 dark:text-white">
+        {c.name}
+      </span>
+
+      <div className="flex gap-2">
+
+        <button
+          onClick={() => {
+            setEditingCampaign(c);
+            setShowForm(true);
+          }}
+          className="rounded-lg p-2 text-blue-500 hover:bg-blue-500/10"
+        >
+          <Pencil size={15} />
+        </button>
+
+        <button
+          onClick={() =>
+            setCampaigns(
+              campaigns.filter(
+                (item) => item.name !== c.name
+              )
+            )
+          }
+          className="rounded-lg p-2 text-red-500 hover:bg-red-500/10"
+        >
+          <Trash2 size={15} />
+        </button>
+
+      </div>
+
+    </div>
+  </td>
+                  <td className="px-4 py-3 text-gray-600 dark:text-gray-300">{c.type}</td>
+                  <td className="px-4 py-3 text-gray-600 dark:text-gray-300">{c.location}</td>
+                  <td className="px-4 py-3 text-gray-600 dark:text-gray-300">{formatINR(c.spent)}</td>
+                  <td className="px-4 py-3 text-emerald-600 dark:text-emerald-400">{formatINR(c.profit)}</td>
+                  <td className="px-4 py-3 text-gray-600 dark:text-gray-300">{c.reach.toLocaleString("en-IN")}</td>
+                  <td className="px-4 py-3 font-medium text-gray-900 dark:text-white">{c.roi}%</td>
+                  <td className="px-4 py-3">
+                    <span className={`rounded-full px-2.5 py-1 text-xs font-medium ${statusColors[c.status]}`}>{c.status}</span>
+                  </td>
+                </tr>
+              ))
+            )}
           </tbody>
         </table>
       </div>
@@ -168,25 +188,25 @@ const totals = {
           </div>
           <div>
             <p className="text-xs text-gray-500 dark:text-gray-400">Best Performing Campaign</p>
-            <p className="font-semibold text-gray-900 dark:text-white">{bestPerforming.name}</p>
+            <p className="font-semibold text-gray-900 dark:text-white">{currentBestPerforming.name}</p>
           </div>
         </div>
         <div className="flex flex-wrap gap-6 text-sm">
           <div>
             <p className="text-xs text-gray-500 dark:text-gray-400">Amount Spent</p>
-            <p className="font-medium text-gray-900 dark:text-white">{formatINR(bestPerforming.spent)}</p>
+            <p className="font-medium text-gray-900 dark:text-white">{formatINR(currentBestPerforming.spent)}</p>
           </div>
           <div>
             <p className="text-xs text-gray-500 dark:text-gray-400">Profit Generated</p>
-            <p className="font-medium text-gray-900 dark:text-white">{formatINR(bestPerforming.profit)}</p>
+            <p className="font-medium text-gray-900 dark:text-white">{formatINR(currentBestPerforming.profit)}</p>
           </div>
           <div>
             <p className="text-xs text-gray-500 dark:text-gray-400">Reach</p>
-            <p className="font-medium text-gray-900 dark:text-white">{bestPerforming.reach.toLocaleString("en-IN")}</p>
+            <p className="font-medium text-gray-900 dark:text-white">{currentBestPerforming.reach.toLocaleString("en-IN")}</p>
           </div>
           <div>
             <p className="text-xs text-gray-500 dark:text-gray-400">ROI</p>
-            <p className="font-medium text-orange-500">{bestPerforming.roi}%</p>
+            <p className="font-medium text-orange-500">{currentBestPerforming.roi}%</p>
           </div>
         </div>
       </div>

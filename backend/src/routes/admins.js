@@ -174,7 +174,7 @@ adminsRouter.post("/master-delete", requireAuth, async (req, res) => {
     }
 
     const { target, password } = req.body;
-    if (!["all", "employees", "projects"].includes(target)) {
+    if (!["all", "employees", "projects", "marketing"].includes(target)) {
       return res.status(400).json({ error: "Invalid target" });
     }
 
@@ -223,6 +223,47 @@ adminsRouter.post("/master-delete", requireAuth, async (req, res) => {
       await Promise.all([
         Project.deleteMany({}),
         Task.deleteMany({}),
+      ]);
+    } else if (target === "marketing") {
+      // Find all projects that are NOT the ERP project
+      const erpProject = await Project.findOne({
+        $or: [
+          { name: "ERP" },
+          { client: "NovaNectar Services Pvt Ltd" },
+          { client: "NovaNectar Pvt Ltd" }
+        ]
+      });
+
+      const erpProjectId = erpProject ? erpProject._id : null;
+
+      // We will delete all projects except ERP
+      const projectsToDelete = await Project.find(
+        erpProjectId ? { _id: { $ne: erpProjectId } } : {}
+      );
+      const projectIdsToDelete = projectsToDelete.map((p) => p._id);
+
+      // Find employees in Digital Marketing
+      const marketingEmployees = await EmployeeModel.find({
+        "work.department": { $regex: /marketing|digital/i }
+      });
+      const marketingUserIds = marketingEmployees
+        .map((e) => e.userId)
+        .filter((id) => id && id.toString() !== currentUserId.toString());
+
+      await Promise.all([
+        Project.deleteMany({ _id: { $in: projectIdsToDelete } }),
+        Task.deleteMany({ projectId: { $in: projectIdsToDelete } }),
+        EmployeeModel.deleteMany({
+          "work.department": { $regex: /marketing|digital/i },
+          userId: { $ne: currentUserId }
+        }),
+        UserModel.deleteMany({ _id: { $in: marketingUserIds } }),
+        Notification.deleteMany({
+          $or: [
+            { title: { $regex: /marketing|digital/i } },
+            { message: { $regex: /marketing|digital/i } }
+          ]
+        })
       ]);
     }
 

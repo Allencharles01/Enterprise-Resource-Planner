@@ -5,7 +5,7 @@ import {
   Trash2,
 } from "lucide-react";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import AdvertisingFormModal from "./AdvertisingFormModal";
 import Modal from "../ui/Modal";
 import { DonutChart } from "../Charts";
@@ -24,36 +24,44 @@ function StatBox({ label, value, sub }) {
 }
 
 export default function AdvertisingModal({ open, onClose, project,}) {
-  const [platforms, setPlatforms] = useState(advertising.platforms);
+  const [platforms, setPlatforms] = useState([]);
 
-const [showForm, setShowForm] = useState(false);
-const [editingPlatform, setEditingPlatform] = useState(null);
-const totals = {
-  spend: platforms.reduce((s, p) => s + Number(p.budget), 0),
+  useEffect(() => {
+    if (open) {
+      const isDeleted = typeof window !== "undefined" && localStorage.getItem("marketing_deleted") === "true";
+      setPlatforms(isDeleted ? [] : advertising.platforms);
+    }
+  }, [open]);
 
-  reach: platforms.reduce((s, p) => s + Number(p.reach), 0),
+  const [showForm, setShowForm] = useState(false);
+  const [editingPlatform, setEditingPlatform] = useState(null);
+  const isDeletedFlag = typeof window !== "undefined" && localStorage.getItem("marketing_deleted") === "true";
+  const totals = {
+    spend: platforms.reduce((s, p) => s + Number(p.budget), 0),
 
-  clicks: platforms.reduce((s, p) => s + Number(p.clicks), 0),
+    reach: platforms.reduce((s, p) => s + Number(p.reach), 0),
 
-  ctr:
-    Math.round(
-      platforms.reduce((s, p) => s + Number(p.ctr), 0) /
+    clicks: platforms.reduce((s, p) => s + Number(p.clicks), 0),
+
+    ctr:
+      platforms.length > 0 ? Math.round(
+        platforms.reduce((s, p) => s + Number(p.ctr), 0) /
+          platforms.length
+      ) : 0,
+
+    conversions: isDeletedFlag ? 0 : advertising.totals.conversions,
+
+    revenue: platforms.reduce(
+      (s, p) => s + Number(p.revenue),
+      0
+    ),
+
+    roi:
+      platforms.length > 0 ? (
+        platforms.reduce((s, p) => s + Number(p.roi), 0) /
         platforms.length
-    ) || 0,
-
-  conversions: advertising.totals.conversions,
-
-  revenue: platforms.reduce(
-    (s, p) => s + Number(p.revenue),
-    0
-  ),
-
-  roi:
-    (
-      platforms.reduce((s, p) => s + Number(p.roi), 0) /
-      platforms.length
-    ).toFixed(1),
-};
+      ).toFixed(1) : "0.0",
+  };
   const donutData = platforms.map((p, i) => ({ value: p.budget, color: donutColors[i] }));
   const totalBudget = platforms.reduce((s, p) => s + p.budget, 0);
   
@@ -176,7 +184,7 @@ const totals = {
                 <span className="h-2.5 w-2.5 rounded-full" style={{ background: donutColors[i] }} />
                 {p.name}
               </span>
-              <span className="text-gray-400 dark:text-gray-500">{Math.round((p.budget / totalBudget) * 100)}%</span>
+              <span className="text-gray-400 dark:text-gray-500">{totalBudget > 0 ? Math.round((p.budget / totalBudget) * 100) : 0}%</span>
               <span className="font-medium text-gray-900 dark:text-white">{formatINR(p.budget)}</span>
             </div>
           ))}
