@@ -139,7 +139,131 @@ contactListsRouter.get("/contacts", requireAuth, async (req, res) => {
   }
 });
 
-// Upload the finalized CSV rows/headers
+// Get Master Customer Data grouped by month
+contactListsRouter.get("/master-customer-data", requireAuth, async (req, res) => {
+  try {
+    const orgId = req.auth.orgId;
+    const inquiries = await CustomerInquiry.find().sort({ createdAt: -1 });
+    const lists = await ContactListModel.find({ orgId }).sort({ createdAt: -1 });
+
+    const groupMap = new Map(); // "Month Year" -> Array of records
+
+    const addToGroup = (date, record) => {
+      const d = date ? new Date(date) : new Date();
+      const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+      const monthName = months[d.getMonth()] || "Unknown";
+      const year = d.getFullYear() || 2026;
+      const groupKey = `${monthName} ${year}`;
+
+      if (!groupMap.has(groupKey)) {
+        groupMap.set(groupKey, []);
+      }
+      const currentList = groupMap.get(groupKey);
+      currentList.push({
+        sNo: currentList.length + 1,
+        ...record,
+      });
+    };
+
+    inquiries.forEach((i) => {
+      addToGroup(i.createdAt, {
+        name: i.name || "N/A",
+        phone: i.phoneNumber || "N/A",
+        email: i.email || "N/A",
+        status: i.status || "Pending",
+        assignedTo: i.assignedToName || i.assignedTo || "Unassigned",
+        remarks: i.message || i.serviceInterest || "Website Inquiry",
+      });
+    });
+
+    lists.forEach((l) => {
+      if (Array.isArray(l.rows)) {
+        l.rows.forEach((r) => {
+          addToGroup(l.createdAt, {
+            name: getName(r) || "N/A",
+            phone: getContact(r) || "N/A",
+            email: getEmail(r) || "N/A",
+            status: l.status || "Assigned",
+            assignedTo: l.assignedTo || "All Team",
+            remarks: `File: ${l.fileName}`,
+          });
+        });
+      }
+    });
+
+    const result = Array.from(groupMap.entries()).map(([monthYear, records]) => ({
+      monthYear,
+      records,
+    }));
+
+    res.json(result);
+  } catch (err) {
+    console.error("Failed to fetch master customer data:", err);
+    res.status(500).json({ error: "Failed to fetch master customer data" });
+  }
+});
+
+// Get assigned contact lists for employee grouped by month
+contactListsRouter.get("/assigned", requireAuth, async (req, res) => {
+  try {
+    const { employeeCode } = req.query;
+    
+    // Find lists assigned to employeeCode, or fallback to all assigned lists if employeeCode is demo/generic
+    let lists = [];
+    if (employeeCode) {
+      lists = await ContactListModel.find({
+        $or: [{ assignedTo: employeeCode }, { assignedTo: { $exists: true, $ne: "" } }]
+      }).sort({ createdAt: -1 });
+    } else {
+      lists = await ContactListModel.find({ assignedTo: { $exists: true, $ne: "" } }).sort({ createdAt: -1 });
+    }
+
+    const groupMap = new Map();
+    const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December font"];
+
+    lists.forEach((l) => {
+      const d = l.createdAt ? new Date(l.createdAt) : new Date();
+      const monthName = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"][d.getMonth()] || "Unknown";
+      const year = d.getFullYear() || 2026;
+      const key = `${monthName} ${year}`;
+
+      if (!groupMap.has(key)) {
+        groupMap.set(key, []);
+      }
+      groupMap.get(key).push(l);
+    });
+
+    const result = Array.from(groupMap.entries()).map(([monthYear, itemLists]) => ({
+      monthYear,
+      lists: itemLists,
+      totalRows: itemLists.reduce((sum, l) => sum + (l.rows?.length || 0), 0)
+    }));
+
+    res.json(result);
+  } catch (err) {
+    console.error("Failed to fetch assigned contact lists:", err);
+    res.status(500).json({ error: "Failed to fetch assigned contact lists" });
+  }
+});
+
+// Sync assigned contact list
+contactListsRouter.post("/sync/:id", requireAuth, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const list = await ContactListModel.findByIdAndUpdate(
+      id,
+      { status: "synced" },
+      { new: true }
+    );
+    if (!list) return res.status(404).json({ error: "List not found" });
+
+    res.json({ success: true, list });
+  } catch (err) {
+    console.error("Failed to sync contact list:", err);
+    res.status(500).json({ error: "Failed to sync contact list" });
+  }
+});
+
 contactListsRouter.post("/upload", requireAuth, async (req, res) => {
   try {
     const orgId = req.auth.orgId;
@@ -248,7 +372,7 @@ contactListsRouter.post("/assign", requireAuth, async (req, res) => {
         title: "New Contacts List Assigned",
         message: `Admin ${user.name} has sent you a new Contacts List. Click here to view it and sync it to your existing one.`,
         category: "system",
-        link: "contacts",
+        link: "/employee/contacts",
         isRead: false,
         metadata: {
           employeeCode: code,
@@ -309,5 +433,31 @@ contactListsRouter.get("/explorer/download", requireAuth, async (req, res) => {
     res.status(500).json({ error: "Download failed" });
   }
 });
+// Delete file from MongoDB Atlas (CSVDocModel & ContactListModel)
+contactListsRouter.delete("/explorer/file", requireAuth, async (req, res) => {
+  try {
+    const { filePath } = req.query;
+    if (!filePath) {
+      return res.status(400).json({ error: "File path query param is required" });
+    }
+
+    const fileDoc = await CSVDocModel.findOne({ path: filePath, type: "file" });
+    if (!fileDoc) {
+      return res.status(404).json({ error: "File not found" });
+    }
+
+    // Remove from CSVDocModel
+    await CSVDocModel.deleteOne({ _id: fileDoc._id });
+
+    // Try removing matching list from ContactListModel if matching filename
+    await ContactListModel.deleteMany({ fileName: fileDoc.name }).catch(() => {});
+
+    res.json({ success: true, message: "File deleted successfully" });
+  } catch (err) {
+    console.error("Delete file failed:", err);
+    res.status(500).json({ error: "Delete file failed" });
+  }
+});
+
 
 

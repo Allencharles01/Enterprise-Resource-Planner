@@ -23,11 +23,13 @@ import {
   ArrowUpRight,
   FileText,
   Radiation,
+  Database,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { EditProfileRequestsModal } from "@/components/EditProfileRequestsModal";
 import { MasterDeleteModal } from "@/components/modals/MasterDeleteModal";
+import MasterCustomerDataModal from "@/components/modals/MasterCustomerDataModal";
 
 export default function ControlPanelPage() {
   const router = useRouter();
@@ -41,6 +43,7 @@ export default function ControlPanelPage() {
   const [adminRecord, setAdminRecord] = useState(null);
   const [isCsvExplorerOpen, setIsCsvExplorerOpen] = useState(false);
   const [isMasterDeleteOpen, setIsMasterDeleteOpen] = useState(false);
+  const [isMasterCustomerDataOpen, setIsMasterCustomerDataOpen] = useState(false);
 
   const handleMasterDeleteSuccess = (target) => {
     setActiveToast(`Successfully deleted ${target} data!`);
@@ -345,6 +348,16 @@ export default function ControlPanelPage() {
               </button>
 
               <button
+                onClick={() => setIsMasterCustomerDataOpen(true)}
+                className="w-full min-h-[120px] rounded-2xl bg-gradient-to-br from-emerald-600 via-teal-600 to-cyan-700 text-white font-extrabold shadow-lg shadow-emerald-500/20 hover:scale-105 active:scale-95 transition-all flex flex-col items-center justify-center gap-2 p-5 text-center cursor-pointer border border-teal-400/30 group"
+              >
+                <div className="p-2.5 rounded-xl bg-white/10 group-hover:bg-white/20 transition-colors shadow-inner">
+                  <Database size={24} />
+                </div>
+                <span className="text-xs sm:text-sm leading-tight">Master Customer Data</span>
+              </button>
+
+              <button
                 onClick={() => setIsMasterDeleteOpen(true)}
                 className="w-full min-h-[120px] rounded-2xl bg-gradient-to-br from-red-600 via-orange-600 to-amber-700 text-white font-extrabold shadow-lg shadow-red-500/20 hover:scale-105 active:scale-95 transition-all flex flex-col items-center justify-center gap-2 p-5 text-center cursor-pointer border border-red-400/30 group"
               >
@@ -393,6 +406,11 @@ export default function ControlPanelPage() {
       <CsvDocsExplorerModal
         isOpen={isCsvExplorerOpen}
         onClose={() => setIsCsvExplorerOpen(false)}
+      />
+
+      <MasterCustomerDataModal
+        isOpen={isMasterCustomerDataOpen}
+        onClose={() => setIsMasterCustomerDataOpen(false)}
       />
 
       <MasterDeleteModal

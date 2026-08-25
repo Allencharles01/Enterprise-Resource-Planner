@@ -617,11 +617,6 @@ export default function DigitalMarketingPage() {
                    !(p.client === "NovaNectar Pvt Ltd" && p.name === "ERP")
           );
           setProjects(filtered);
-
-          if (filtered.length > 0) {
-            localStorage.removeItem("marketing_deleted");
-            setIsDeleted(false);
-          }
         }
       } catch (err) {
         console.error("Error fetching projects:", err);

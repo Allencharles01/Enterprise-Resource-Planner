@@ -10,6 +10,39 @@ export function AnimatedBackground() {
 
   useEffect(() => {
     setMounted(true);
+
+    const handleWindowError = (event) => {
+      const isExtensionError = 
+        event.filename?.includes("chrome-extension://") || 
+        event.error?.stack?.includes("chrome-extension://") ||
+        event.message?.includes("chrome-extension://") ||
+        event.message?.includes("M_ID");
+
+      if (isExtensionError) {
+        event.stopImmediatePropagation();
+        event.preventDefault();
+      }
+    };
+
+    const handleUnhandledRejection = (event) => {
+      const reasonStr = event.reason?.stack || String(event.reason || "");
+      const isExtensionRejection = 
+        reasonStr.includes("chrome-extension://") || 
+        reasonStr.includes("M_ID");
+
+      if (isExtensionRejection) {
+        event.stopImmediatePropagation();
+        event.preventDefault();
+      }
+    };
+
+    window.addEventListener("error", handleWindowError, { capture: true });
+    window.addEventListener("unhandledrejection", handleUnhandledRejection, { capture: true });
+
+    return () => {
+      window.removeEventListener("error", handleWindowError, { capture: true });
+      window.removeEventListener("unhandledrejection", handleUnhandledRejection, { capture: true });
+    };
   }, []);
 
   if (!mounted) return null;

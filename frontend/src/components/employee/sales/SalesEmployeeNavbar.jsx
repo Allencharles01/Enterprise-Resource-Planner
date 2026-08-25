@@ -185,10 +185,12 @@ export default function SalesEmployeeNavbar() {
     };
 
     window.addEventListener("messagesRead", handleMessagesRead);
+    window.addEventListener("notificationsRead", handleMessagesRead);
 
     return () => {
       clearInterval(interval);
       window.removeEventListener("messagesRead", handleMessagesRead);
+      window.removeEventListener("notificationsRead", handleMessagesRead);
     };
   }, []);
 

@@ -300,86 +300,62 @@ const getCompareResults = (records, dbContacts = []) => {
 
 const getDuplicateResults = (records, dbContacts = []) => {
   const results = [];
-  const seenNames = new Map();
-  const seenEmails = new Map();
-  const seenContacts = new Map();
+  const nameMap = new Map();
 
-  records.forEach((record, index) => {
-    const rowNum = index + 1;
-    const name = getName(record);
-    const email = getEmail(record);
-    const contact = getContact(record);
-
-    const normName = normalize(name);
-    const normEmail = normalize(email);
-    const cleanPhoneVal = cleanPhone(contact);
-
-    let isNameDup = false;
-    let isEmailDup = false;
-    let isPhoneDup = false;
-    const matchTypes = [];
-    let existingName = "—";
-    let existingEmail = "—";
-    let existingContact = "—";
-
-    // 1. Check for duplicates within the uploaded document
-    if (normName && seenNames.has(normName)) {
-      isNameDup = true;
-      matchTypes.push(`Name (Row ${seenNames.get(normName)})`);
-      existingName = name;
+  // Index DB contacts by normalized name for fast lookup O(1)
+  dbContacts.forEach((existing) => {
+    const norm = normalize(existing.name);
+    if (norm) {
+      if (!nameMap.has(norm)) {
+        nameMap.set(norm, []);
+      }
+      nameMap.get(norm).push(existing);
     }
-    if (normEmail && seenEmails.has(normEmail)) {
-      isEmailDup = true;
-      matchTypes.push(`Email (Row ${seenEmails.get(normEmail)})`);
-      existingEmail = email;
-    }
-    if (cleanPhoneVal && seenContacts.has(cleanPhoneVal)) {
-      isPhoneDup = true;
-      matchTypes.push(`Phone (Row ${seenContacts.get(cleanPhoneVal)})`);
-      existingContact = contact;
-    }
+  });
 
-    // 2. Check for duplicates in the existing database records
-    const dbNameMatch = dbContacts.find(db => normName && normalize(db.name) === normName);
-    if (dbNameMatch) {
-      isNameDup = true;
-      matchTypes.push("Name (Database)");
-      existingName = dbNameMatch.name || "—";
-    }
+  records.forEach((record) => {
+    const importedName = getName(record);
+    const importedEmail = getEmail(record);
+    const importedContact = getContact(record);
 
-    const dbEmailMatch = dbContacts.find(db => normEmail && normalize(db.email) === normEmail);
-    if (dbEmailMatch) {
-      isEmailDup = true;
-      matchTypes.push("Email (Database)");
-      existingEmail = dbEmailMatch.email || "—";
-    }
+    const normName = normalize(importedName);
+    const normEmail = normalize(importedEmail);
+    const cleanPhoneVal = cleanPhone(importedContact);
 
-    const dbPhoneMatch = dbContacts.find(db => cleanPhoneVal && cleanPhone(db.contact) === cleanPhoneVal);
-    if (dbPhoneMatch) {
-      isPhoneDup = true;
-      matchTypes.push("Phone (Database)");
-      existingContact = dbPhoneMatch.contact || "—";
-    }
+    if (!normName) return;
 
-    // Track the first occurrence of each in the uploaded document
-    if (normName && !seenNames.has(normName)) seenNames.set(normName, rowNum);
-    if (normEmail && !seenEmails.has(normEmail)) seenEmails.set(normEmail, rowNum);
-    if (cleanPhoneVal && !seenContacts.has(cleanPhoneVal)) seenContacts.set(cleanPhoneVal, rowNum);
+    // Check if Name exists in Master Customer Data (dbContacts)
+    const matchesInDb = nameMap.get(normName);
 
-    if (isNameDup || isEmailDup || isPhoneDup) {
-      results.push({
-        id: results.length + 1,
-        rowId: record.id,
-        importedName: name || "N/A",
-        existingName,
-        importedContact: contact || "N/A",
-        existingContact,
-        importedEmail: email || "N/A",
-        existingEmail,
-        matchType: matchTypes.join(", "),
-        isNameDup,
-        isEmailDup,
-        isPhoneDup,
+    if (matchesInDb && matchesInDb.length > 0) {
+      matchesInDb.forEach((existing) => {
+        const existingEmailNorm = normalize(existing.email);
+        const existingPhoneClean = cleanPhone(existing.contact);
+
+        const phoneMatched = cleanPhoneVal && existingPhoneClean && cleanPhoneVal === existingPhoneClean;
+        const emailMatched = normEmail && existingEmailNorm && normEmail === existingEmailNorm;
+
+        // If Name matches AND (Phone matched OR Email matched) -> Duplicate!
+        if (phoneMatched || emailMatched) {
+          const matchReasons = [];
+          if (phoneMatched) matchReasons.push("📞 Phone");
+          if (emailMatched) matchReasons.push("✉️ Email");
+
+          results.push({
+            id: results.length + 1,
+            rowId: record.id,
+            importedName: importedName || "N/A",
+            existingName: existing.name || "—",
+            importedContact: importedContact || "N/A",
+            existingContact: existing.contact || "—",
+            importedEmail: importedEmail || "N/A",
+            existingEmail: existing.email || "—",
+            matchType: `Name + ${matchReasons.join(" & ")}`,
+            isNameDup: true,
+            isPhoneDup: Boolean(phoneMatched),
+            isEmailDup: Boolean(emailMatched),
+          });
+        }
       });
     }
   });
@@ -739,6 +715,12 @@ export default function ImportDataModal({ onClose }) {
     setEditingRowId(null);
   };
 
+  const handleDeleteAllDuplicates = () => {
+    const dupRowIds = new Set(duplicateResults.map((d) => d.rowId));
+    setPreviewRows((prev) => prev.filter((row) => !dupRowIds.has(row.id)));
+    setEditingRowId(null);
+  };
+
   const handleSaveEdit = (rowId) => {
     setPreviewRows((prev) =>
       prev.map((row) => {
@@ -910,6 +892,7 @@ export default function ImportDataModal({ onClose }) {
               onSaveEdit={handleSaveEdit}
               onCancelEdit={handleCancelEdit}
               onDeleteRow={handleDeleteRow}
+              onDeleteAllDuplicates={handleDeleteAllDuplicates}
             />
           )}
 
@@ -1249,16 +1232,31 @@ function DuplicateSection({
   onSaveEdit,
   onCancelEdit,
   onDeleteRow,
+  onDeleteAllDuplicates,
 }) {
   return (
     <div className="rounded-2xl border border-violet-100 dark:border-border bg-card p-5 shadow-sm dark:shadow-none">
-      <SectionHeader
-        icon={AlertTriangle}
-        iconClass="text-rose-500 dark:text-rose-400"
-        title="Duplicate Records"
-        subtitle="Exact duplicate records found in existing data."
-        onClose={onClose}
-      />
+      <div className="mb-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <SectionHeader
+          icon={AlertTriangle}
+          iconClass="text-rose-500 dark:text-rose-400"
+          title="Duplicate Records"
+          subtitle="Exact duplicate records found in existing data."
+          onClose={onClose}
+        />
+      </div>
+
+      {fileType === "csv" && results.length > 0 && (
+        <div className="mb-4 flex justify-end">
+          <button
+            onClick={onDeleteAllDuplicates}
+            className="flex items-center gap-2 px-4 py-2 bg-rose-500 hover:bg-rose-600 text-white text-xs font-bold rounded-xl shadow-md transition-all cursor-pointer"
+          >
+            <Trash2 size={14} />
+            Delete All Duplicates ({results.length})
+          </button>
+        </div>
+      )}
 
       {fileType !== "csv" ? (
         <WarningBox text="Duplicate checking needs structured CSV data. PDF/DOC duplicate checking should be handled after backend extraction." />

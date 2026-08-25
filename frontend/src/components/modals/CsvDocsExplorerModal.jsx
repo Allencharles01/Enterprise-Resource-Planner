@@ -8,6 +8,7 @@ import {
   FileSpreadsheet,
   ChevronRight,
   Download,
+  Trash2,
   Search,
   X,
   ArrowLeft,
@@ -113,6 +114,21 @@ export default function CsvDocsExplorerModal({ isOpen, onClose }) {
     }
   };
 
+  const handleDelete = async (file) => {
+    if (!window.confirm(`Are you sure you want to delete "${file.name}"? This action will remove it permanently from MongoDB Atlas.`)) {
+      return;
+    }
+    try {
+      await api.delete(
+        `/api/contact-lists/explorer/file?filePath=${encodeURIComponent(file.path)}`
+      );
+      fetchTree();
+    } catch (err) {
+      console.error("Delete file failed:", err);
+      alert(err.response?.data?.error || "Failed to delete file.");
+    }
+  };
+
   return (
     <AnimatePresence>
       <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-background/80 backdrop-blur-sm">
@@ -121,7 +137,7 @@ export default function CsvDocsExplorerModal({ isOpen, onClose }) {
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.95, y: 15 }}
           transition={{ duration: 0.2 }}
-          className="relative w-full max-w-5xl h-[85vh] flex flex-col bg-[#090d1f] border border-indigo-500/20 rounded-3xl overflow-hidden shadow-2xl"
+          className="relative w-full max-w-5xl h-[85vh] flex flex-col bg-background border border-indigo-500/20 rounded-3xl overflow-hidden shadow-2xl"
         >
           {/* Header */}
           <div className="flex items-center justify-between p-6 border-b border-border/50">
@@ -134,7 +150,7 @@ export default function CsvDocsExplorerModal({ isOpen, onClose }) {
                   CSV Docs Explorer
                 </h3>
                 <p className="text-xs text-muted-foreground">
-                  Browse and download archived and assigned CSV documents
+                  Browse, download, and delete archived and assigned CSV documents
                 </p>
               </div>
             </div>
@@ -249,16 +265,28 @@ export default function CsvDocsExplorerModal({ isOpen, onClose }) {
                         )}
 
                         {!isFolder && (
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleDownload(item);
-                            }}
-                            className="p-1.5 bg-indigo-500/10 hover:bg-indigo-500 text-indigo-400 hover:text-white rounded-lg border border-indigo-500/20 hover:border-indigo-500 transition-all"
-                            title="Download CSV"
-                          >
-                            <Download size={14} />
-                          </button>
+                          <div className="flex items-center gap-1">
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleDownload(item);
+                              }}
+                              className="p-1.5 bg-indigo-500/10 hover:bg-indigo-500 text-indigo-400 hover:text-white rounded-lg border border-indigo-500/20 hover:border-indigo-500 transition-all"
+                              title="Download CSV"
+                            >
+                              <Download size={14} />
+                            </button>
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleDelete(item);
+                              }}
+                              className="p-1.5 bg-rose-500/10 hover:bg-rose-500 text-rose-400 hover:text-white rounded-lg border border-rose-500/20 hover:border-rose-500 transition-all"
+                              title="Delete from Database"
+                            >
+                              <Trash2 size={14} />
+                            </button>
+                          </div>
                         )}
                       </div>
 

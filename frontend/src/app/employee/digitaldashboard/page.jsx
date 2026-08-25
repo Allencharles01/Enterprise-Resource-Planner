@@ -306,15 +306,7 @@ export default function DigitalDashboardPage({ clientProject = null }) {
     months.forEach((m) => { monthlyMap[m] = 0; });
 
     if (projects.length === 0 || isDeleted) {
-      return [
-        { month: "Jan", value: isDeleted ? 0 : 120000 },
-        { month: "Feb", value: isDeleted ? 0 : 145000 },
-        { month: "Mar", value: isDeleted ? 0 : 132000 },
-        { month: "Apr", value: isDeleted ? 0 : 168000 },
-        { month: "May", value: isDeleted ? 0 : 190000 },
-        { month: "Jun", value: isDeleted ? 0 : 210000 },
-        { month: "Jul", value: isDeleted ? 0 : 225000 }
-      ];
+      return months.map((m) => ({ month: m, value: 0 }));
     }
 
     projects.forEach((p) => {

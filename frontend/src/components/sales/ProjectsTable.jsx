@@ -90,6 +90,7 @@ export default function ProjectsTable({ onViewProject }) {
       );
 
       setOpenActionMenuId(null);
+      window.dispatchEvent(new Event("projectUpdated"));
     } catch (err) {
       console.error("Delete failed:", err);
       alert("Failed to delete project.");
@@ -806,6 +807,7 @@ export default function ProjectsTable({ onViewProject }) {
         onUpdated={() => {
           fetchProjects();
           setSelectedProjectForEdit(null);
+          window.dispatchEvent(new Event("projectUpdated"));
         }}
       />
     </div>

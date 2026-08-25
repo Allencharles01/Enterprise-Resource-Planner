@@ -14,6 +14,8 @@ import {
   Eye,
   EyeOff,
   Megaphone,
+  MessageSquare,
+  Mail,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { api } from "@/lib/api";
@@ -57,6 +59,12 @@ export function MasterDeleteModal({ isOpen, onClose, onSuccess }) {
         if (target === "marketing" || target === "all" || target === "projects") {
           localStorage.setItem("marketing_deleted", "true");
           window.dispatchEvent(new Event("marketingDeleted"));
+        }
+        if (target === "messages" || target === "all") {
+          window.dispatchEvent(new Event("messagesDeleted"));
+        }
+        if (target === "emails" || target === "all") {
+          window.dispatchEvent(new Event("emailsDeleted"));
         }
         if (onSuccess) {
           onSuccess(target);
@@ -194,6 +202,42 @@ export function MasterDeleteModal({ isOpen, onClose, onSuccess }) {
                     </div>
                     <ArrowRight size={16} className="text-slate-600 group-hover:text-indigo-400 transition-transform group-hover:translate-x-1" />
                   </button>
+
+                  <button
+                    onClick={() => setTarget("messages")}
+                    className="w-full text-left p-4 rounded-2xl bg-slate-900/50 hover:bg-teal-950/20 border border-slate-800 hover:border-teal-500/40 transition-all flex items-center gap-4 cursor-pointer group"
+                  >
+                    <div className="p-3 bg-teal-500/10 text-teal-400 rounded-xl group-hover:bg-teal-500/25 group-hover:text-teal-300 transition-colors">
+                      <MessageSquare size={22} />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <span className="font-extrabold text-sm text-white block">
+                        Messages
+                      </span>
+                      <span className="text-xs text-slate-400 leading-normal block mt-0.5">
+                        Deletes all internal chat logs and conversations between users.
+                      </span>
+                    </div>
+                    <ArrowRight size={16} className="text-slate-600 group-hover:text-teal-400 transition-transform group-hover:translate-x-1" />
+                  </button>
+
+                  <button
+                    onClick={() => setTarget("emails")}
+                    className="w-full text-left p-4 rounded-2xl bg-slate-900/50 hover:bg-cyan-950/20 border border-slate-800 hover:border-cyan-500/40 transition-all flex items-center gap-4 cursor-pointer group"
+                  >
+                    <div className="p-3 bg-cyan-500/10 text-cyan-400 rounded-xl group-hover:bg-cyan-500/25 group-hover:text-cyan-300 transition-colors">
+                      <Mail size={22} />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <span className="font-extrabold text-sm text-white block">
+                        Emails
+                      </span>
+                      <span className="text-xs text-slate-400 leading-normal block mt-0.5">
+                        Deletes all outbound and inbound email communications and logs.
+                      </span>
+                    </div>
+                    <ArrowRight size={16} className="text-slate-600 group-hover:text-cyan-400 transition-transform group-hover:translate-x-1" />
+                  </button>
                 </div>
 
                 <button
@@ -222,7 +266,7 @@ export function MasterDeleteModal({ isOpen, onClose, onSuccess }) {
                   <h4 className="text-sm font-extrabold text-white">
                     Confirm Deletion of:{" "}
                     <span className="text-red-500 font-black uppercase">
-                      {target === "all" ? "All (Factory Reset)" : target === "marketing" ? "Digital Marketing" : target}
+                      {target === "all" ? "All (Factory Reset)" : target === "marketing" ? "Digital Marketing" : target === "messages" ? "Messages" : target === "emails" ? "Emails" : target}
                     </span>
                   </h4>
                   <p className="text-xs text-slate-400 leading-relaxed">

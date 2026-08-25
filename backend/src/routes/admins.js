@@ -174,7 +174,7 @@ adminsRouter.post("/master-delete", requireAuth, async (req, res) => {
     }
 
     const { target, password } = req.body;
-    if (!["all", "employees", "projects", "marketing"].includes(target)) {
+    if (!["all", "employees", "projects", "marketing", "messages", "emails"].includes(target)) {
       return res.status(400).json({ error: "Invalid target" });
     }
 
@@ -265,6 +265,10 @@ adminsRouter.post("/master-delete", requireAuth, async (req, res) => {
           ]
         })
       ]);
+    } else if (target === "messages") {
+      await InternalChat.deleteMany({});
+    } else if (target === "emails") {
+      await EmailLog.deleteMany({});
     }
 
     res.json({ success: true, message: `Successfully deleted ${target}` });

@@ -311,7 +311,7 @@ export function NotificationsModal({ isOpen, onClose, onNavigate, employeeCode, 
                     <div className="flex items-center gap-3 mt-2">
                       {n.link && (
                         <span className="text-[10px] sm:text-[11px] font-bold text-pink-500 flex items-center gap-1 group-hover:underline">
-                          Open {n.link === "inquiries" ? "Customer Inquiries" : n.link === "messages" ? "Correspondence Box" : n.link === "accounts" ? "Account Requests" : "Details"}
+                          Open {n.link.includes("contacts") ? "Contacts Sync" : n.link === "inquiries" ? "Customer Inquiries" : n.link === "messages" ? "Correspondence Box" : n.link === "accounts" ? "Account Requests" : "Details"}
                           <ExternalLink size={11} />
                         </span>
                       )}

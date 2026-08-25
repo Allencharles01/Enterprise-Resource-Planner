@@ -17,99 +17,9 @@ import { useTheme } from "next-themes";
 import NewLeadModal from "./NewLeadModal";
 import { GmailComposerModal } from "@/components/GmailComposerModal";
 import QRCode from "qrcode";
+import { api } from "@/lib/api";
 
-const initialContacts = [
-  {
-    id: 1,
-    name: "Rohan Mehta",
-    contact: "+91 98765 43210",
-    email: "rohan.mehta@example.com",
-    status: "Answered",
-    remark: "Call answered and lead is interested.",
-    month: "July 2026",
-  },
-  {
-    id: 2,
-    name: "Priya Sharma",
-    contact: "+91 91234 56789",
-    email: "priya.sharma@example.com",
-    status: "Unanswered",
-    remark: "No response on first attempt.",
-    month: "July 2026",
-  },
-  {
-    id: 3,
-    name: "Amit Verma",
-    contact: "+91 98987 76554",
-    email: "amit.verma@example.com",
-    status: "Rejected",
-    remark: "Not interested right now.",
-    month: "July 2026",
-  },
-  {
-    id: 4,
-    name: "Neha Bansal",
-    contact: "+91 88776 44132",
-    email: "neha.bansal@example.com",
-    status: "Busy",
-    remark: "Asked to call later.",
-    month: "July 2026",
-  },
-  {
-    id: 5,
-    name: "Vikram Singh",
-    contact: "+91 97654 32109",
-    email: "vikram.singh@example.com",
-    status: "Not Connected",
-    remark: "Network issue.",
-    month: "July 2026",
-  },
-  {
-    id: 6,
-    name: "Kavita Iyer",
-    contact: "+91 90909 11223",
-    email: "kavita.iyer@example.com",
-    status: "",
-    remark: "",
-    month: "June 2026",
-  },
-  {
-    id: 7,
-    name: "Rohan Das",
-    contact: "+91 93456 77889",
-    email: "rohan.das@example.com",
-    status: "",
-    remark: "",
-    month: "June 2026",
-  },
-  {
-    id: 8,
-    name: "Anjali Kapoor",
-    contact: "+91 96123 44567",
-    email: "anjali.kapoor@example.com",
-    status: "",
-    remark: "",
-    month: "June 2026",
-  },
-  {
-    id: 9,
-    name: "Siddharth Jain",
-    contact: "+91 88220 99887",
-    email: "siddharth.jain@example.com",
-    status: "",
-    remark: "",
-    month: "June 2026",
-  },
-  {
-    id: 10,
-    name: "Meera Nair",
-    contact: "+91 99011 22334",
-    email: "meera.nair@example.com",
-    status: "",
-    remark: "",
-    month: "June 2026",
-  },
-];
+const initialContacts = [];
 
 const dialPadKeys = [
   { number: "1", letters: "" },
@@ -167,8 +77,8 @@ const getStatusClass = (status) => {
 
 export default function ContactCallingWorkspace({ onBack }) {
   const [contacts, setContacts] = useState(initialContacts);
-  const [selectedContact, setSelectedContact] = useState(initialContacts[0]);
-  const [dialNumber, setDialNumber] = useState(initialContacts[0].contact);
+  const [selectedContact, setSelectedContact] = useState(initialContacts[0] || null);
+  const [dialNumber, setDialNumber] = useState(initialContacts[0]?.contact || "");
   const [dialNumberError, setDialNumberError] = useState("");
   const [isCalling, setIsCalling] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
@@ -197,6 +107,82 @@ export default function ContactCallingWorkspace({ onBack }) {
 
   const { resolvedTheme } = useTheme();
   const isDarkMode = resolvedTheme === "dark";
+
+  useEffect(() => {
+    const fetchSyncedContacts = async () => {
+      const employeeCode = localStorage.getItem("userEmployeeCode") || "EMP001";
+      try {
+        const res = await api.get(`/api/contact-lists/assigned?employeeCode=${employeeCode}`);
+        const groupedLists = res.data || [];
+        
+        let idCounter = 1;
+        const loadedContacts = [];
+
+        groupedLists.forEach((group) => {
+          group.lists.forEach((l) => {
+            if (Array.isArray(l.rows)) {
+              const headers = l.headers || [];
+
+              l.rows.forEach((r) => {
+                let name = "";
+                let phone = "";
+                let email = "";
+
+                if (Array.isArray(r)) {
+                  // Handle row as positional array matching headers
+                  headers.forEach((h, idx) => {
+                    const normH = String(h || "").trim().toLowerCase();
+                    const val = String(r[idx] || "").trim();
+                    if (["name", "full name", "client name", "candidate name", "student name"].some(k => normH.includes(k))) name = val;
+                    if (["phone", "contact", "mobile", "number", "tel"].some(k => normH.includes(k))) phone = val;
+                    if (["email", "mail"].some(k => normH.includes(k))) email = val;
+                  });
+                  if (!name && r[0]) name = r[0];
+                  if (!phone && r[1]) phone = r[1];
+                  if (!email && r[2]) email = r[2];
+                } else if (typeof r === "object" && r !== null) {
+                  // Handle row as object with flexible keys
+                  const keys = Object.keys(r);
+                  const findVal = (possible) => {
+                    const matchKey = keys.find(k => possible.some(p => String(k).trim().toLowerCase().includes(p)));
+                    return matchKey ? String(r[matchKey] || "").trim() : "";
+                  };
+
+                  name = findVal(["name", "full name", "client name", "candidate name", "student name"]) || r.Name || r.name || "N/A";
+                  phone = findVal(["phone", "contact", "mobile", "number", "tel"]) || r.Phone || r.phone || r.Contact || r.contact || "N/A";
+                  email = findVal(["email", "mail"]) || r.Email || r.email || "N/A";
+                }
+
+                if (name !== "N/A" || phone !== "N/A" || email !== "N/A") {
+                  loadedContacts.push({
+                    id: idCounter++,
+                    name: name || "N/A",
+                    contact: phone || "N/A",
+                    email: email || "N/A",
+                    status: "", // Call status not yet set
+                    remark: "",
+                    month: group.monthYear,
+                    sourceFile: l.fileName
+                  });
+                }
+              });
+            }
+          });
+        });
+
+        if (loadedContacts.length > 0) {
+          setContacts(loadedContacts);
+          setSelectedContact(loadedContacts[0]);
+          setDialNumber(loadedContacts[0].contact);
+          setExpandedMonth(loadedContacts[0].month);
+        }
+      } catch (err) {
+        console.error("Failed to fetch synced contacts into calling workspace:", err);
+      }
+    };
+
+    fetchSyncedContacts();
+  }, []);
 
   useEffect(() => {
     const handleKeyDown = (e) => {

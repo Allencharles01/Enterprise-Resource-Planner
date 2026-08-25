@@ -435,7 +435,7 @@ export default function LoginPage() {
                 className="w-full h-full object-cover rounded-xl"
               />
             </div>
-            <h1 className="text-2xl lg:text-3xl xl:text-[2.35rem] font-black tracking-tight whitespace-nowrap text-white">
+            <h1 className="text-2xl lg:text-3xl xl:text-[2.35rem] font-black tracking-tight whitespace-nowrap text-slate-900 dark:text-white">
               NovaNectar{" "}
               <span className="bg-gradient-to-r from-blue-400 via-indigo-300 to-cyan-300 bg-clip-text text-transparent">
                 Services Pvt. Ltd.
@@ -448,7 +448,7 @@ export default function LoginPage() {
             <h2 className="text-3xl lg:text-4xl font-extrabold text-foreground tracking-tight leading-snug">
               Enterprise Resource Planning
             </h2>
-            <h3 className="text-xl lg:text-2xl font-bold tracking-tight text-slate-300">
+            <h3 className="text-xl lg:text-2xl font-bold tracking-tight text-slate-600 dark:text-slate-300">
               Manage your{" "}
               <span className="bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
                 business effortlessly.
