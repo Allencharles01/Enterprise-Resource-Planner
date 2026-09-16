@@ -8,6 +8,9 @@ export const emailsRouter = Router();
 
 const resend = env.RESEND_API_KEY ? new Resend(env.RESEND_API_KEY) : null;
 
+const SENDER_EMAIL =
+  process.env.RESEND_FROM_EMAIL || "NovaNectar ERP <onboarding@allencharles.dev>";
+
 const sendEmail = async (to, subject, html, attachments = []) => {
   if (!resend) {
     console.log("Mocking outbound email to:", to);
@@ -20,7 +23,7 @@ const sendEmail = async (to, subject, html, attachments = []) => {
   }
   try {
     const payload = {
-      from: "NovaNectar ERP <onboarding@resend.dev>",
+      from: SENDER_EMAIL,
       to,
       subject,
       html,
@@ -82,7 +85,7 @@ emailsRouter.post("/send", async (req, res) => {
       return res.status(400).json({ error: "To, Subject, and Body are required." });
     }
 
-    const senderEmail = from || "NovaNectar ERP <onboarding@resend.dev>";
+    const senderEmail = from || SENDER_EMAIL;
 
     // Convert newlines in plain body to HTML paragraphs if needed
     const htmlBody = body.includes("<")

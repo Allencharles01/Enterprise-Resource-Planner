@@ -21,7 +21,7 @@ const sendEmail = async (to, subject, html) => {
   }
   try {
     await resend.emails.send({
-      from: "NovaNectar ERP <onboarding@resend.dev>",
+      from: "NovaNectar ERP <onboarding@allencharles.dev>",
       to,
       subject,
       html,
@@ -34,36 +34,100 @@ const sendEmail = async (to, subject, html) => {
 accountRequestsRouter.post("/", async (req, res) => {
   try {
     const { name, email } = req.body;
-    const existingReq = await AccountRequest.findOne({ email });
-    if (existingReq) {
-      return res
-        .status(400)
-        .json({ error: "Request already submitted for this email" });
+    if (!name || !email) {
+      return res.status(400).json({ error: "Name and email are required" });
     }
 
-    const newRequest = await AccountRequest.create({ name, email });
-    const htmlMsg = `
-      <p>Hey ${name},</p>
+    const cleanName = name.trim();
+    const cleanEmail = email.trim().toLowerCase();
+
+    // Check if user already exists as an employee / active user
+    const existingUser = await UserModel.findOne({ email: cleanEmail });
+    if (existingUser) {
+      return res
+        .status(400)
+        .json({ error: "An account with this email already exists. Please sign in." });
+    }
+
+    const existingReq = await AccountRequest.findOne({
+      email: { $regex: new RegExp(`^${cleanEmail}$`, "i") },
+    });
+
+    if (existingReq) {
+      if (existingReq.status === "pending") {
+        return res
+          .status(400)
+          .json({ error: "Request already submitted for this email" });
+      }
+
+      if (existingReq.status === "approved") {
+        return res
+          .status(400)
+          .json({ error: "An account with this email already exists. Please sign in." });
+      }
+
+      // If previously rejected, reactivate the request
+      existingReq.name = cleanName;
+      existingReq.email = cleanEmail;
+      existingReq.status = "pending";
+      existingReq.isRead = false;
+      existingReq.createdAt = new Date();
+      await existingReq.save();
+
+      const htmlMsg = `
+      <p>Hey ${cleanName},</p>
       <p>We have received your request to create an account with NovaNectar ERP Services. The account creation process may take up to 24 hours.</p>
-      <p>Please keep an eye out for the Account Activation email, which will be sent to your registered email address (${email}) and will contain further instructions.</p>
+      <p>Please keep an eye out for the Account Activation email, which will be sent to your registered email address (${cleanEmail}) and will contain further instructions.</p>
+    `;
+
+      await sendEmail(
+        cleanEmail,
+        "NovaNectar ERP - Account Request Received",
+        htmlMsg,
+      );
+
+      await Notification.create({
+        title: `New Account Request: ${cleanName}`,
+        message: `${cleanName} (${cleanEmail}) requested employee account registration.`,
+        category: "account",
+        link: "accounts",
+        isRead: false,
+        metadata: { refId: String(existingReq._id), refType: "AccountRequest" },
+      });
+
+      return res.status(201).json(existingReq);
+    }
+
+    const newRequest = await AccountRequest.create({
+      name: cleanName,
+      email: cleanEmail,
+      status: "pending",
+      isRead: false,
+    });
+    const htmlMsg = `
+      <p>Hey ${cleanName},</p>
+      <p>We have received your request to create an account with NovaNectar ERP Services. The account creation process may take up to 24 hours.</p>
+      <p>Please keep an eye out for the Account Activation email, which will be sent to your registered email address (${cleanEmail}) and will contain further instructions.</p>
     `;
 
     await sendEmail(
-      email,
+      cleanEmail,
       "NovaNectar ERP - Account Request Received",
       htmlMsg,
     );
 
     await Notification.create({
-      title: `New Account Request: ${name}`,
-      message: `${name} (${email}) requested employee account registration.`,
+      title: `New Account Request: ${cleanName}`,
+      message: `${cleanName} (${cleanEmail}) requested employee account registration.`,
       category: "account",
       link: "accounts",
       isRead: false,
+      metadata: { refId: String(newRequest._id), refType: "AccountRequest" },
     });
 
     res.status(201).json(newRequest);
   } catch (error) {
+    console.error("Failed to create account request:", error);
     res.status(500).json({ error: "Failed to create account request" });
   }
 });
@@ -165,6 +229,11 @@ accountRequestsRouter.post("/:id/reject", requireAuth, async (req, res) => {
     request.status = "rejected";
     await request.save();
 
+    await Notification.updateMany(
+      { "metadata.refId": req.params.id },
+      { isRead: true },
+    ).catch(() => { });
+
     const htmlMsg = `
       <p>Hey ${request.name},</p>
       <p>Thank you for your interest in NovaNectar ERP Services and for submitting a request to create an account with us.</p>
@@ -185,6 +254,23 @@ accountRequestsRouter.post("/:id/reject", requireAuth, async (req, res) => {
     res.status(200).json({ success: true });
   } catch (error) {
     res.status(500).json({ error: "Failed to reject request" });
+  }
+});
+
+accountRequestsRouter.delete("/:id", requireAuth, async (req, res) => {
+  try {
+    const request = await AccountRequest.findByIdAndDelete(req.params.id);
+    if (!request) {
+      return res.status(404).json({ error: "Request not found" });
+    }
+
+    await Notification.deleteMany({
+      "metadata.refId": req.params.id,
+    }).catch(() => { });
+
+    res.json({ success: true, message: "Account request deleted successfully" });
+  } catch (error) {
+    res.status(500).json({ error: "Failed to delete request" });
   }
 });
 

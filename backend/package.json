@@ -8,6 +8,7 @@
     "dev": "node --watch src/index.js",
     "build": "echo 'No build required for pure JS'",
     "start": "node src/index.js",
+    "create-superadmin": "node src/scripts/create-superadmin.js",
     "lint": "eslint ."
   },
   "keywords": [],

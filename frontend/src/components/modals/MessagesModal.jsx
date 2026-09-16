@@ -403,7 +403,11 @@ export function MessagesModal({ isOpen, onClose }) {
     if (!item) return "";
 
     if (isSentByCurrentUser(item)) {
-      if (item.from && !item.from.includes("onboarding@resend.dev")) {
+      if (
+        item.from &&
+        !item.from.includes("onboarding@resend.dev") &&
+        !item.from.includes("onboarding@allencharles.dev")
+      ) {
         return cleanEmailAddress(item.from);
       }
       return (

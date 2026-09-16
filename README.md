@@ -1,61 +1,135 @@
-# ERP Project
+# NovaNectar ERP
 
-Welcome to the ERP project! This project is set up as a monorepo containing both the frontend (Next.js) and backend (Node.js/Express) applications.
+NovaNectar ERP is a full-stack internal operations platform for managing employees, projects, sales, training, internships, customer enquiries, tickets, messages, and digital-marketing work.
 
-## Getting Started
+The repository is an npm workspace:
 
-Follow these steps to get the project running locally on your machine.
+| App | Technology | Local address |
+| --- | --- | --- |
+| `frontend` | Next.js | `http://localhost:3001` |
+| `backend` | Express + MongoDB | `http://localhost:4001` |
+| `DBMS` | Shared Mongoose models | — |
 
-### 1. Install Dependencies
-From the root of the project, run the following command to install the dependencies for both the frontend and backend simultaneously:
+## Quick start
+
+### 1. Pull the project and install dependencies
+
+Use Node.js 20 or newer and npm 10 or newer. After cloning, or after receiving changes with `git pull`, run this at the repository root:
 
 ```bash
 npm install
 ```
 
-### 2. Environment Variables Setup
-You will need to set up your local environment variables for both the backend and frontend.
+This installs the root, frontend, backend, and shared-model workspace dependencies.
 
-**Backend Setup:**
-Navigate to the `backend` folder and copy the example environment file:
+### 2. Create a MongoDB Atlas database
 
-*Linux/macOS:*
+1. Sign in to [MongoDB Atlas](https://www.mongodb.com/atlas) and create a project and a free/shared cluster.
+2. In **Database Access**, create a database user with read/write access. Keep its username and password.
+3. In **Network Access**, add your current IP address. For a short local test only, `0.0.0.0/0` allows all IPs; restrict this before any real deployment.
+4. Select **Connect** → **Drivers** and copy the Node.js connection string.
+5. Replace `<username>`, `<password>`, and `<cluster-url>` in that URI. If the password contains special characters, URL-encode it.
+
+### 3. Configure environment variables
+
+Create your untracked local files from the templates:
+
 ```bash
-cd backend
-cp .env.example .env
+cp backend/.env.example backend/.env
+cp frontend/.env.example frontend/.env.local
 ```
 
-*Windows (Command Prompt / PowerShell):*
-```cmd
-cd backend
-copy .env.example .env
+On Windows PowerShell, use:
+
+```powershell
+Copy-Item backend/.env.example backend/.env
+Copy-Item frontend/.env.example frontend/.env.local
 ```
 
-Open the newly created `backend/.env` file and replace `"Enter your Mongodb or Mongodb Atlas URI here"` with your actual MongoDB connection string.
+Open `backend/.env` and set:
 
-**Frontend Setup:**
-Navigate to the `frontend` folder and copy the example environment file:
+```dotenv
+PORT=4001
+MONGODB_URI=mongodb+srv://<username>:<password>@<cluster-url>/erp?retryWrites=true&w=majority
+JWT_SECRET=use-a-long-unique-random-secret-at-least-16-characters
+WEB_ORIGIN=http://localhost:3001
+RESEND_API_KEY=
+```
 
-*Linux/macOS:*
+Do not paste secrets into `.env.example` or commit the real `.env` file. The frontend default already points to `http://localhost:4001`; change `frontend/.env.local` only if the backend uses another address.
+
+### 4. Add the Resend API key (optional, recommended for email)
+
+The app works without Resend, but outgoing email is logged/mock-sent locally. To send real email:
+
+1. Create an API key in [Resend](https://resend.com/api-keys).
+2. Add it to `backend/.env`:
+
+   ```dotenv
+   RESEND_API_KEY=re_your_key_here
+   ```
+
+3. Verify a sending domain in Resend and update the hard-coded sender `NovaNectar ERP <onboarding@resend.dev>` in the backend email routes to an address on that domain before production.
+
+No other third-party API key is currently required by the application.
+
+### 5. Create your first super-admin
+
+Run this once from the repository root, replacing the sample values with your own. The command creates or updates only this administrator and its employee profile; it does not clear existing data.
+
 ```bash
-cd ../frontend
-cp .env.example .env.local
+npm --prefix backend run create-superadmin -- --name "Your Name" --login your-login-id --password "a-strong-password"
 ```
 
-*Windows (Command Prompt / PowerShell):*
-```cmd
-cd ../frontend
-copy .env.example .env.local
-```
-*(This file already has the correct default URL for your local backend).*
+The default organisation slug is `novanectar`, which is what the current Admin Login screen expects. Keep that default for local use. The `--login` value is your login ID, not necessarily an email address.
 
-### 3. Run the Application
-Navigate back to the root folder of the project (`cd ..`) and run the start script:
+### 6. Start the application
+
+From the repository root:
 
 ```bash
 npm run dev
 ```
 
-This single command will start both the backend API (on port `4001`) and the frontend web app (on port `3001`) concurrently! 
+Wait for both services to start, then open [http://localhost:3001](http://localhost:3001). You can confirm the API and database connection at [http://localhost:4001/health](http://localhost:4001/health); it should return `"mongo": { "connected": true }`.
 
-Open [http://localhost:3001](http://localhost:3001) in your browser to view the application.
+## First login and daily use
+
+1. Open `/login` and choose **Admin Login**.
+2. Enter the login ID and password used for `create-superadmin`.
+3. The admin dashboard opens after successful sign-in.
+4. Use the dashboard controls to add employees, assign departments and roles, create additional administrators, manage projects/tasks, work with sales contacts, training and internship records, customer enquiries, tickets, notifications, and internal messages.
+5. Employees sign in from the **Employee Login** tab with the credentials assigned to them. Department-aware views route sales users to the sales workspace and digital-marketing users to their dashboard.
+
+The `/register` page submits an account request for an existing administrator to review; it does not create the initial administrator. Use the bootstrap command above for the first account.
+
+## Useful commands
+
+Run these from the repository root:
+
+```bash
+npm run dev        # Run backend and frontend together
+npm run build      # Create production builds
+npm run lint       # Lint both applications
+```
+
+To run one service independently:
+
+```bash
+npm --prefix backend run dev
+npm --prefix frontend run dev
+```
+
+## Troubleshooting
+
+| Problem | Check |
+| --- | --- |
+| API returns `db_unavailable` or health says `connected: false` | Verify `MONGODB_URI`, Atlas database-user permissions, and Network Access/IP allow-list. |
+| Browser request is blocked by CORS | Confirm `WEB_ORIGIN=http://localhost:3001` and restart the backend. |
+| Login fails after a new setup | Run the super-admin command again with the intended login/password, then use **Admin Login**. |
+| Email is only logged instead of delivered | Add `RESEND_API_KEY`; for production, verify a Resend domain and change the sender address in the email routes. |
+| Port is already in use | Stop the other process or change `PORT` and set `NEXT_PUBLIC_API_BASE_URL` to the matching backend URL. |
+
+## Security notes
+
+Use a strong, unique `JWT_SECRET` and database password. Keep `.env`, `.env.local`, API keys, Atlas URIs, and real customer/employee data out of Git. Limit Atlas network access and database privileges when deploying beyond local development.

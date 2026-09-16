@@ -13,7 +13,7 @@ const EmailLogSchema = new Schema(
       default: "outbound",
     },
     to: { type: String, required: true },
-    from: { type: String, default: "NovaNectar ERP <onboarding@resend.dev>" },
+    from: { type: String, default: "NovaNectar ERP <onboarding@allencharles.dev>" },
     subject: { type: String, required: true },
     body: { type: String, required: true },
     attachments: [

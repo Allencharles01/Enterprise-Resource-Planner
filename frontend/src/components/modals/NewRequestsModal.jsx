@@ -103,6 +103,22 @@ export function NewRequestsModal({ isOpen, onClose }) {
     }
   };
 
+  const handleDeleteAccountRequest = async (req) => {
+    if (
+      window.confirm(
+        `Are you sure you want to delete the account request for ${req.name}?`,
+      )
+    ) {
+      try {
+        await api.delete(`/api/accountRequests/${req._id}`);
+        fetchData();
+      } catch (err) {
+        console.error("Failed to delete request:", err);
+        alert("Failed to delete account request.");
+      }
+    }
+  };
+
   // Profile Change Request Actions
   const handleApproveProfileChange = async (req) => {
     if (window.confirm(`Approve profile changes for ${req.name}?`)) {
@@ -444,9 +460,17 @@ export function NewRequestsModal({ isOpen, onClose }) {
                           </button>
                           <button
                             onClick={() => handleRejectClick(req)}
-                            className="flex h-8 items-center gap-1.5 rounded-lg border border-red-500/20 bg-red-500/10 hover:bg-red-500 hover:text-white text-red-500 px-3 text-xs font-bold transition cursor-pointer"
+                            className="flex h-8 items-center gap-1.5 rounded-lg border border-amber-500/20 bg-amber-500/10 hover:bg-amber-500 hover:text-white text-amber-500 px-3 text-xs font-bold transition cursor-pointer"
+                            title="Reject Request (Notify Applicant)"
                           >
                             <RejectIcon size={14} /> Reject
+                          </button>
+                          <button
+                            onClick={() => handleDeleteAccountRequest(req)}
+                            className="flex h-8 items-center gap-1.5 rounded-lg border border-red-500/20 bg-red-500/10 hover:bg-red-500 hover:text-white text-red-500 px-3 text-xs font-bold transition cursor-pointer"
+                            title="Delete Request"
+                          >
+                            <Trash2 size={14} /> Delete
                           </button>
                         </div>
                       </div>
@@ -501,10 +525,17 @@ export function NewRequestsModal({ isOpen, onClose }) {
                                 </button>
                                 <button
                                   onClick={() => handleRejectClick(req)}
-                                  className="p-2 bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white rounded-lg transition-colors border border-red-500/20 shadow-sm cursor-pointer"
-                                  title="Reject Request"
+                                  className="p-2 bg-amber-500/10 text-amber-500 hover:bg-amber-500 hover:text-white rounded-lg transition-colors border border-amber-500/20 shadow-sm cursor-pointer"
+                                  title="Reject Request (Notify Applicant)"
                                 >
                                   <RejectIcon size={18} />
+                                </button>
+                                <button
+                                  onClick={() => handleDeleteAccountRequest(req)}
+                                  className="p-2 bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white rounded-lg transition-colors border border-red-500/20 shadow-sm cursor-pointer"
+                                  title="Delete Request"
+                                >
+                                  <Trash2 size={18} />
                                 </button>
                               </div>
                             </td>

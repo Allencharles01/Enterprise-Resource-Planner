@@ -10,6 +10,9 @@ export const customerInquiriesRouter = Router();
 
 const resend = env.RESEND_API_KEY ? new Resend(env.RESEND_API_KEY) : null;
 
+const SENDER_EMAIL =
+  process.env.RESEND_FROM_EMAIL || "NovaNectar ERP <onboarding@allencharles.dev>";
+
 const sendEmail = async (to, subject, html) => {
   if (!resend) {
     console.log("Mocking email to", to);
@@ -19,7 +22,7 @@ const sendEmail = async (to, subject, html) => {
   }
   try {
     await resend.emails.send({
-      from: "NovaNectar ERP <onboarding@resend.dev>",
+      from: SENDER_EMAIL,
       to,
       subject,
       html,
