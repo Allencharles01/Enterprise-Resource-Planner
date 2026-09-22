@@ -126,7 +126,7 @@ export default function SalesEmployeeMonthlyAccordion({ activeTab, data }) {
     ...project,
     project: project.project || project.projectName || "Project",
     client: project.client || project.clientName || "Client",
-    manager: project.manager || "Rahul Sharma",
+    manager: project.manager || (typeof window !== "undefined" ? localStorage.getItem("userName") : null) || "Manager",
 
     agreed: formatCurrencyValue(project.agreed || project.budget || 0),
     received: formatCurrencyValue(project.received || 0),
@@ -430,7 +430,7 @@ export default function SalesEmployeeMonthlyAccordion({ activeTab, data }) {
       ),
       progress: intern.progress || 0,
       projectsCompleted: intern.projectsCompleted || "0/3",
-      salesAgent: intern.salesAgent || "Rahul Sharma",
+      salesAgent: intern.salesAgent || (typeof window !== "undefined" ? localStorage.getItem("userName") : null) || "Sales Agent",
       startDate:
         intern.startDate || intern.submittedDate || intern.submitted || "N/A",
       endDate: intern.endDate || "N/A",

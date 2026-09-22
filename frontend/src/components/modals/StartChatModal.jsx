@@ -95,7 +95,7 @@ export function StartChatModal({ isOpen, onClose, currentUser, onSelectUser }) {
                 </h3>
 
                 <p className="text-xs text-slate-400 mt-0.5">
-                  Search by Name, EMP ID, Login ID, or Designation
+                  Search by Name, Login ID, or Designation
                 </p>
               </div>
             </div>
@@ -147,7 +147,7 @@ export function StartChatModal({ isOpen, onClose, currentUser, onSelectUser }) {
                 <p className="text-sm font-medium">No team members found.</p>
 
                 <p className="text-xs">
-                  Try searching with a different Name or EMP ID.
+                  Try searching with a different Name or Login ID.
                 </p>
               </div>
             ) : (

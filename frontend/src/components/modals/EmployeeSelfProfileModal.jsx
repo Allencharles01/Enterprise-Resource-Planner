@@ -53,6 +53,8 @@ export function EmployeeSelfProfileModal({
     reason: "",
   });
 
+  const [profileEmail, setProfileEmail] = useState("");
+
   const [changeStatus, setChangeStatus] = useState({
     loading: false,
     error: "",
@@ -60,13 +62,49 @@ export function EmployeeSelfProfileModal({
   });
 
   useEffect(() => {
+    if (isOpen) {
+      const emailFromProps = userInfo?.email || userInfo?.contactEmail || "";
+      const emailFromStorage =
+        typeof window !== "undefined" ? localStorage.getItem("userEmail") || "" : "";
+      const resolved = emailFromProps || emailFromStorage;
+
+      if (resolved) {
+        setProfileEmail(resolved);
+      }
+
+      if (!resolved) {
+        api
+          .get("/api/auth/me")
+          .then((res) => {
+            const fetched = res.data?.user?.email || "";
+            if (fetched) {
+              setProfileEmail(fetched);
+              if (typeof window !== "undefined") {
+                localStorage.setItem("userEmail", fetched);
+              }
+              if (typeof onUpdate === "function") {
+                onUpdate({ email: fetched });
+              }
+            }
+          })
+          .catch(() => {});
+      }
+    }
+  }, [isOpen, userInfo?.email, userInfo?.contactEmail, onUpdate]);
+
+  useEffect(() => {
     if (isOpen && userInfo) {
       const names = (userInfo.name || "").split(" ");
+      const effectiveEmail =
+        userInfo.email ||
+        userInfo.contactEmail ||
+        profileEmail ||
+        (typeof window !== "undefined" ? localStorage.getItem("userEmail") || "" : "");
 
       setChangeForm({
         firstName: names[0] || "",
         lastName: names.slice(1).join(" ") || "",
-        contactEmail: userInfo.email || userInfo.contactEmail || "",
+        contactEmail: effectiveEmail,
         designation: userInfo.designation || "",
         department: userInfo.department || "",
         reason: "",
@@ -78,7 +116,7 @@ export function EmployeeSelfProfileModal({
       setNewPassword("");
       setConfirmPassword("");
     }
-  }, [isOpen, userInfo]);
+  }, [isOpen, userInfo, profileEmail]);
 
   useEffect(() => {
     const handleKeyDown = (e) => {
@@ -362,7 +400,7 @@ export function EmployeeSelfProfileModal({
                   </div>
 
                   <div className={detailCardClass}>
-                    <span className={detailLabelClass}>Employee ID</span>
+                    <span className={detailLabelClass}>Login ID</span>
 
                     <p className="font-mono text-base font-bold text-blue-500">
                       {userInfo?.id || userInfo?.employeeCode || "EMP001"}
@@ -406,7 +444,11 @@ export function EmployeeSelfProfileModal({
                     >
                       {userInfo?.email ||
                         userInfo?.contactEmail ||
-                        "rahul.sharma@novanectar.com"}
+                        profileEmail ||
+                        (typeof window !== "undefined"
+                          ? localStorage.getItem("userEmail")
+                          : null) ||
+                        "N/A"}
                     </p>
                   </div>
 

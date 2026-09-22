@@ -87,6 +87,16 @@ export function EmployeeDetailsModal({ employee, isOpen, onClose, onUpdated }) {
 
   useEffect(() => {
     if (employee) {
+      const resolvedContactEmail = (
+        employee.personal?.contactEmail ||
+        employee.userEmail ||
+        employee.userId?.email ||
+        ""
+      ).replace(/^NA$/, "");
+      const resolvedCompanyEmail = (
+        employee.work?.companyEmail || ""
+      ).replace(/^NA$/, "");
+
       setForm({
         firstName: employee.personal?.firstName || "",
         lastName:
@@ -94,8 +104,8 @@ export function EmployeeDetailsModal({ employee, isOpen, onClose, onUpdated }) {
             ? employee.personal?.lastName || ""
             : "",
         employeeCode: employee.employeeCode || "",
-        companyEmail: employee.work?.companyEmail || "NA",
-        contactEmail: employee.personal?.contactEmail || "NA",
+        companyEmail: resolvedCompanyEmail,
+        contactEmail: resolvedContactEmail,
         manager: employee.work?.manager || "NA",
         designation: employee.work?.designation || "Frontend Developer",
         department: employee.work?.department || "Frontend",
@@ -196,14 +206,16 @@ export function EmployeeDetailsModal({ employee, isOpen, onClose, onUpdated }) {
   const currentPassword = `${employee.employeeCode}_`;
 
   return (
-    <AnimatePresence>
+    <>
       <div
+        key="employee-details-overlay"
         onClick={() => {
           if (!isEditing) onClose();
         }}
         className="fixed inset-0 z-[110] flex items-center justify-center bg-black/75 backdrop-blur-md p-4 overflow-y-auto animate-in fade-in duration-200"
       >
         <motion.div
+          key="employee-details-card"
           initial={{ opacity: 0, scale: 0.93, y: 25 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.93, y: 25 }}
@@ -292,11 +304,11 @@ export function EmployeeDetailsModal({ employee, isOpen, onClose, onUpdated }) {
                 )}
               </div>
 
-              {/* Employee ID */}
+              {/* Login ID */}
               <div className="space-y-1.5 bg-slate-800/40 p-4 rounded-2xl border border-slate-800">
                 <label className="text-xs font-semibold text-slate-400 flex items-center gap-1.5 uppercase tracking-wider">
                   <KeyRound size={14} className="text-blue-400" />
-                  Employee ID
+                  Login ID
                 </label>
                 {isEditing ? (
                   <input
@@ -318,7 +330,7 @@ export function EmployeeDetailsModal({ employee, isOpen, onClose, onUpdated }) {
                         type="button"
                         onClick={handleCopyId}
                         className="p-1.5 rounded-lg bg-slate-805 hover:bg-slate-700 text-slate-400 hover:text-slate-200 transition-colors cursor-pointer"
-                        title={copied ? "Copied!" : "Copy Employee ID"}
+                        title={copied ? "Copied!" : "Copy Login ID"}
                       >
                         {copied ? <Check size={14} className="text-emerald-400" /> : <Copy size={14} />}
                       </button>
@@ -556,6 +568,7 @@ export function EmployeeDetailsModal({ employee, isOpen, onClose, onUpdated }) {
 
       {/* Nested Manager Details Modal */}
       <ManagerDetailsModal
+        key="manager-details-modal"
         isOpen={Boolean(selectedManager)}
         managerName={selectedManager}
         onClose={() => setSelectedManager(null)}
@@ -563,6 +576,7 @@ export function EmployeeDetailsModal({ employee, isOpen, onClose, onUpdated }) {
 
       {/* Direct Chat Window Modal */}
       <ChatWindowModal
+        key="chat-window-modal"
         isOpen={Boolean(chatRecipient)}
         onClose={() => setChatRecipient(null)}
         currentUser={currentUser}
@@ -571,6 +585,7 @@ export function EmployeeDetailsModal({ employee, isOpen, onClose, onUpdated }) {
 
       {/* Gmail Composer Modal */}
       <GmailComposerModal
+        key="gmail-composer-modal"
         isOpen={Boolean(emailComposerTo)}
         onClose={() => setEmailComposerTo("")}
         initialTo={emailComposerTo}
@@ -580,6 +595,6 @@ export function EmployeeDetailsModal({ employee, isOpen, onClose, onUpdated }) {
           setEmailComposerTo("");
         }}
       />
-    </AnimatePresence>
+    </>
   );
 }

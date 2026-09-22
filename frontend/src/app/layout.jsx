@@ -99,6 +99,64 @@ export default function RootLayout({ children }) {
                   configurable: true,
                   enumerable: true
                 });
+
+                // Remove bis_skin_checked injected by Bitwarden/browser extensions
+                try {
+                  const removeBisSkinChecked = (node) => {
+                    if (node && node.nodeType === 1) {
+                      if (node.hasAttribute('bis_skin_checked')) {
+                        node.removeAttribute('bis_skin_checked');
+                      }
+                      for (let i = 0; i < node.children.length; i++) {
+                        removeBisSkinChecked(node.children[i]);
+                      }
+                    }
+                  };
+
+                  const bisObserver = new MutationObserver((mutations) => {
+                    for (const mutation of mutations) {
+                      if (mutation.type === 'attributes' && mutation.attributeName === 'bis_skin_checked') {
+                        mutation.target.removeAttribute('bis_skin_checked');
+                      } else if (mutation.type === 'childList') {
+                        for (const added of mutation.addedNodes) {
+                          removeBisSkinChecked(added);
+                        }
+                      }
+                    }
+                  });
+
+                  if (document.documentElement) {
+                    bisObserver.observe(document.documentElement, {
+                      attributes: true,
+                      subtree: true,
+                      childList: true,
+                      attributeFilter: ['bis_skin_checked'],
+                    });
+                  }
+
+                  document.addEventListener('DOMContentLoaded', () => {
+                    document.querySelectorAll('[bis_skin_checked]').forEach((el) => {
+                      el.removeAttribute('bis_skin_checked');
+                    });
+                  });
+                } catch (e) {}
+
+                // Filter hydration warnings caused by browser extensions
+                const origConsoleError = console.error;
+                console.error = function(...args) {
+                  const msg = args.map(a => {
+                    if (typeof a === 'string') return a;
+                    if (a && typeof a === 'object') {
+                      try { return JSON.stringify(a); } catch (e) { return String(a); }
+                    }
+                    return String(a);
+                  }).join(' ');
+
+                  if (msg.includes('bis_skin_checked')) {
+                    return;
+                  }
+                  return origConsoleError.apply(this, args);
+                };
               })();
             `,
           }}

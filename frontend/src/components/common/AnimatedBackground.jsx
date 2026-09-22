@@ -36,6 +36,36 @@ export function AnimatedBackground() {
       }
     };
 
+    // Filter console.error for extension hydration warnings
+    const originalConsoleError = console.error;
+    console.error = function (...args) {
+      const msg = args
+        .map((a) => {
+          if (typeof a === "string") return a;
+          if (a && typeof a === "object") {
+            try {
+              return JSON.stringify(a);
+            } catch (e) {
+              return String(a);
+            }
+          }
+          return String(a);
+        })
+        .join(" ");
+
+      if (msg.includes("bis_skin_checked")) {
+        return;
+      }
+      return originalConsoleError.apply(this, args);
+    };
+
+    // Clean up any remaining bis_skin_checked attributes from browser extensions
+    if (typeof document !== "undefined") {
+      document.querySelectorAll("[bis_skin_checked]").forEach((el) => {
+        el.removeAttribute("bis_skin_checked");
+      });
+    }
+
     window.addEventListener("error", handleWindowError, { capture: true });
     window.addEventListener("unhandledrejection", handleUnhandledRejection, { capture: true });
 

@@ -373,7 +373,7 @@ export default function TicketsPage() {
 
                     {selectedTicket.type === "Employee" && (
                       <div>
-                        <span className="text-slate-400 font-medium">Emp ID:</span>{" "}
+                        <span className="text-slate-400 font-medium">Login ID:</span>{" "}
                         <span className="font-mono font-bold text-primary">
                           {selectedTicket.employeeId}
                         </span>

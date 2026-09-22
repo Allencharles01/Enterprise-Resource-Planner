@@ -14,6 +14,7 @@ import {
   EyeOff,
 } from "lucide-react";
 import { api } from "@/lib/api";
+import { ACTIVE_DEPARTMENTS } from "@/constants/departments";
 
 export function ApproveRequestModal({ isOpen, onClose, onSuccess, request }) {
   const [isLoading, setIsLoading] = useState(false);
@@ -31,6 +32,7 @@ export function ApproveRequestModal({ isOpen, onClose, onSuccess, request }) {
   useEffect(() => {
     if (isOpen && request) {
       const parts = request.name.split(" ");
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setFormData({
         firstName: parts[0] || "",
         lastName: parts.slice(1).join(" ") || "",
@@ -150,7 +152,7 @@ export function ApproveRequestModal({ isOpen, onClose, onSuccess, request }) {
 
               <div className="space-y-2">
                 <label className="text-sm font-semibold text-foreground flex items-center gap-2">
-                  <Hash size={14} className="text-primary" /> Employee ID
+                  <Hash size={14} className="text-primary" /> Login ID
                 </label>
                 <input
                   type="text"
@@ -180,11 +182,11 @@ export function ApproveRequestModal({ isOpen, onClose, onSuccess, request }) {
                     <option value="" disabled>
                       Select Department...
                     </option>
-                    <option value="Frontend">Frontend</option>
-                    <option value="Backend">Backend</option>
-                    <option value="DBMS">DBMS</option>
-                    <option value="Networks">Networks</option>
-                    <option value="Testing">Testing & QA</option>
+                    {ACTIVE_DEPARTMENTS.map((dept) => (
+                      <option key={dept.value} value={dept.value}>
+                        {dept.name}
+                      </option>
+                    ))}
                   </select>
                 </div>
                 <div className="space-y-2">

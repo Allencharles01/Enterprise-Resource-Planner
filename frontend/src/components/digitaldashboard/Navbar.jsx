@@ -72,7 +72,9 @@ const toggleTheme = () =>
 
   const [userInfo, setUserInfo] = useState({
     name: "Digital Employee",
+    email: "",
     designation: "Digital Marketing Specialist",
+    department: "Digital Marketing",
     id: "EMP002",
     status: "Active",
     joiningDate: "June 2026",
@@ -82,14 +84,18 @@ const toggleTheme = () =>
     loadReminders();
 
     const storedName = localStorage.getItem("userName");
+    const storedEmail = localStorage.getItem("userEmail");
+    const storedDepartment = localStorage.getItem("userDepartment");
     const storedDesignation = localStorage.getItem("userDesignation");
     const storedId = localStorage.getItem("userEmployeeCode");
     const storedStatus = localStorage.getItem("userStatus");
     const storedJoining = localStorage.getItem("userJoiningDate");
 
-    if (storedName || storedDesignation || storedId) {
+    if (storedName || storedDesignation || storedId || storedEmail) {
       setUserInfo({
         name: storedName || "Employee",
+        email: storedEmail || "",
+        department: storedDepartment || "Digital Marketing",
         designation: storedDesignation || "Digital Marketing Specialist",
         id: storedId || "EMP002",
         status: storedStatus || "Active",
@@ -109,6 +115,8 @@ const toggleTheme = () =>
           const data = await res.json();
           if (data?.user) {
             const uName = data.user.name || storedName || "Employee";
+            const uEmail = data.user.email || storedEmail || "";
+            const uDepartment = data.user.department || storedDepartment || "Digital Marketing";
             const uDesig = data.user.designation || storedDesignation || "Digital Marketing Specialist";
             const uId = data.user.employeeCode || storedId || "EMP002";
             const uStatus = data.user.status || storedStatus || "Active";
@@ -116,6 +124,8 @@ const toggleTheme = () =>
 
             setUserInfo({
               name: uName,
+              email: uEmail,
+              department: uDepartment,
               designation: uDesig,
               id: uId,
               status: uStatus,
@@ -123,6 +133,8 @@ const toggleTheme = () =>
             });
 
             localStorage.setItem("userName", uName);
+            if (uEmail) localStorage.setItem("userEmail", uEmail);
+            if (uDepartment) localStorage.setItem("userDepartment", uDepartment);
             localStorage.setItem("userDesignation", uDesig);
             localStorage.setItem("userEmployeeCode", uId);
             localStorage.setItem("userStatus", uStatus);

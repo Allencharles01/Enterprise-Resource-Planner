@@ -71,11 +71,11 @@ export function UnbuiltDepartmentErrorModal({ isOpen, onClose, departmentName })
             </div>
 
             <h3 className="text-lg font-extrabold text-slate-900 dark:text-white">
-              {departmentName} Dashboard Not Created
+              Oops! This department page doesn&apos;t exist yet
             </h3>
 
             <p className="text-sm text-slate-600 dark:text-slate-300 leading-relaxed bg-red-500/5 dark:bg-red-500/10 p-4 rounded-2xl border border-red-500/20">
-              The Admin and Employee Dashboard for{" "}
+              The Employee Dashboard for{" "}
               <span className="font-bold text-red-600 dark:text-red-400">
                 &quot;{departmentName}&quot;
               </span>{" "}

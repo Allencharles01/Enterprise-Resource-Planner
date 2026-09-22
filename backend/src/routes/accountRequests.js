@@ -172,13 +172,28 @@ accountRequestsRouter.post("/:id/approve", requireAuth, async (req, res) => {
       isActive: true,
     });
 
+    // Auto-assign next sequential employeeNumber (e.g. 004, 005)
+    const highestEmp = await EmployeeModel.findOne({
+      orgId,
+      employeeNumber: { $regex: /^\d+$/ },
+    }).sort({ employeeNumber: -1 });
+
+    let nextNum = 1;
+    if (highestEmp && highestEmp.employeeNumber) {
+      const parsed = parseInt(highestEmp.employeeNumber, 10);
+      if (!isNaN(parsed)) nextNum = parsed + 1;
+    }
+    const autoEmpNumber = String(nextNum).padStart(3, "0");
+
     const employee = await EmployeeModel.create({
       orgId,
       userId: user._id,
       employeeCode,
+      employeeNumber: autoEmpNumber,
       personal: {
         firstName,
         lastName,
+        contactEmail: request.email.toLowerCase(),
       },
       work: {
         department,
@@ -195,9 +210,10 @@ accountRequestsRouter.post("/:id/approve", requireAuth, async (req, res) => {
       <p>Thank you for applying for NovaNectar ERP Services.</p>
       <p>We are pleased to inform you that your account request has been approved and your account has been successfully created.</p>
       <p>Please find your login credentials below:</p>
+      <p>Candidate Login ID: <strong>${employeeCode}</strong></p>
       <p>Candidate Email Address: ${request.email}</p>
-      <p>Candidate Temporary Password: ${password}</p>
-      <p>You can now log in to the NovaNectar ERP Services portal using the credentials above.</p>
+      <p>Candidate Temporary Password: <strong>${password}</strong></p>
+      <p>You can now log in to the NovaNectar ERP Services portal using your Login ID and Temporary Password above.</p>
       <p>Important: For security purposes, please change your password immediately after your first login.</p>
       <p>If you experience any issues accessing your account, please contact the system administrator for assistance.</p>
       <p>We look forward to having you onboard.</p>

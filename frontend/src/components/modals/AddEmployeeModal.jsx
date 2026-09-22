@@ -2,6 +2,7 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, UserPlus, Loader2, User, Briefcase, Hash } from "lucide-react";
 import { api } from "@/lib/api";
+import { ACTIVE_DEPARTMENTS } from "@/constants/departments";
 
 export function AddEmployeeModal({ isOpen, onClose, onSuccess }) {
   const [isLoading, setIsLoading] = useState(false);
@@ -135,7 +136,7 @@ export function AddEmployeeModal({ isOpen, onClose, onSuccess }) {
 
               <div className="space-y-2">
                 <label className="text-sm font-semibold text-foreground flex items-center gap-2">
-                  <Hash size={14} className="text-primary" /> Employee Code
+                  <Hash size={14} className="text-primary" /> Login ID
                   (Optional)
                 </label>
                 <input
@@ -154,15 +155,22 @@ export function AddEmployeeModal({ isOpen, onClose, onSuccess }) {
                   <label className="text-sm font-semibold text-foreground flex items-center gap-2">
                     <Briefcase size={14} className="text-primary" /> Department
                   </label>
-                  <input
-                    type="text"
+                  <select
                     value={formData.department}
                     onChange={(e) =>
                       setFormData({ ...formData, department: e.target.value })
                     }
                     className="w-full px-3 py-2 bg-background border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 text-sm"
-                    placeholder="e.g. Frontend"
-                  />
+                  >
+                    <option value="">
+                      Select Department...
+                    </option>
+                    {ACTIVE_DEPARTMENTS.map((dept) => (
+                      <option key={dept.value} value={dept.value}>
+                        {dept.name}
+                      </option>
+                    ))}
+                  </select>
                 </div>
                 <div className="space-y-2">
                   <label className="text-sm font-semibold text-foreground">

@@ -62,7 +62,7 @@ export default function SalesEmployeeNavbar() {
   const fetchNotifications = async () => {
     try {
       const empCode = localStorage.getItem("userEmployeeCode") || "EMP001";
-      const empName = localStorage.getItem("userName") || "Rahul Sharma";
+      const empName = localStorage.getItem("userName") || "Employee";
 
       const res = await api.get(
         `/api/notifications?employeeCode=${empCode}&employeeName=${encodeURIComponent(
@@ -81,8 +81,10 @@ export default function SalesEmployeeNavbar() {
   const notificationRef = useRef(null);
 
   const [userInfo, setUserInfo] = useState({
-    name: "Rahul Sharma",
+    name: "Employee",
+    email: "",
     designation: "Senior Sales Executive",
+    department: "Sales",
     id: "EMP001",
     status: "Active",
     joiningDate: "June 2026",
@@ -93,14 +95,18 @@ export default function SalesEmployeeNavbar() {
     loadReminders();
 
     const storedName = localStorage.getItem("userName");
+    const storedEmail = localStorage.getItem("userEmail");
+    const storedDepartment = localStorage.getItem("userDepartment");
     const storedDesignation = localStorage.getItem("userDesignation");
     const storedId = localStorage.getItem("userEmployeeCode");
     const storedStatus = localStorage.getItem("userStatus");
     const storedJoining = localStorage.getItem("userJoiningDate");
 
-    if (storedName || storedDesignation || storedId) {
+    if (storedName || storedDesignation || storedId || storedEmail) {
       setUserInfo({
         name: storedName || "Employee",
+        email: storedEmail || "",
+        department: storedDepartment || "Sales",
         designation: storedDesignation || "Senior Sales Executive",
         id: storedId || "EMP001",
         status: storedStatus || "Active",
@@ -124,6 +130,8 @@ export default function SalesEmployeeNavbar() {
 
           if (data?.user) {
             const uName = data.user.name || storedName || "Employee";
+            const uEmail = data.user.email || storedEmail || "";
+            const uDepartment = data.user.department || storedDepartment || "Sales";
             const uDesig =
               data.user.designation ||
               storedDesignation ||
@@ -135,6 +143,8 @@ export default function SalesEmployeeNavbar() {
 
             setUserInfo({
               name: uName,
+              email: uEmail,
+              department: uDepartment,
               designation: uDesig,
               id: uId,
               status: uStatus,
@@ -142,6 +152,8 @@ export default function SalesEmployeeNavbar() {
             });
 
             localStorage.setItem("userName", uName);
+            if (uEmail) localStorage.setItem("userEmail", uEmail);
+            if (uDepartment) localStorage.setItem("userDepartment", uDepartment);
             localStorage.setItem("userDesignation", uDesig);
             localStorage.setItem("userEmployeeCode", uId);
             localStorage.setItem("userStatus", uStatus);

@@ -15,6 +15,7 @@ import {
   Plus,
 } from "lucide-react";
 import { api } from "@/lib/api";
+import { ACTIVE_DEPARTMENTS } from "@/constants/departments";
 
 export function ManualEmployeeModal({ isOpen, onClose }) {
   const [mode, setMode] = useState("add");
@@ -47,6 +48,7 @@ export function ManualEmployeeModal({ isOpen, onClose }) {
   // Reset form when modal opens/closes
   useEffect(() => {
     if (isOpen) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setMode("add");
       setError("");
       setSuccessMsg("");
@@ -118,7 +120,7 @@ export function ManualEmployeeModal({ isOpen, onClose }) {
       !formData.companyEmail
     ) {
       setError(
-        "Please provide at least Emp ID, EMP Number, or Company Email to identify the employee.",
+        "Please provide at least Login ID, EMP Number, or Company Email to identify the employee.",
       );
       setIsLoading(false);
       return;
@@ -301,7 +303,7 @@ export function ManualEmployeeModal({ isOpen, onClose }) {
                           mode === "add" ? "text-blue-500" : "text-red-500"
                         }
                       />{" "}
-                      Emp ID
+                      Login ID
                     </label>
                     <input
                       type="text"
@@ -376,15 +378,23 @@ export function ManualEmployeeModal({ isOpen, onClose }) {
                           <Building2 size={14} className="text-blue-500" />{" "}
                           Department
                         </label>
-                        <input
-                          type="text"
+                        <select
+                          required={mode === "add"}
                           value={formData.department}
                           onChange={(e) =>
                             handleChange("department", e.target.value)
                           }
                           className="w-full px-3 py-2 bg-background border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/50 text-sm"
-                          placeholder="e.g. Engineering"
-                        />
+                        >
+                          <option value="" disabled>
+                            Select Department...
+                          </option>
+                          {ACTIVE_DEPARTMENTS.map((dept) => (
+                            <option key={dept.value} value={dept.value}>
+                              {dept.name}
+                            </option>
+                          ))}
+                        </select>
                       </div>
 
                       <div className="space-y-2">

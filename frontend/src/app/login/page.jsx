@@ -36,6 +36,11 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useTheme } from "next-themes";
 import { formatAmount } from "@/lib/formatAmount";
+import { UnbuiltDepartmentErrorModal } from "@/components/modals/UnbuiltDepartmentErrorModal";
+import {
+  hasDepartmentPage,
+  getDepartmentEmployeeRoute,
+} from "@/constants/departments";
 
 // Custom WOW Interactive Calendar Picker Component
 function CustomDatePicker({ selectedDate, onSelectDate, onClose }) {
@@ -245,6 +250,10 @@ export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
+  const [unbuiltDeptModal, setUnbuiltDeptModal] = useState({
+    isOpen: false,
+    departmentName: "",
+  });
 
   // Customer Modal state
   const [showCustomerModal, setShowCustomerModal] = useState(false);
@@ -292,6 +301,16 @@ export default function LoginPage() {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [showCustomerModal, showForgotPasswordModal, showDatePicker]);
 
+  const handleTabSwitch = (type) => {
+    if (type === loginType) return;
+    setLoginType(type);
+    setUsername("");
+    setAdminId("");
+    setPassword("");
+    setError("");
+    setMessage("");
+  };
+
   const handleLogin = async (e) => {
     e.preventDefault();
     setIsLoading(true);
@@ -305,9 +324,24 @@ export default function LoginPage() {
           ? { adminId, password, isAdmin: true }
           : { username: username.trim(), password };
       const response = await axios.post(`${apiUrl}/api/auth/login`, payload);
+
+      if (loginType === "employee") {
+        const userDept = response.data.user?.department || "";
+        if (!hasDepartmentPage(userDept)) {
+          setError("Oops! This department page doesn't exist yet.");
+          setUnbuiltDeptModal({
+            isOpen: true,
+            departmentName: userDept || "Selected Department",
+          });
+          setIsLoading(false);
+          return;
+        }
+      }
+
       setMessage("Login successful! Redirecting...");
       localStorage.setItem("token", response.data.token);
       localStorage.setItem("userName", response.data.user.name);
+      localStorage.setItem("userEmail", response.data.user.email || "");
       localStorage.setItem("userRole", response.data.user.role);
       localStorage.setItem(
         "userDepartment",
@@ -333,18 +367,9 @@ export default function LoginPage() {
       console.log("Token and user details saved");
       // Redirect to dashboard based on role & department
       setTimeout(() => {
-        const dept = (response.data.user.department || "").toLowerCase();
-        const uname = (username || "").toLowerCase();
-        if (
-          loginType === "employee" &&
-          (dept.includes("sales") || uname.includes("sales"))
-        ) {
-          router.push("/employee/sales");
-        } else if (
-          loginType === "employee" &&
-          (dept.includes("digital") || uname.includes("digital"))
-        ) {
-          router.push("/employee/digitaldashboard");
+        if (loginType === "employee") {
+          const route = getDepartmentEmployeeRoute(response.data.user.department);
+          router.push(route || "/employee/sales");
         } else {
           router.push("/");
         }
@@ -588,7 +613,7 @@ export default function LoginPage() {
             <div className="flex bg-muted/50 p-1 rounded-xl mb-6 border border-border/50">
               <button
                 type="button"
-                onClick={() => setLoginType("employee")}
+                onClick={() => handleTabSwitch("employee")}
                 className={`flex-1 py-2 text-sm font-semibold rounded-lg transition-all ${
                   loginType === "employee"
                     ? "bg-background text-foreground shadow-sm"
@@ -599,7 +624,7 @@ export default function LoginPage() {
               </button>
               <button
                 type="button"
-                onClick={() => setLoginType("admin")}
+                onClick={() => handleTabSwitch("admin")}
                 className={`flex-1 py-2 text-sm font-semibold rounded-lg transition-all ${
                   loginType === "admin"
                     ? "bg-background text-foreground shadow-sm"
@@ -614,7 +639,7 @@ export default function LoginPage() {
               {loginType === "employee" ? (
                 <div className="space-y-1.5 animate-in fade-in duration-300">
                   <label className="text-sm font-medium text-foreground">
-                    Username
+                    Login ID
                   </label>
                   <div className="relative">
                     <User
@@ -627,7 +652,7 @@ export default function LoginPage() {
                       onChange={(e) => setUsername(e.target.value)}
                       disabled={isLoading}
                       className="w-full bg-background/50 border border-border focus:border-primary focus:ring-1 focus:ring-primary rounded-lg pl-10 pr-4 py-2.5 outline-none transition-all placeholder:text-muted-foreground text-foreground disabled:opacity-50"
-                      placeholder="Enter your username"
+                      placeholder="Enter your Login ID"
                       required
                     />
                   </div>
@@ -1361,7 +1386,7 @@ export default function LoginPage() {
                 <form onSubmit={handleForgotSubmit} className="space-y-5">
                   <div className="space-y-2">
                     <label className="text-sm font-semibold text-slate-200">
-                      Enter your username <span className="text-red-500 font-bold">*</span>
+                      Enter your Login ID <span className="text-red-500 font-bold">*</span>
                     </label>
                     <div className="relative">
                       <User
@@ -1376,7 +1401,7 @@ export default function LoginPage() {
                           setForgotForm({ ...forgotForm, username: e.target.value })
                         }
                         className="w-full bg-slate-800/80 hover:bg-slate-800 border border-slate-700/80 hover:border-blue-500/60 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 rounded-xl pl-11 pr-4 py-3 text-sm text-white transition-all outline-none placeholder:text-slate-500 shadow-inner font-medium"
-                        placeholder="Enter your username"
+                        placeholder="Enter your Login ID"
                       />
                     </div>
                   </div>
@@ -1422,6 +1447,14 @@ export default function LoginPage() {
           </motion.div>
         )}
       </AnimatePresence>
+
+      <UnbuiltDepartmentErrorModal
+        isOpen={unbuiltDeptModal.isOpen}
+        onClose={() =>
+          setUnbuiltDeptModal({ isOpen: false, departmentName: "" })
+        }
+        departmentName={unbuiltDeptModal.departmentName}
+      />
     </div>
   );
 }

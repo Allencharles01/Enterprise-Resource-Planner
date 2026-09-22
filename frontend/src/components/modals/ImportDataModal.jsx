@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState, useEffect } from "react";
+import * as XLSX from "xlsx";
 import { api } from "@/lib/api";
 import {
   Upload,
@@ -477,6 +478,7 @@ export default function ImportDataModal({ onClose }) {
     const name = file.name.toLowerCase();
 
     if (name.endsWith(".csv")) return "csv";
+    if (name.endsWith(".xlsx") || name.endsWith(".xls")) return "excel";
     if (name.endsWith(".pdf")) return "pdf";
     if (name.endsWith(".doc") || name.endsWith(".docx")) return "document";
 
@@ -514,6 +516,91 @@ export default function ImportDataModal({ onClose }) {
 
       reader.readAsText(selectedFile);
     });
+  };
+
+  const parseSelectedExcelFile = () => {
+    if (!selectedFile || fileType !== "excel") return Promise.resolve([]);
+
+    if (previewRows.length > 0) {
+      return Promise.resolve(previewRows);
+    }
+
+    return new Promise((resolve) => {
+      const reader = new FileReader();
+
+      reader.onload = (event) => {
+        try {
+          const buffer = event.target?.result;
+          if (!buffer) {
+            setPreviewError("Unable to read this Excel file.");
+            return resolve([]);
+          }
+
+          const workbook = XLSX.read(buffer, { type: "array" });
+          const firstSheetName = workbook.SheetNames[0];
+          if (!firstSheetName) {
+            setPreviewError("No sheets found in this Excel file.");
+            return resolve([]);
+          }
+
+          const worksheet = workbook.Sheets[firstSheetName];
+          const rawData = XLSX.utils.sheet_to_json(worksheet, { header: 1, defval: "" });
+          const lines = rawData.filter(
+            (row) => Array.isArray(row) && row.some((cell) => cell !== null && cell !== undefined && String(cell).trim() !== "")
+          );
+
+          if (lines.length === 0) {
+            setPreviewHeaders([]);
+            setPreviewRows([]);
+            setPreviewError("No records found in this Excel file.");
+            return resolve([]);
+          }
+
+          const rawHeaders = lines[0];
+          const headers = rawHeaders.map((header, index) => {
+            const val = String(header ?? "").trim();
+            return val || `Column ${index + 1}`;
+          });
+
+          const rows = lines.slice(1).map((line, rowIndex) => {
+            const record = {
+              id: rowIndex + 1,
+            };
+            headers.forEach((header, colIndex) => {
+              const cellVal = line[colIndex];
+              record[header] = cellVal !== null && cellVal !== undefined ? String(cellVal).trim() : "";
+            });
+            return record;
+          });
+
+          setPreviewHeaders(headers);
+          setPreviewRows(rows);
+
+          if (rows.length === 0) {
+            setPreviewError("No records found in this Excel file.");
+          }
+
+          resolve(rows);
+        } catch (err) {
+          console.error("Failed to parse Excel file:", err);
+          setPreviewError("Failed to parse Excel file format.");
+          resolve([]);
+        }
+      };
+
+      reader.onerror = () => {
+        setPreviewError("Unable to read this Excel file.");
+        resolve([]);
+      };
+
+      reader.readAsArrayBuffer(selectedFile);
+    });
+  };
+
+  const parseSelectedTabularFile = () => {
+    if (fileType === "csv") return parseSelectedCsvFile();
+    if (fileType === "excel") return parseSelectedExcelFile();
+    return Promise.resolve([]);
   };
 
   const handleFileChange = (event) => {
@@ -573,8 +660,8 @@ export default function ImportDataModal({ onClose }) {
     setShowSync(false);
     setPreviewError("");
 
-    if (fileType === "csv") {
-      await parseSelectedCsvFile();
+    if (fileType === "csv" || fileType === "excel") {
+      await parseSelectedTabularFile();
       return;
     }
 
@@ -590,8 +677,8 @@ export default function ImportDataModal({ onClose }) {
   const handleCheckDuplicate = async () => {
     if (!selectedFile) return;
 
-    if (fileType === "csv") {
-      await parseSelectedCsvFile();
+    if (fileType === "csv" || fileType === "excel") {
+      await parseSelectedTabularFile();
     }
 
     setShowPreview(false);
@@ -605,8 +692,8 @@ export default function ImportDataModal({ onClose }) {
     try {
       let rows = previewRows;
       let headers = previewHeaders;
-      if (rows.length === 0 && fileType === "csv") {
-        rows = await parseSelectedCsvFile();
+      if (rows.length === 0 && (fileType === "csv" || fileType === "excel")) {
+        rows = await parseSelectedTabularFile();
         headers = previewHeaders;
       }
 
@@ -639,8 +726,8 @@ export default function ImportDataModal({ onClose }) {
   const handleSync = async () => {
     if (!selectedFile) return;
 
-    if (fileType === "csv") {
-      await parseSelectedCsvFile();
+    if (fileType === "csv" || fileType === "excel") {
+      await parseSelectedTabularFile();
     }
 
     setShowSync(true);
@@ -651,8 +738,8 @@ export default function ImportDataModal({ onClose }) {
   const handleCompare = async () => {
     if (!selectedFile) return;
 
-    if (fileType === "csv") {
-      await parseSelectedCsvFile();
+    if (fileType === "csv" || fileType === "excel") {
+      await parseSelectedTabularFile();
     }
 
     setShowCompare(true);
@@ -782,11 +869,11 @@ export default function ImportDataModal({ onClose }) {
               </p>
 
               <p className="mt-0.5 text-xs md:text-sm text-slate-500 dark:text-muted-foreground">
-                CSV, PDF, DOC, DOCX — max 20 MB
+                CSV, EXCEL, PDF, DOC, DOCX — max 20 MB
               </p>
 
               <div className="mt-2 md:mt-4 flex items-center gap-1.5">
-                {["CSV", "PDF", "DOC", "DOCX"].map((type) => (
+                {["CSV", "EXCEL", "PDF", "DOC", "DOCX"].map((type) => (
                   <span
                     key={type}
                     className="rounded-md border border-violet-200 dark:border-violet-500/30 bg-violet-100 dark:bg-violet-500/10 px-2 py-0.5 md:px-3 md:py-1 text-[10px] md:text-xs font-bold text-violet-600 dark:text-violet-300"
@@ -798,7 +885,7 @@ export default function ImportDataModal({ onClose }) {
 
               <input
                 type="file"
-                accept=".csv,.pdf,.doc,.docx"
+                accept=".csv,.xlsx,.xls,.pdf,.doc,.docx"
                 onChange={handleFileChange}
                 className="hidden"
               />
@@ -1120,7 +1207,7 @@ function PreviewSection({
         </div>
       )}
 
-      {!error && fileType === "csv" && (
+      {!error && (fileType === "csv" || fileType === "excel") && (
         <div className="max-h-[380px] overflow-auto rounded-xl border border-violet-100 dark:border-border">
           <table className="min-w-[1100px] w-full border-separate border-spacing-0 text-left text-xs">
             <thead>
@@ -1246,7 +1333,7 @@ function DuplicateSection({
         />
       </div>
 
-      {fileType === "csv" && results.length > 0 && (
+      {(fileType === "csv" || fileType === "excel") && results.length > 0 && (
         <div className="mb-4 flex justify-end">
           <button
             onClick={onDeleteAllDuplicates}
@@ -1258,8 +1345,8 @@ function DuplicateSection({
         </div>
       )}
 
-      {fileType !== "csv" ? (
-        <WarningBox text="Duplicate checking needs structured CSV data. PDF/DOC duplicate checking should be handled after backend extraction." />
+      {fileType !== "csv" && fileType !== "excel" ? (
+        <WarningBox text="Duplicate checking needs structured CSV or Excel data. PDF/DOC duplicate checking should be handled after backend extraction." />
       ) : results.length > 0 ? (
         <DuplicateTable
           results={results}
@@ -1297,8 +1384,8 @@ function SyncSection({ results, fileType, onClose }) {
         onClose={onClose}
       />
 
-      {fileType !== "csv" ? (
-        <WarningBox text="Sync needs structured CSV records. PDF/DOC sync should be handled after backend extraction." />
+      {fileType !== "csv" && fileType !== "excel" ? (
+        <WarningBox text="Sync needs structured CSV or Excel records. PDF/DOC sync should be handled after backend extraction." />
       ) : (
         <>
           <div className="mb-4 grid grid-cols-1 gap-3 md:grid-cols-2">
@@ -1328,8 +1415,8 @@ function CompareSection({ results, fileType, onClose }) {
         onClose={onClose}
       />
 
-      {fileType !== "csv" ? (
-        <WarningBox text="Compare needs structured CSV records. PDF/DOC comparison should be handled after backend extraction." />
+      {fileType !== "csv" && fileType !== "excel" ? (
+        <WarningBox text="Compare needs structured CSV or Excel records. PDF/DOC comparison should be handled after backend extraction." />
       ) : results.length > 0 ? (
         <CompareTable results={results} />
       ) : (
@@ -1377,7 +1464,7 @@ function AssignSection({
             <input
               value={searchQuery}
               onChange={(event) => setSearchQuery(event.target.value)}
-              placeholder="Search by name, Emp ID, email, designation..."
+              placeholder="Search by name, Login ID, email, designation..."
               className="w-full bg-transparent text-xs text-slate-900 dark:text-foreground outline-none placeholder:text-slate-400 dark:placeholder:text-muted-foreground"
             />
           </div>
@@ -1591,7 +1678,7 @@ function AssignSection({
               <tr className="text-slate-500 dark:text-muted-foreground">
                 <th className="sticky top-0 z-20 w-[70px] whitespace-nowrap border-b border-violet-100 dark:border-border bg-white dark:bg-background px-5 py-4"></th>
                 <th className="sticky top-0 z-20 min-w-[120px] whitespace-nowrap border-b border-violet-100 dark:border-border bg-white dark:bg-background px-5 py-4">
-                  Emp ID
+                  Login ID
                 </th>
                 <th className="sticky top-0 z-20 min-w-[230px] whitespace-nowrap border-b border-violet-100 dark:border-border bg-white dark:bg-background px-5 py-4">
                   Name

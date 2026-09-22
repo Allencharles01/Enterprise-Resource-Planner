@@ -160,7 +160,7 @@ export default function NewLeadModal({
 
   const handleSubmit = async () => {
     try {
-      const agentName = localStorage.getItem("userName") || "Rahul Sharma";
+      const agentName = localStorage.getItem("userName") || "Sales Agent";
 
       if (activeTab === "Internships") {
         const payload = {

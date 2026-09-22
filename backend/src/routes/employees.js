@@ -3,24 +3,48 @@ import { z } from "zod";
 import { requireAuth } from "../middleware/requireAuth.js";
 import { requireRole } from "../middleware/requireRole.js";
 import { EmployeeModel } from "dbms/Employee.js";
+import { UserModel } from "dbms/User.js";
 
 export const employeesRouter = Router();
 
 employeesRouter.get("/", requireAuth, async (req, res) => {
   const orgId = req.auth.orgId;
   const employees = await EmployeeModel.find({ orgId })
+    .populate("userId", "email name role")
     .sort({ employeeNumber: 1, createdAt: 1 })
     .limit(5000);
   res.json(
-    employees.map((e) => ({
-      id: String(e._id),
-      employeeCode: e.employeeCode,
-      employeeNumber: e.employeeNumber,
-      tag: e.tag,
-      isPhantom: e.isPhantom,
-      personal: e.personal,
-      work: e.work,
-    })),
+    employees.map((e) => {
+      const u = e.userId && typeof e.userId === "object" ? e.userId : null;
+      const uEmail = u?.email || "";
+      const contactEmail = e.personal?.contactEmail || uEmail || "";
+      const companyEmail = e.work?.companyEmail || "";
+
+      // Asynchronously heal missing contactEmail in DB if linked user has an email
+      if (!e.personal?.contactEmail && uEmail) {
+        EmployeeModel.updateOne(
+          { _id: e._id },
+          { $set: { "personal.contactEmail": uEmail } },
+        ).catch(() => {});
+      }
+
+      return {
+        id: String(e._id),
+        employeeCode: e.employeeCode,
+        employeeNumber: e.employeeNumber,
+        tag: e.tag,
+        isPhantom: e.isPhantom,
+        userEmail: uEmail,
+        personal: {
+          ...(e.personal?.toObject ? e.personal.toObject() : e.personal || {}),
+          contactEmail: contactEmail || undefined,
+        },
+        work: {
+          ...(e.work?.toObject ? e.work.toObject() : e.work || {}),
+          companyEmail: companyEmail || undefined,
+        },
+      };
+    }),
   );
 });
 
@@ -125,6 +149,14 @@ employeesRouter.put(
     }
 
     await employee.save();
+
+    if (employee.userId && input.data.personal?.contactEmail) {
+      UserModel.updateOne(
+        { _id: employee.userId },
+        { $set: { email: input.data.personal.contactEmail.toLowerCase() } },
+      ).catch(() => {});
+    }
+
     res.json({ success: true, employee });
   },
 );

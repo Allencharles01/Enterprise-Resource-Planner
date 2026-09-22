@@ -57,7 +57,10 @@ export function DirectoryModal({ isOpen, onClose }) {
       const fullName = `${emp.personal?.firstName || ""} ${emp.personal?.lastName || ""}`.toLowerCase();
       const empNum = String(emp.employeeNumber || "").toLowerCase();
       const empId = String(emp.employeeCode || "").toLowerCase();
-      const contactEmail = String(emp.personal?.contactEmail || "").toLowerCase();
+      const contactEmail = String(
+        emp.personal?.contactEmail || emp.userEmail || emp.userId?.email || "",
+      ).toLowerCase();
+      const companyEmail = String(emp.work?.companyEmail || "").toLowerCase();
       const dept = String(emp.work?.department || "").toLowerCase();
       const desig = String(emp.work?.designation || "").toLowerCase();
 
@@ -66,6 +69,7 @@ export function DirectoryModal({ isOpen, onClose }) {
         empNum.includes(query) ||
         empId.includes(query) ||
         contactEmail.includes(query) ||
+        companyEmail.includes(query) ||
         dept.includes(query) ||
         desig.includes(query)
       );
@@ -92,17 +96,21 @@ export function DirectoryModal({ isOpen, onClose }) {
     return filteredAndSortedEmployees.slice(start, start + ITEMS_PER_PAGE);
   }, [filteredAndSortedEmployees, currentPage]);
 
-  if (!isOpen) return null;
-
   return (
-    <AnimatePresence>
-      <div className="fixed inset-0 z-[100] flex items-center justify-center bg-background/80 backdrop-blur-sm p-4">
-        <motion.div
-          initial={{ opacity: 0, y: 20, scale: 0.95 }}
-          animate={{ opacity: 1, y: 0, scale: 1 }}
-          exit={{ opacity: 0, y: 20, scale: 0.95 }}
-          className="relative w-full max-w-7xl max-h-[90vh] bg-background border border-border shadow-2xl rounded-2xl overflow-hidden flex flex-col"
-        >
+    <>
+      <AnimatePresence>
+        {isOpen && (
+          <div
+            key="directory-modal-backdrop"
+            className="fixed inset-0 z-[100] flex items-center justify-center bg-background/80 backdrop-blur-sm p-4"
+          >
+            <motion.div
+              key="directory-modal-card"
+              initial={{ opacity: 0, y: 20, scale: 0.95 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: 20, scale: 0.95 }}
+              className="relative w-full max-w-7xl max-h-[90vh] bg-background border border-border shadow-2xl rounded-2xl overflow-hidden flex flex-col"
+            >
           {/* Header */}
           <div className="p-4 md:p-6 border-b border-border/50 bg-muted/20 space-y-4">
             <div className="flex items-center justify-between gap-3">
@@ -133,7 +141,7 @@ export function DirectoryModal({ isOpen, onClose }) {
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground h-4 w-4" />
                 <input
                   type="text"
-                  placeholder="Search by Name, Emp Number, ID, Dept..."
+                  placeholder="Search by Name, Emp Number, Login ID, Dept..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="w-full pl-9 pr-12 py-2 text-sm bg-muted/40 border border-border rounded-xl text-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all"
@@ -165,7 +173,7 @@ export function DirectoryModal({ isOpen, onClose }) {
                       <tr>
                         <th className="px-6 py-4 font-semibold">S.no</th>
                         <th className="px-6 py-4 font-semibold">Emp Number</th>
-                        <th className="px-6 py-4 font-semibold">Emp ID</th>
+                        <th className="px-6 py-4 font-semibold">Login ID</th>
                         <th className="px-6 py-4 font-semibold">Name</th>
                         <th className="px-6 py-4 font-semibold">Contact Email</th>
                         <th className="px-6 py-4 font-semibold">Company Email</th>
@@ -179,10 +187,12 @@ export function DirectoryModal({ isOpen, onClose }) {
                         const absoluteIndex =
                           (currentPage - 1) * ITEMS_PER_PAGE + idx + 1;
                         const snoStr = String(absoluteIndex).padStart(3, "0");
+                        const rowKey =
+                          emp.id || emp._id || emp.employeeCode || `dir-row-${absoluteIndex}`;
 
                         return (
                           <tr
-                            key={emp.id || emp._id || idx}
+                            key={rowKey}
                             className="border-b border-border/50 hover:bg-muted/20 transition-colors"
                           >
                             <td className="px-6 py-4 text-muted-foreground font-mono">
@@ -208,7 +218,10 @@ export function DirectoryModal({ isOpen, onClose }) {
                                 : ""}
                             </td>
                             <td className="px-6 py-4 text-muted-foreground text-xs">
-                              {emp.personal?.contactEmail || "NA"}
+                              {emp.personal?.contactEmail ||
+                                emp.userEmail ||
+                                emp.userId?.email ||
+                                "NA"}
                             </td>
                             <td className="px-6 py-4 text-muted-foreground text-xs">
                               {emp.work?.companyEmail || "NA"}
@@ -258,9 +271,17 @@ export function DirectoryModal({ isOpen, onClose }) {
                     const department = emp.work?.department || "NA";
                     const companyEmail = emp.work?.companyEmail || "NA";
 
+                    const contactEmail =
+                      emp.personal?.contactEmail ||
+                      emp.userEmail ||
+                      emp.userId?.email ||
+                      "NA";
+                    const tileKey =
+                      emp.id || emp._id || emp.employeeCode || `dir-tile-${absoluteIndex}`;
+
                     return (
                       <div
-                        key={emp.id || emp._id || idx}
+                        key={tileKey}
                         onClick={() => setSelectedEmployee(emp)}
                         className="glass-card p-4 rounded-xl border border-border/60 space-y-3 cursor-pointer hover:border-primary/40 transition-colors"
                       >
@@ -298,13 +319,23 @@ export function DirectoryModal({ isOpen, onClose }) {
                             </span>
                           </div>
                         </div>
-                        <div className="text-xs">
-                          <span className="text-[10px] text-muted-foreground block uppercase font-semibold">
-                            Company Email
-                          </span>
-                          <span className="text-muted-foreground font-mono break-all text-left block mt-0.5">
-                            {companyEmail}
-                          </span>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs border-t border-border/40 pt-2.5">
+                          <div>
+                            <span className="text-[10px] text-muted-foreground block uppercase font-semibold">
+                              Contact Email
+                            </span>
+                            <span className="text-muted-foreground font-mono break-all text-left block mt-0.5">
+                              {contactEmail}
+                            </span>
+                          </div>
+                          <div>
+                            <span className="text-[10px] text-muted-foreground block uppercase font-semibold">
+                              Company Email
+                            </span>
+                            <span className="text-muted-foreground font-mono break-all text-left block mt-0.5">
+                              {companyEmail}
+                            </span>
+                          </div>
                         </div>
                       </div>
                     );
@@ -357,9 +388,12 @@ export function DirectoryModal({ isOpen, onClose }) {
             </div>
           )}
         </motion.div>
-      </div>
+          </div>
+        )}
+      </AnimatePresence>
 
       <EmployeeDetailsModal
+        key="directory-employee-details-modal"
         isOpen={Boolean(selectedEmployee)}
         employee={selectedEmployee}
         onClose={() => setSelectedEmployee(null)}
@@ -373,6 +407,6 @@ export function DirectoryModal({ isOpen, onClose }) {
             .finally(() => setIsLoading(false));
         }}
       />
-    </AnimatePresence>
+    </>
   );
 }

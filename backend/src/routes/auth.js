@@ -142,7 +142,7 @@ authRouter.post("/login", async (req, res) => {
     });
 
     if (!user) {
-      // Fallback check against EmployeeModel if no direct UserModel matched
+      // Fallback check against EmployeeModel if no direct UserModel matched (e.g. employeeCode / Login ID)
       const emp = await EmployeeModel.findOne({
         orgId: org._id,
         $or: [
@@ -153,18 +153,19 @@ authRouter.post("/login", async (req, res) => {
       });
 
       if (emp) {
-        // If password equals employeeCode + '_' or employeeNumber + '_'
-        const expectedPhantomPass = `${emp.employeeCode}_`;
-        if (password === expectedPhantomPass || password === `${emp.employeeNumber}_`) {
-          if (emp.userId) {
-            user = await UserModel.findById(emp.userId);
-          }
-          if (!user) {
+        if (emp.userId) {
+          user = await UserModel.findOne({ _id: emp.userId, isActive: true });
+        }
+
+        // Phantom fallback if no user record is associated yet
+        if (!user) {
+          const expectedPhantomPass = `${emp.employeeCode}_`;
+          if (password === expectedPhantomPass || password === `${emp.employeeNumber}_`) {
             const passwordHash = await bcrypt.hash(expectedPhantomPass, 12);
             user = await UserModel.create({
               orgId: org._id,
               name: emp.employeeCode,
-              email: (emp.personal.contactEmail || `${emp.employeeCode}@novanectar.demo`).toLowerCase(),
+              email: (emp.personal?.contactEmail || `${emp.employeeCode}@novanectar.demo`).toLowerCase(),
               passwordHash,
               role: "employee",
               isActive: true,
@@ -246,12 +247,14 @@ authRouter.post("/login", async (req, res) => {
     joiningDate = d.toLocaleString("en-US", { month: "long", year: "numeric" });
   }
 
+  const userEmail = empRecord?.personal?.contactEmail || user.email || "";
+
   res.json({
     token,
     user: {
       id: String(user._id),
       name,
-      email: user.email,
+      email: userEmail,
       role: user.role,
       department,
       designation,
@@ -317,12 +320,14 @@ authRouter.get("/me", requireAuth, async (req, res) => {
     joiningDate = d.toLocaleString("en-US", { month: "long", year: "numeric" });
   }
 
+    const email = empRecord?.personal?.contactEmail || user.email || "";
+
     res.json({
       auth: req.auth,
       user: {
         id: String(user._id),
         name,
-        email: user.email,
+        email,
         role: user.role,
         department,
         designation,

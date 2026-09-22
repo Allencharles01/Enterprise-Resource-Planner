@@ -438,15 +438,16 @@ export function DashboardLayout({ children, adminName = "Admin" }) {
                   <AnimatePresence>
                     {isDepartmentDropdownOpen && (
                       <motion.div
+                        key="department-dropdown-menu"
                         initial={{ opacity: 0, y: 10, scale: 0.95 }}
                         animate={{ opacity: 1, y: 0, scale: 1 }}
                         exit={{ opacity: 0, y: 10, scale: 0.95 }}
                         transition={{ duration: 0.2 }}
                         className="absolute right-0 top-full mt-2 py-2 bg-background border border-border shadow-2xl rounded-xl w-52 z-50 origin-top-right flex flex-col"
                       >
-                        {departments.map((dept) => (
+                        {departments.map((dept, dIdx) => (
                           <button
-                            key={dept.name}
+                            key={dept.name || `dept-${dIdx}`}
                             onClick={() => handleDepartmentClick(dept)}
                             className="px-4 py-2 text-left text-sm hover:bg-muted text-foreground transition-colors w-full flex items-center justify-between group"
                           >
@@ -496,6 +497,7 @@ export function DashboardLayout({ children, adminName = "Admin" }) {
                   <AnimatePresence>
                     {isEmployeesDropdownOpen && (
                       <motion.div
+                        key="employees-dropdown-menu"
                         initial={{ opacity: 0, y: 10, scale: 0.95 }}
                         animate={{ opacity: 1, y: 0, scale: 1 }}
                         exit={{ opacity: 0, y: 10, scale: 0.95 }}
@@ -665,9 +667,10 @@ export function DashboardLayout({ children, adminName = "Admin" }) {
         {/* Mobile Navigation Drawer */}
         <AnimatePresence>
           {isMobileMenuOpen && (
-            <>
+            <div key="mobile-menu-wrapper">
               {/* Backdrop */}
               <motion.div
+                key="mobile-menu-backdrop"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
@@ -677,6 +680,7 @@ export function DashboardLayout({ children, adminName = "Admin" }) {
 
               {/* Drawer */}
               <motion.div
+                key="mobile-menu-drawer"
                 initial={{ x: "100%" }}
                 animate={{ x: 0 }}
                 exit={{ x: "100%" }}
@@ -707,9 +711,9 @@ export function DashboardLayout({ children, adminName = "Admin" }) {
                   <div>
                     <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider mb-2">Departments</p>
                     <div className="space-y-1.5">
-                      {departments.map((dept) => (
+                      {departments.map((dept, dIdx) => (
                         <button
-                          key={dept.name}
+                          key={dept.name || `dept-mobile-${dIdx}`}
                           onClick={() => {
                             setIsMobileMenuOpen(false);
                             handleDepartmentClick(dept);
@@ -878,7 +882,7 @@ export function DashboardLayout({ children, adminName = "Admin" }) {
                   </button>
                 </div>
               </motion.div>
-            </>
+            </div>
           )}
         </AnimatePresence>
 
@@ -957,6 +961,7 @@ export function DashboardLayout({ children, adminName = "Admin" }) {
       <AnimatePresence>
         {toastMessage && (
           <motion.div
+            key="toast-notification-banner"
             initial={{ opacity: 0, y: 50, scale: 0.9 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, scale: 0.9, y: 20 }}

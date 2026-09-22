@@ -284,7 +284,7 @@ export default function EmployeeRaiseTicketPage() {
 
                 <div className="space-y-1">
                   <label className="text-xs font-bold text-slate-500 dark:text-slate-400">
-                    EmpID
+                    Login ID
                   </label>
                   <input
                     type="text"
