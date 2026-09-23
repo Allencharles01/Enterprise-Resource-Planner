@@ -8,6 +8,7 @@ export async function requireAuth(req, res, next) {
     try {
       const payload = verifyAccessToken(token);
       req.auth = {
+        sub: payload.sub,
         userId: payload.sub,
         orgId: payload.orgId,
         role: payload.role,
@@ -21,6 +22,7 @@ export async function requireAuth(req, res, next) {
   if (process.env.NODE_ENV !== "production") {
     // Zero-latency dev bypass using seeded super admin credentials
     req.auth = {
+      sub: "6a3d4a3ef2c0abccaa8ad0eb",
       userId: "6a3d4a3ef2c0abccaa8ad0eb",
       orgId: "6a3d4a3ef2c0abccaa8ad0e9",
       role: "super_admin",

@@ -74,35 +74,43 @@ authRouter.post("/login", async (req, res) => {
   let org;
 
   if (isAdmin && adminId) {
-    // Admin login via adminId (using 'novanectar' org slug and matching email/name/employeeCode)
+    // Admin login via adminId (using 'novanectar' org slug and matching Login ID / employeeCode)
     org = await OrganizationModel.findOne({ slug: "novanectar" });
     if (!org) return res.status(401).json({ error: "invalid_credentials" });
 
     const loginIdentifier = adminId.toLowerCase().trim();
+    if (loginIdentifier.includes("@")) {
+      return res.status(400).json({
+        error: "invalid_login_format",
+        message: "Please log in using your Admin Login ID, not your email address.",
+      });
+    }
+
     const escapedIdentifier = loginIdentifier.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
-    // Check if an employee is attempting to log into the Admin tab
-    const empAttempt = await UserModel.findOne({
+    // Check if an employee is attempting to log into the Admin tab using their employee Login ID
+    const empAttempt = await EmployeeModel.findOne({
       orgId: org._id,
       $or: [
-        { email: loginIdentifier },
-        { name: { $regex: new RegExp(`^${escapedIdentifier}$`, "i") } }
+        { employeeCode: { $regex: new RegExp(`^${escapedIdentifier}$`, "i") } },
+        { employeeNumber: loginIdentifier },
       ],
-      role: "employee",
-      isActive: true,
     });
-    if (empAttempt) {
-      return res.status(403).json({
-        error: "role_mismatch",
-        message: "Employees cannot log in through the Admin tab. Please switch to Employee Login.",
-      });
+    if (empAttempt?.userId) {
+      const empUser = await UserModel.findById(empAttempt.userId);
+      if (empUser && empUser.role === "employee") {
+        return res.status(403).json({
+          error: "role_mismatch",
+          message: "Employees cannot log in through the Admin tab. Please switch to Employee Login.",
+        });
+      }
     }
 
     user = await UserModel.findOne({
       orgId: org._id,
       $or: [
         { email: loginIdentifier },
-        { name: { $regex: new RegExp(`^${escapedIdentifier}$`, "i") } }
+        { name: { $regex: new RegExp(`^${escapedIdentifier}$`, "i") } },
       ],
       role: { $in: ["org_admin", "super_admin", "admin"] },
       isActive: true,
@@ -113,68 +121,72 @@ authRouter.post("/login", async (req, res) => {
         orgId: org._id,
         $or: [
           { employeeCode: { $regex: new RegExp(`^${escapedIdentifier}$`, "i") } },
-          { employeeNumber: loginIdentifier }
-        ]
+          { employeeNumber: loginIdentifier },
+        ],
       });
       if (empRecord?.userId) {
         user = await UserModel.findOne({
           _id: empRecord.userId,
           role: { $in: ["org_admin", "super_admin", "admin"] },
-          isActive: true
+          isActive: true,
         });
       }
     }
   } else if (username || email || orgSlug) {
-    // Employee login via username or email
+    // Employee login strictly via Login ID (employeeCode or employeeNumber)
     const targetSlug = orgSlug || "novanectar";
     org = await OrganizationModel.findOne({ slug: targetSlug });
     if (!org) return res.status(401).json({ error: "invalid_credentials" });
 
-    const loginIdentifier = (username || email || "").toLowerCase();
+    const loginIdentifier = (username || email || "").toLowerCase().trim();
+    if (loginIdentifier.includes("@")) {
+      return res.status(400).json({
+        error: "invalid_login_format",
+        message: "Please log in using your Login ID, not your email address.",
+      });
+    }
+
     const escapedIdentifier = loginIdentifier.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-    user = await UserModel.findOne({
+
+    // Strictly match EmployeeModel by Login ID (employeeCode) or employeeNumber
+    const emp = await EmployeeModel.findOne({
       orgId: org._id,
       $or: [
-        { email: loginIdentifier },
-        { name: { $regex: new RegExp(`^${escapedIdentifier}$`, "i") } }
+        { employeeCode: { $regex: new RegExp(`^${escapedIdentifier}$`, "i") } },
+        { employeeNumber: loginIdentifier },
       ],
-      isActive: true,
     });
 
-    if (!user) {
-      // Fallback check against EmployeeModel if no direct UserModel matched (e.g. employeeCode / Login ID)
-      const emp = await EmployeeModel.findOne({
-        orgId: org._id,
-        $or: [
-          { employeeCode: { $regex: new RegExp(`^${escapedIdentifier}$`, "i") } },
-          { employeeNumber: loginIdentifier },
-          { "personal.contactEmail": loginIdentifier }
-        ]
-      });
+    if (emp) {
+      if (emp.userId) {
+        user = await UserModel.findOne({ _id: emp.userId, isActive: true });
+      }
 
-      if (emp) {
-        if (emp.userId) {
-          user = await UserModel.findOne({ _id: emp.userId, isActive: true });
-        }
-
-        // Phantom fallback if no user record is associated yet
-        if (!user) {
-          const expectedPhantomPass = `${emp.employeeCode}_`;
-          if (password === expectedPhantomPass || password === `${emp.employeeNumber}_`) {
-            const passwordHash = await bcrypt.hash(expectedPhantomPass, 12);
-            user = await UserModel.create({
-              orgId: org._id,
-              name: emp.employeeCode,
-              email: (emp.personal?.contactEmail || `${emp.employeeCode}@novanectar.demo`).toLowerCase(),
-              passwordHash,
-              role: "employee",
-              isActive: true,
-            });
-            emp.userId = user._id;
-            await emp.save();
-          }
+      // Phantom fallback if no user record is associated yet
+      if (!user) {
+        const expectedPhantomPass = `${emp.employeeCode}_`;
+        if (password === expectedPhantomPass || password === `${emp.employeeNumber}_`) {
+          const passwordHash = await bcrypt.hash(expectedPhantomPass, 12);
+          user = await UserModel.create({
+            orgId: org._id,
+            name: emp.employeeCode,
+            email: (emp.personal?.contactEmail || `${emp.employeeCode}@novanectar.demo`).toLowerCase(),
+            passwordHash,
+            role: "employee",
+            isActive: true,
+          });
+          emp.userId = user._id;
+          await emp.save();
         }
       }
+    } else {
+      // Direct UserModel lookup ONLY if user.name matches Login ID (never email)
+      user = await UserModel.findOne({
+        orgId: org._id,
+        name: { $regex: new RegExp(`^${escapedIdentifier}$`, "i") },
+        role: "employee",
+        isActive: true,
+      });
     }
   } else {
     return res.status(400).json({ error: "invalid_input" });
@@ -340,25 +352,68 @@ authRouter.get("/me", requireAuth, async (req, res) => {
 
 authRouter.put("/password", requireAuth, async (req, res) => {
   try {
-    const { newPassword } = req.body;
-    if (!newPassword || newPassword.length < 4) {
-      return res.status(400).json({ error: "Password must be at least 4 characters long" });
+    const { currentPassword, newPassword } = req.body;
+
+    if (!currentPassword) {
+      return res.status(400).json({
+        error: "invalid_input",
+        message: "Current password is required.",
+      });
     }
 
-    const userId = req.auth?.sub;
-    if (!userId) return res.status(401).json({ error: "Unauthorized" });
+    if (!newPassword || newPassword.length < 4) {
+      return res.status(400).json({
+        error: "invalid_input",
+        message: "New password must be at least 4 characters long.",
+      });
+    }
+
+    const userId = req.auth?.userId || req.auth?.sub;
+    if (!userId) {
+      return res.status(401).json({
+        error: "unauthorized",
+        message: "Unauthorized. Please log in again.",
+      });
+    }
 
     const user = await UserModel.findById(userId);
-    if (!user) return res.status(404).json({ error: "User not found" });
+    if (!user) {
+      return res.status(404).json({
+        error: "not_found",
+        message: "User not found.",
+      });
+    }
+
+    // Verify current password
+    const ok = await bcrypt.compare(currentPassword, user.passwordHash);
+    if (!ok) {
+      // Check if employee has a phantom default password fallback
+      const empRecord = await EmployeeModel.findOne({ userId: user._id });
+      const phantomPass1 = empRecord ? `${empRecord.employeeCode}_` : null;
+      const phantomPass2 = empRecord?.employeeNumber ? `${empRecord.employeeNumber}_` : null;
+
+      if (
+        (!phantomPass1 || currentPassword !== phantomPass1) &&
+        (!phantomPass2 || currentPassword !== phantomPass2)
+      ) {
+        return res.status(400).json({
+          error: "invalid_current_password",
+          message: "Current password is incorrect.",
+        });
+      }
+    }
 
     const passwordHash = await bcrypt.hash(newPassword, 12);
     user.passwordHash = passwordHash;
     await user.save();
 
-    res.json({ success: true, message: "Password updated successfully" });
+    res.json({ success: true, message: "Password updated successfully." });
   } catch (error) {
     console.error("Failed to update password:", error);
-    res.status(500).json({ error: "Failed to update password" });
+    res.status(500).json({
+      error: "server_error",
+      message: "Failed to update password.",
+    });
   }
 });
 

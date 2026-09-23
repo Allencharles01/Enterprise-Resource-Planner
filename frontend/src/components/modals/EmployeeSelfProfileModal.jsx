@@ -131,10 +131,19 @@ export function EmployeeSelfProfileModal({
   const handlePasswordSubmit = async (e) => {
     e.preventDefault();
 
-    if (!newPassword || newPassword.length < 6) {
+    if (!currentPassword) {
       setPasswordStatus({
         loading: false,
-        error: "New password must be at least 6 characters.",
+        error: "Please enter your current password.",
+        success: "",
+      });
+      return;
+    }
+
+    if (!newPassword || newPassword.length < 4) {
+      setPasswordStatus({
+        loading: false,
+        error: "New password must be at least 4 characters.",
         success: "",
       });
       return;
@@ -152,7 +161,7 @@ export function EmployeeSelfProfileModal({
     setPasswordStatus({ loading: true, error: "", success: "" });
 
     try {
-      await api.put("/api/auth/password", {
+      const res = await api.put("/api/auth/password", {
         currentPassword,
         newPassword,
       });
@@ -160,7 +169,7 @@ export function EmployeeSelfProfileModal({
       setPasswordStatus({
         loading: false,
         error: "",
-        success: "Password updated successfully!",
+        success: res.data?.message || "Password updated successfully!",
       });
 
       setCurrentPassword("");
@@ -171,6 +180,7 @@ export function EmployeeSelfProfileModal({
         loading: false,
         error:
           err.response?.data?.message ||
+          err.response?.data?.error ||
           "Failed to update password. Check your current password.",
         success: "",
       });

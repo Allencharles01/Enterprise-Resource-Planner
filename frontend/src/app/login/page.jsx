@@ -316,12 +316,25 @@ export default function LoginPage() {
     setIsLoading(true);
     setMessage("");
     setError("");
+
+    if (loginType === "employee" && username.trim().includes("@")) {
+      setError("Please log in using your Login ID, not your email address.");
+      setIsLoading(false);
+      return;
+    }
+
+    if (loginType === "admin" && adminId.trim().includes("@")) {
+      setError("Please log in using your Admin Login ID, not your email address.");
+      setIsLoading(false);
+      return;
+    }
+
     try {
       const apiUrl =
         process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:4001";
       const payload =
         loginType === "admin"
-          ? { adminId, password, isAdmin: true }
+          ? { adminId: adminId.trim(), password, isAdmin: true }
           : { username: username.trim(), password };
       const response = await axios.post(`${apiUrl}/api/auth/login`, payload);
 
