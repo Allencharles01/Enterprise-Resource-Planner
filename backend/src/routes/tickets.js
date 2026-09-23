@@ -103,6 +103,39 @@ ticketsRouter.get("/unread-count", async (_req, res) => {
   }
 });
 
+// PATCH /api/tickets/mark-all-read - Mark all tickets as read
+ticketsRouter.patch("/mark-all-read", async (_req, res) => {
+  try {
+    await Ticket.updateMany({ isRead: false }, { $set: { isRead: true } });
+    res.json({ success: true, message: "All tickets marked as read." });
+  } catch (error) {
+    console.error("Failed to mark all tickets as read:", error);
+    res.status(500).json({ error: "Failed to mark all tickets as read" });
+  }
+});
+
+// DELETE /api/tickets/all - Delete all tickets (Reset)
+ticketsRouter.delete("/all", async (_req, res) => {
+  try {
+    await Ticket.deleteMany({});
+    res.json({ success: true, message: "All tickets deleted successfully." });
+  } catch (error) {
+    console.error("Failed to delete all tickets:", error);
+    res.status(500).json({ error: "Failed to delete all tickets" });
+  }
+});
+
+// DELETE /api/tickets - Root delete all
+ticketsRouter.delete("/", async (_req, res) => {
+  try {
+    await Ticket.deleteMany({});
+    res.json({ success: true, message: "All tickets deleted successfully." });
+  } catch (error) {
+    console.error("Failed to delete all tickets:", error);
+    res.status(500).json({ error: "Failed to delete all tickets" });
+  }
+});
+
 // PATCH /api/tickets/:id/status - Update ticket status
 ticketsRouter.patch("/:id/status", async (req, res) => {
   try {

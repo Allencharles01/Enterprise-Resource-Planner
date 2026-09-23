@@ -39,6 +39,7 @@ import { api } from "@/lib/api";
 
 export function DashboardLayout({ children, adminName = "Admin" }) {
   const router = useRouter();
+  const pathname = usePathname();
   const { theme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
   const [isCalendarOpen, setIsCalendarOpen] = useState(false);
@@ -152,7 +153,11 @@ export function DashboardLayout({ children, adminName = "Admin" }) {
         ).length;
 
         setActiveMessagesCount(unreadChats + unreadEmails);
-        setActiveTicketsCount(ticketRes.data?.openCount || ticketRes.data?.unreadCount || 0);
+        if (pathname === "/tickets") {
+          setActiveTicketsCount(0);
+        } else {
+          setActiveTicketsCount(ticketRes.data?.unreadCount || 0);
+        }
       });
     };
 
@@ -162,11 +167,13 @@ export function DashboardLayout({ children, adminName = "Admin" }) {
 
     window.addEventListener("messagesRead", fetchCounts);
     window.addEventListener("notificationsRead", fetchCounts);
+    window.addEventListener("ticketsRead", fetchCounts);
 
     return () => {
       clearInterval(interval);
       window.removeEventListener("messagesRead", fetchCounts);
       window.removeEventListener("notificationsRead", fetchCounts);
+      window.removeEventListener("ticketsRead", fetchCounts);
     };
   }, [
     isNewRequestsOpen,
@@ -174,6 +181,7 @@ export function DashboardLayout({ children, adminName = "Admin" }) {
     isEditProfileRequestsOpen,
     isAdminEditProfileOpen,
     isMessagesOpen,
+    pathname,
   ]);
 
   const getInitials = (str) => {
@@ -195,7 +203,6 @@ export function DashboardLayout({ children, adminName = "Admin" }) {
   const calendarRef = useRef(null);
   const dropdownRef = useRef(null);
   const deptDropdownRef = useRef(null);
-  const pathname = usePathname();
 
   const baseDepartments = [
     { name: "Sales", path: "/sales" },
@@ -228,6 +235,25 @@ export function DashboardLayout({ children, adminName = "Admin" }) {
     setToastMessage(`Department "${newDept.name}" added successfully.`);
     setTimeout(() => setToastMessage(null), 3000);
   };
+
+  const handleOpenTickets = async () => {
+    setActiveTicketsCount(0);
+    try {
+      await api.patch("/api/tickets/mark-all-read");
+      if (typeof window !== "undefined") {
+        window.dispatchEvent(new Event("ticketsRead"));
+      }
+    } catch (e) {
+      console.error("Failed to mark tickets read:", e);
+    }
+    router.push("/tickets");
+  };
+
+  useEffect(() => {
+    if (pathname === "/tickets") {
+      setActiveTicketsCount(0);
+    }
+  }, [pathname]);
 
   useEffect(() => {
     Promise.resolve().then(() => setMounted(true));
@@ -386,7 +412,10 @@ export function DashboardLayout({ children, adminName = "Admin" }) {
   };
 
   return (
-    <div className="admin-light-page flex min-h-screen w-full relative overflow-hidden">
+    <div
+      className="admin-light-page flex min-h-screen w-full relative overflow-hidden"
+      suppressHydrationWarning
+    >
       <div className="flex flex-col w-full min-h-screen z-10">
         {/* Navbar */}
         <nav className="admin-light-navbar sticky top-0 z-50 border-b border-purple-200/40 dark:border-border/50 backdrop-blur-sm">
@@ -592,13 +621,13 @@ export function DashboardLayout({ children, adminName = "Admin" }) {
 
                 {/* Tickets Icon Button */}
                 <button
-                  onClick={() => router.push("/tickets")}
+                  onClick={handleOpenTickets}
                   title="Tickets Module"
                   className="w-10 h-10 rounded-full bg-cyan-500/10 text-cyan-500 hover:bg-cyan-500/20 hover:text-cyan-600 transition-all border border-cyan-500/20 shadow-sm flex items-center justify-center cursor-pointer hover:scale-105 active:scale-95 relative"
                 >
                   <Ticket size={18} />
 
-                  {activeTicketsCount > 0 && (
+                  {pathname !== "/tickets" && activeTicketsCount > 0 && (
                     <span className="absolute -top-1.5 -right-1.5 min-w-[18px] h-[18px] px-1 bg-cyan-500 text-white rounded-full text-[10px] font-bold flex items-center justify-center shadow-md animate-pulse border border-background">
                       {activeTicketsCount}
                     </span>
@@ -840,7 +869,7 @@ export function DashboardLayout({ children, adminName = "Admin" }) {
                       <button
                         onClick={() => {
                           setIsMobileMenuOpen(false);
-                          router.push("/tickets");
+                          handleOpenTickets();
                         }}
                         className="w-full text-left px-3 py-2 rounded-xl text-sm hover:bg-muted text-foreground transition-colors flex items-center justify-between"
                       >
@@ -848,7 +877,7 @@ export function DashboardLayout({ children, adminName = "Admin" }) {
                           <Ticket size={16} className="text-cyan-500" />
                           Tickets
                         </span>
-                        {activeTicketsCount > 0 && (
+                        {pathname !== "/tickets" && activeTicketsCount > 0 && (
                           <span className="bg-cyan-500 text-white rounded-full text-[10px] font-bold px-1.5 py-0.5 animate-pulse">
                             {activeTicketsCount}
                           </span>

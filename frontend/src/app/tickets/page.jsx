@@ -20,6 +20,7 @@ import {
   X,
   Loader2,
   RefreshCw,
+  Trash2,
   Tag,
   MessageSquare,
   ArrowRight,
@@ -34,6 +35,8 @@ export default function TicketsPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedTicket, setSelectedTicket] = useState(null);
   const [isUpdatingStatus, setIsUpdatingStatus] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [isDeletingAll, setIsDeletingAll] = useState(false);
 
   const fetchTickets = async () => {
     setIsLoading(true);
@@ -51,6 +54,15 @@ export default function TicketsPage() {
 
   useEffect(() => {
     fetchTickets();
+    // Mark all tickets as read upon opening the ticketing module
+    api
+      .patch("/api/tickets/mark-all-read")
+      .then(() => {
+        if (typeof window !== "undefined") {
+          window.dispatchEvent(new Event("ticketsRead"));
+        }
+      })
+      .catch((err) => console.error("Failed to mark tickets read:", err));
   }, []);
 
   // Esc key listener for details modal
@@ -79,6 +91,50 @@ export default function TicketsPage() {
       console.error("Failed to update ticket status:", err);
     } finally {
       setIsUpdatingStatus(false);
+    }
+  };
+
+  const handleDeleteTicket = async (ticketId) => {
+    if (!window.confirm("Are you sure you want to delete this ticket?")) return;
+    setIsDeleting(true);
+    try {
+      await api.delete(`/api/tickets/${ticketId}`);
+      setTickets((prev) => prev.filter((t) => t._id !== ticketId));
+      if (selectedTicket && selectedTicket._id === ticketId) {
+        setSelectedTicket(null);
+      }
+      if (typeof window !== "undefined") {
+        window.dispatchEvent(new Event("ticketsRead"));
+      }
+    } catch (err) {
+      console.error("Failed to delete ticket:", err);
+      alert("Failed to delete ticket. Please try again.");
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
+  const handleDeleteAllTickets = async () => {
+    if (
+      !window.confirm(
+        "Are you sure you want to delete ALL tickets? This will clear all tickets like a reset."
+      )
+    ) {
+      return;
+    }
+    setIsDeletingAll(true);
+    try {
+      await api.delete("/api/tickets/all");
+      setTickets([]);
+      setSelectedTicket(null);
+      if (typeof window !== "undefined") {
+        window.dispatchEvent(new Event("ticketsRead"));
+      }
+    } catch (err) {
+      console.error("Failed to delete all tickets:", err);
+      alert("Failed to delete all tickets. Please try again.");
+    } finally {
+      setIsDeletingAll(false);
     }
   };
 
@@ -130,13 +186,29 @@ export default function TicketsPage() {
             </p>
           </div>
 
-          <button
-            onClick={fetchTickets}
-            className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-muted/80 hover:bg-muted text-foreground border border-border text-sm font-semibold transition-all shadow-sm w-fit"
-          >
-            <RefreshCw size={16} className={isLoading ? "animate-spin" : ""} />
-            Refresh
-          </button>
+          <div className="flex items-center gap-2.5">
+            <button
+              onClick={fetchTickets}
+              className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-muted/80 hover:bg-muted text-foreground border border-border text-sm font-semibold transition-all shadow-sm w-fit cursor-pointer"
+            >
+              <RefreshCw size={16} className={isLoading ? "animate-spin" : ""} />
+              Refresh
+            </button>
+
+            <button
+              onClick={handleDeleteAllTickets}
+              disabled={isDeletingAll || tickets.length === 0}
+              className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-red-500/10 hover:bg-red-500/20 text-red-600 dark:text-red-400 border border-red-500/20 text-sm font-semibold transition-all shadow-sm cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
+              title="Delete all tickets (Reset)"
+            >
+              {isDeletingAll ? (
+                <Loader2 size={16} className="animate-spin" />
+              ) : (
+                <Trash2 size={16} />
+              )}
+              Delete All Tickets
+            </button>
+          </div>
         </div>
 
         {/* 3 Section Toggle Tabs */}
@@ -213,15 +285,28 @@ export default function TicketsPage() {
                     <span className="font-mono text-xs font-extrabold px-3 py-1 rounded-lg bg-primary/10 text-primary border border-primary/20">
                       {ticket.ticketID}
                     </span>
-                    <span
-                      className={`text-[11px] font-extrabold px-2.5 py-1 rounded-full uppercase tracking-wider ${
-                        ticket.type === "Customer"
-                          ? "bg-purple-500/10 text-purple-600 dark:text-purple-400 border border-purple-500/20"
-                          : "bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20"
-                      }`}
-                    >
-                      {ticket.type || "Customer"} Ticket
-                    </span>
+                    <div className="flex items-center gap-2">
+                      <span
+                        className={`text-[11px] font-extrabold px-2.5 py-1 rounded-full uppercase tracking-wider ${
+                          ticket.type === "Customer"
+                            ? "bg-purple-500/10 text-purple-600 dark:text-purple-400 border border-purple-500/20"
+                            : "bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20"
+                        }`}
+                      >
+                        {ticket.type || "Customer"} Ticket
+                      </span>
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleDeleteTicket(ticket._id);
+                        }}
+                        className="p-1.5 rounded-lg text-muted-foreground hover:text-red-500 hover:bg-red-500/10 transition-colors"
+                        title="Delete ticket"
+                      >
+                        <Trash2 size={14} />
+                      </button>
+                    </div>
                   </div>
 
                   {/* Title / Main Subject */}
@@ -339,17 +424,37 @@ export default function TicketsPage() {
                   </div>
                 </div>
 
-                {/* Red Circle X Button */}
-                <motion.button
-                  whileHover={{ scale: 1.1, rotate: 90 }}
-                  whileTap={{ scale: 0.9 }}
-                  type="button"
-                  onClick={() => setSelectedTicket(null)}
-                  className="w-9 h-9 rounded-full bg-red-500/15 border-2 border-red-500/60 text-red-500 hover:bg-red-500 hover:text-white flex items-center justify-center transition-all duration-300 shadow-md shrink-0 cursor-pointer"
-                  title="Close (Esc)"
-                >
-                  <X size={18} className="stroke-[3]" />
-                </motion.button>
+                {/* Actions: Delete Option Button & Red Circle X Button */}
+                <div className="flex items-center gap-2.5 shrink-0">
+                  <motion.button
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    type="button"
+                    disabled={isDeleting}
+                    onClick={() => handleDeleteTicket(selectedTicket._id)}
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white border border-red-500/30 text-xs font-bold transition-all shadow-sm cursor-pointer disabled:opacity-50"
+                    title="Delete Ticket"
+                  >
+                    {isDeleting ? (
+                      <Loader2 size={14} className="animate-spin" />
+                    ) : (
+                      <Trash2 size={14} />
+                    )}
+                    <span>Delete</span>
+                  </motion.button>
+
+                  {/* Red Circle X Button */}
+                  <motion.button
+                    whileHover={{ scale: 1.1, rotate: 90 }}
+                    whileTap={{ scale: 0.9 }}
+                    type="button"
+                    onClick={() => setSelectedTicket(null)}
+                    className="w-9 h-9 rounded-full bg-red-500/15 border-2 border-red-500/60 text-red-500 hover:bg-red-500 hover:text-white flex items-center justify-center transition-all duration-300 shadow-md shrink-0 cursor-pointer"
+                    title="Close (Esc)"
+                  >
+                    <X size={18} className="stroke-[3]" />
+                  </motion.button>
+                </div>
               </div>
 
               {/* Details Content */}
